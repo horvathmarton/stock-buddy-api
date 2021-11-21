@@ -3,7 +3,7 @@ from os import path, getenv
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv('environments/development.env')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -28,6 +28,8 @@ INSTALLED_APPS = [
     'rest_framework',
 
     'src.raw_data',
+    'src.stocks',
+    'src.transactions',
 ]
 
 MIDDLEWARE = [

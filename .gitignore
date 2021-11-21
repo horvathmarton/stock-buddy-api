@@ -80,5 +80,7 @@ env/
 venv
 venv.bak/
 venv/
+environments/*
 
 !.gitkeep
+!environments/example.env

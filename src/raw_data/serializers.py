@@ -1,11 +1,27 @@
+from dateutil import parser
+from django.db.models import Max
 from rest_framework import serializers
 
-from .models import Stock
+from .models import StockPrice, StockDividend, StockSplit
 
-class StockSerializer(serializers.ModelSerializer):
-    ticker = serializers.CharField(max_length=16)
-    name = serializers.CharField()
+
+class StockPriceSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Stock
-        fields = ('__all__')
+        model = StockPrice
+        fields = ['date', 'value']
+
+
+class StockDividendSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = StockDividend
+        fields = ['declaration_date',
+                  'ex_dividend_date', 'payout_date', 'amount']
+
+
+class StockSplitSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = StockSplit
+        fields = ['date', 'ratio']

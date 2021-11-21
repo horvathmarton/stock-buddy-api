@@ -1,1 +1,0 @@
-CREATE SCHEMA raw_data;
