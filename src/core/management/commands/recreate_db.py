@@ -8,9 +8,11 @@ class Command(BaseCommand):
     help = "Drop the existing database and recreate it with schemas."
 
     def handle(self, *args, **kwargs):
-        self.stdout.write(f"Drop and recreate the database {getenv('DATABASE_NAME')}.")
+        self.stdout.write(
+            f"-------- Drop and recreate the database {getenv('DATABASE_NAME')}. --------"
+        )
         drop_and_recreate_database()
-        self.stdout.write("Create schemas in the new database.")
+        self.stdout.write("-------- Create schemas in the new database. --------")
         create_schemas()
 
 
