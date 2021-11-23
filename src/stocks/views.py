@@ -3,8 +3,11 @@ from rest_framework.permissions import IsAuthenticated
 from src.lib.permissions import IsOwnerOrAdmin
 
 from .models import Stock, StockPortfolio, StockWatchlist
-from .serializers import (StockPortfolioSerializer, StockSerializer,
-                          StockWatchlistSerializer)
+from .serializers import (
+    StockPortfolioSerializer,
+    StockSerializer,
+    StockWatchlistSerializer,
+)
 
 
 class StockViewSet(viewsets.ReadOnlyModelViewSet):

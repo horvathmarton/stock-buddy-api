@@ -21,8 +21,16 @@ class StockPosition:
     # Latest date when the position was changed.
     purchase_date: date
 
-    def __init__(self, *, stock: Stock, shares: int, price: float,
-                 dividend: float, purchase_price: float, purchase_date: float):
+    def __init__(
+        self,
+        *,
+        stock: Stock,
+        shares: int,
+        price: float,
+        dividend: float,
+        purchase_price: float,
+        purchase_date: date
+    ):
         self.stock = stock
         self.shares = shares
         self.price = price
@@ -34,12 +42,14 @@ class StockPosition:
         if not isinstance(o, StockPosition):
             return NotImplemented
 
-        return self.stock == o.stock \
-            and self.shares == o.shares \
-            and self.price == o.price \
-            and self.dividend == o.dividend \
-            and self.purchase_price == o.purchase_price \
+        return (
+            self.stock == o.stock
+            and self.shares == o.shares
+            and self.price == o.price
+            and self.dividend == o.dividend
+            and self.purchase_price == o.purchase_price
             and self.purchase_date == o.purchase_date
+        )
 
     # Position size at the current price in USD.
     @property

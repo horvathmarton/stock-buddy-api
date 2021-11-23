@@ -11,103 +11,251 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('stocks', '__first__'),
+        ("stocks", "__first__"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='StockSplitSync',
+            name="StockSplitSync",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('status', models.CharField(choices=[('started', 'Started'), ('finished', 'Finished'), ('failed', 'Failed'), ('aborted', 'Aborted')], default='started', max_length=8)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("started", "Started"),
+                            ("finished", "Finished"),
+                            ("failed", "Failed"),
+                            ("aborted", "Aborted"),
+                        ],
+                        default="started",
+                        max_length=8,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.RESTRICT,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'db_table': '"raw_data"."stock_split_sync"',
+                "db_table": '"raw_data"."stock_split_sync"',
             },
         ),
         migrations.CreateModel(
-            name='StockSplit',
+            name="StockSplit",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateField()),
-                ('ratio', models.FloatField()),
-                ('sync', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, to='raw_data.stocksplitsync')),
-                ('ticker', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, to='stocks.stock')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date", models.DateField()),
+                ("ratio", models.FloatField()),
+                (
+                    "sync",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.RESTRICT,
+                        to="raw_data.stocksplitsync",
+                    ),
+                ),
+                (
+                    "ticker",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.RESTRICT, to="stocks.stock"
+                    ),
+                ),
             ],
             options={
-                'db_table': '"raw_data"."stock_split"',
+                "db_table": '"raw_data"."stock_split"',
             },
         ),
         migrations.CreateModel(
-            name='StockPriceSync',
+            name="StockPriceSync",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('status', models.CharField(choices=[('started', 'Started'), ('finished', 'Finished'), ('failed', 'Failed'), ('aborted', 'Aborted')], default='started', max_length=8)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("started", "Started"),
+                            ("finished", "Finished"),
+                            ("failed", "Failed"),
+                            ("aborted", "Aborted"),
+                        ],
+                        default="started",
+                        max_length=8,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.RESTRICT,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'db_table': '"raw_data"."stock_price_sync"',
+                "db_table": '"raw_data"."stock_price_sync"',
             },
         ),
         migrations.CreateModel(
-            name='StockPrice',
+            name="StockPrice",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateField()),
-                ('value', models.FloatField()),
-                ('sync', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, to='raw_data.stockpricesync')),
-                ('ticker', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, to='stocks.stock')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date", models.DateField()),
+                ("value", models.FloatField()),
+                (
+                    "sync",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.RESTRICT,
+                        to="raw_data.stockpricesync",
+                    ),
+                ),
+                (
+                    "ticker",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.RESTRICT, to="stocks.stock"
+                    ),
+                ),
             ],
             options={
-                'db_table': '"raw_data"."stock_price"',
+                "db_table": '"raw_data"."stock_price"',
             },
         ),
         migrations.CreateModel(
-            name='StockFiling',
+            name="StockFiling",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateField()),
-                ('filename', models.TextField()),
-                ('url', models.URLField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('ticker', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, to='stocks.stock')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date", models.DateField()),
+                ("filename", models.TextField()),
+                ("url", models.URLField()),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "ticker",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.RESTRICT, to="stocks.stock"
+                    ),
+                ),
             ],
             options={
-                'db_table': '"raw_data"."stock_filing"',
+                "db_table": '"raw_data"."stock_filing"',
             },
         ),
         migrations.CreateModel(
-            name='StockDividendSync',
+            name="StockDividendSync",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('status', models.CharField(choices=[('started', 'Started'), ('finished', 'Finished'), ('failed', 'Failed'), ('aborted', 'Aborted')], default='started', max_length=8)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("started", "Started"),
+                            ("finished", "Finished"),
+                            ("failed", "Failed"),
+                            ("aborted", "Aborted"),
+                        ],
+                        default="started",
+                        max_length=8,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.RESTRICT,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'db_table': '"raw_data"."stock_dividend_sync"',
+                "db_table": '"raw_data"."stock_dividend_sync"',
             },
         ),
         migrations.CreateModel(
-            name='StockDividend',
+            name="StockDividend",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('declaration_date', models.DateField(null=True)),
-                ('ex_dividend_date', models.DateField(null=True)),
-                ('payout_date', models.DateField()),
-                ('amount', models.FloatField()),
-                ('sync', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, to='raw_data.stockdividendsync')),
-                ('ticker', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, to='stocks.stock')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("declaration_date", models.DateField(null=True)),
+                ("ex_dividend_date", models.DateField(null=True)),
+                ("payout_date", models.DateField()),
+                ("amount", models.FloatField()),
+                (
+                    "sync",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.RESTRICT,
+                        to="raw_data.stockdividendsync",
+                    ),
+                ),
+                (
+                    "ticker",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.RESTRICT, to="stocks.stock"
+                    ),
+                ),
             ],
             options={
-                'db_table': '"raw_data"."stock_dividend"',
+                "db_table": '"raw_data"."stock_dividend"',
             },
         ),
     ]

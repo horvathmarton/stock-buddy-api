@@ -1,17 +1,26 @@
 from django.contrib.auth.models import User
-from django.db import models
+from django.db.models import (
+    RESTRICT,
+    BooleanField,
+    CharField,
+    DateTimeField,
+    ForeignKey,
+    Model,
+    TextField,
+)
 
 from .enums import Sector
 
-class Stock(models.Model):
-    ticker = models.CharField(primary_key=True, max_length=8)
-    name = models.TextField()
-    description = models.TextField(null=True)
-    sector = models.CharField(max_length=20, choices=Sector.choices)
 
-    active = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+class Stock(Model):
+    ticker: CharField = CharField(primary_key=True, max_length=8)
+    name: TextField = TextField()
+    description: TextField = TextField(null=True)
+    sector: CharField = CharField(max_length=20, choices=Sector.choices)
+
+    active: BooleanField = BooleanField(default=False)
+    created_at: DateTimeField = DateTimeField(auto_now_add=True)
+    updated_at: DateTimeField = DateTimeField(auto_now=True)
 
     class Meta:
         db_table = '"stocks"."stock"'
@@ -20,13 +29,13 @@ class Stock(models.Model):
         return self.name
 
 
-class StockPortfolio(models.Model):
-    name = models.TextField()
-    description = models.TextField(null=True)
+class StockPortfolio(Model):
+    name: TextField = TextField()
+    description: TextField = TextField(null=True)
 
-    owner = models.ForeignKey(User, models.RESTRICT)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    owner: ForeignKey = ForeignKey(User, RESTRICT)
+    created_at: DateTimeField = DateTimeField(auto_now_add=True)
+    updated_at: DateTimeField = DateTimeField(auto_now=True)
 
     class Meta:
         db_table = '"stocks"."stock_portfolio"'
@@ -35,13 +44,13 @@ class StockPortfolio(models.Model):
         return self.name
 
 
-class StockWatchlist(models.Model):
-    name = models.TextField()
-    description = models.TextField(null=True)
+class StockWatchlist(Model):
+    name: TextField = TextField()
+    description: TextField = TextField(null=True)
 
-    owner = models.ForeignKey(User, models.RESTRICT)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    owner: ForeignKey = ForeignKey(User, RESTRICT)
+    created_at: DateTimeField = DateTimeField(auto_now_add=True)
+    updated_at: DateTimeField = DateTimeField(auto_now=True)
 
     class Meta:
         db_table = '"stocks"."stock_watchlist"'

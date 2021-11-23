@@ -9,39 +9,73 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('stocks', '0001_initial'),
+        ("stocks", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='stock',
-            name='active',
+            model_name="stock",
+            name="active",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='stock',
-            name='sector',
-            field=models.CharField(choices=[('Software', 'Software'), ('Hardware', 'Hardware'), ('Media', 'Media'), ('Telecommunication', 'Telecommunication'), ('Health care services', 'Health Care Services'), ('Consumer services', 'Consumer Services'), ('Business services', 'Business Services'), ('Financial services', 'Financial Services'), ('Consumer goods', 'Consumer Goods'), ('Industrial materials', 'Industrial Materials'), ('Energy', 'Energy'), ('Utilities', 'Utilities'), ('Real estate', 'Real Estate')], default='Software', max_length=20),
+            model_name="stock",
+            name="sector",
+            field=models.CharField(
+                choices=[
+                    ("Software", "Software"),
+                    ("Hardware", "Hardware"),
+                    ("Media", "Media"),
+                    ("Telecommunication", "Telecommunication"),
+                    ("Health care services", "Health Care Services"),
+                    ("Consumer services", "Consumer Services"),
+                    ("Business services", "Business Services"),
+                    ("Financial services", "Financial Services"),
+                    ("Consumer goods", "Consumer Goods"),
+                    ("Industrial materials", "Industrial Materials"),
+                    ("Energy", "Energy"),
+                    ("Utilities", "Utilities"),
+                    ("Real estate", "Real Estate"),
+                ],
+                default="Software",
+                max_length=20,
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='stockportfolio',
-            name='owner',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.RESTRICT, to='auth.user'),
+            model_name="stockportfolio",
+            name="owner",
+            field=models.ForeignKey(
+                default=1, on_delete=django.db.models.deletion.RESTRICT, to="auth.user"
+            ),
             preserve_default=False,
         ),
         migrations.CreateModel(
-            name='StockWatchlist',
+            name="StockWatchlist",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.TextField()),
-                ('description', models.TextField(null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.TextField()),
+                ("description", models.TextField(null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.RESTRICT,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'db_table': '"stocks"."stock_watchlist"',
+                "db_table": '"stocks"."stock_watchlist"',
             },
         ),
     ]

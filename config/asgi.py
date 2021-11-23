@@ -9,15 +9,9 @@ https://docs.djangoproject.com/en/3.0/howto/deployment/asgi/
 import os
 
 import django
-from channels.routing import get_default_application
+from django.core.asgi import get_asgi_application
 
-from config.helpers.environment import SETTINGS_MODULE
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', SETTINGS_MODULE)
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "src.config.settings")
 django.setup()
 
-application = get_default_application()
-
-if os.getenv('SENTRY_DSN'):
-    from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
-    application = SentryAsgiMiddleware(application)
+application = get_asgi_application()

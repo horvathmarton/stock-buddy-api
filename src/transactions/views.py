@@ -3,9 +3,11 @@ from rest_framework.permissions import IsAuthenticated
 from src.lib.permissions import IsOwnerOrAdmin
 
 from .models import CashTransaction, ForexTransaction, StockTransaction
-from .serializers import (CashTransactionSerializer,
-                          ForexTransactionSerializer,
-                          StockTransactionSerializer)
+from .serializers import (
+    CashTransactionSerializer,
+    ForexTransactionSerializer,
+    StockTransactionSerializer,
+)
 
 
 class CashTransactionViewSet(viewsets.ModelViewSet):

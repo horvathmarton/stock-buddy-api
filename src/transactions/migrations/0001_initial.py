@@ -11,57 +11,134 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('stocks', '__first__'),
+        ("stocks", "__first__"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='StockTransaction',
+            name="StockTransaction",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('amount', models.FloatField()),
-                ('price', models.FloatField()),
-                ('date', models.DateField()),
-                ('comment', models.TextField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, to=settings.AUTH_USER_MODEL)),
-                ('ticker', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, to='stocks.stock')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("amount", models.FloatField()),
+                ("price", models.FloatField()),
+                ("date", models.DateField()),
+                ("comment", models.TextField()),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.RESTRICT,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "ticker",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.RESTRICT, to="stocks.stock"
+                    ),
+                ),
             ],
             options={
-                'db_table': '"transactions"."stock_transaction"',
+                "db_table": '"transactions"."stock_transaction"',
             },
         ),
         migrations.CreateModel(
-            name='ForexTransaction',
+            name="ForexTransaction",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateField()),
-                ('amount', models.FloatField()),
-                ('ratio', models.FloatField()),
-                ('source_currency', models.CharField(choices=[('HUF', 'Hungarian Forint'), ('USD', 'Us Dollar'), ('EUR', 'Euro')], max_length=3)),
-                ('target_currency', models.CharField(choices=[('HUF', 'Hungarian Forint'), ('USD', 'Us Dollar'), ('EUR', 'Euro')], max_length=3)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date", models.DateField()),
+                ("amount", models.FloatField()),
+                ("ratio", models.FloatField()),
+                (
+                    "source_currency",
+                    models.CharField(
+                        choices=[
+                            ("HUF", "Hungarian Forint"),
+                            ("USD", "Us Dollar"),
+                            ("EUR", "Euro"),
+                        ],
+                        max_length=3,
+                    ),
+                ),
+                (
+                    "target_currency",
+                    models.CharField(
+                        choices=[
+                            ("HUF", "Hungarian Forint"),
+                            ("USD", "Us Dollar"),
+                            ("EUR", "Euro"),
+                        ],
+                        max_length=3,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.RESTRICT,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'db_table': '"transactions"."forex_transaction"',
+                "db_table": '"transactions"."forex_transaction"',
             },
         ),
         migrations.CreateModel(
-            name='CashTransaction',
+            name="CashTransaction",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('currency', models.CharField(choices=[('HUF', 'Hungarian Forint'), ('USD', 'Us Dollar'), ('EUR', 'Euro')], max_length=3)),
-                ('amount', models.FloatField()),
-                ('date', models.DateField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "currency",
+                    models.CharField(
+                        choices=[
+                            ("HUF", "Hungarian Forint"),
+                            ("USD", "Us Dollar"),
+                            ("EUR", "Euro"),
+                        ],
+                        max_length=3,
+                    ),
+                ),
+                ("amount", models.FloatField()),
+                ("date", models.DateField()),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.RESTRICT,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'db_table': '"transactions"."cash_transaction"',
+                "db_table": '"transactions"."cash_transaction"',
             },
         ),
     ]

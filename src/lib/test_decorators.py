@@ -14,17 +14,18 @@ class TestAllowContentTypes(SimpleTestCase):
 
     def setUp(self):
         self.wrapped_view = allow_content_types(
-            ('application/json', 'multipart/form-data'))(lambda x, y: x)
+            ("application/json", "multipart/form-data")
+        )(lambda x, y: x)
 
     def test_allowed_content_type(self):
-        payload = {'test': 123}
-        request = self.RequestStub('application/json')
+        payload = {"test": 123}
+        request = self.RequestStub("application/json")
 
         self.assertEqual(self.wrapped_view(payload, request), payload)
 
     def test_dissallowed_content_type(self):
-        payload = {'test': 123}
-        request = self.RequestStub('text/csv')
+        payload = {"test": 123}
+        request = self.RequestStub("text/csv")
 
         result = self.wrapped_view(payload, request)
 

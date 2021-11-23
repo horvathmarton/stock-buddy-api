@@ -14,10 +14,19 @@ from src.lib.permissions import IsBot
 from src.lib.services.csv import CsvService
 from src.stocks.models import Stock
 
-from .models import (StockDividend, StockDividendSync, StockPrice,
-                     StockPriceSync, StockSplit, StockSplitSync)
-from .serializers import (StockDividendSerializer, StockPriceSerializer,
-                          StockSplitSerializer)
+from .models import (
+    StockDividend,
+    StockDividendSync,
+    StockPrice,
+    StockPriceSync,
+    StockSplit,
+    StockSplitSync,
+)
+from .serializers import (
+    StockDividendSerializer,
+    StockPriceSerializer,
+    StockSplitSerializer,
+)
 
 
 class StockPriceView(APIView):
@@ -27,7 +36,7 @@ class StockPriceView(APIView):
         super().__init__(*args, **kwargs)
         self.csv_service = CsvService()
 
-    @allow_content_types(('multipart/form-data',))
+    @allow_content_types(("multipart/form-data",))
     def post(self, request: Request, ticker: str, format=None) -> Response:
         # TODO: Add consistency checks
         # TODO: Add cross checks
@@ -38,14 +47,18 @@ class StockPriceView(APIView):
         sync.save()
 
         try:
-            prices = self.csv_service.parse(request.FILES['data'].file, {
-                                            'Date': 'date', 'Close': 'value'})
-            latest_saved = StockPrice.objects.all() \
-                .filter(ticker=stock) \
-                .aggregate(Max('date'))['date__max']
+            prices = self.csv_service.parse(
+                request.FILES["data"].file, {"Date": "date", "Close": "value"}
+            )
+            latest_saved = (
+                StockPrice.objects.all()
+                .filter(ticker=stock)
+                .aggregate(Max("date"))["date__max"]
+            )
             prices = [
-                price for price in prices
-                if not latest_saved or parser.parse(price['date']).date() > latest_saved
+                price
+                for price in prices
+                if not latest_saved or parser.parse(price["date"]).date() > latest_saved
             ]
 
             serializer = StockPriceSerializer(data=prices, many=True)
@@ -70,10 +83,17 @@ class StockPriceView(APIView):
 
 class StockPriceStatsView(APIView):
     def get(self, request: Request, format=None) -> Response:
-        stats = StockPrice.objects.all() \
-            .values('ticker') \
-            .annotate(count=Count('ticker'), min=Min('value'), avg=Avg('value'), max=Max('value')) \
-            .order_by('count')
+        stats = (
+            StockPrice.objects.all()
+            .values("ticker")
+            .annotate(
+                count=Count("ticker"),
+                min=Min("value"),
+                avg=Avg("value"),
+                max=Max("value"),
+            )
+            .order_by("count")
+        )
 
         return Response(stats)
 
@@ -85,7 +105,7 @@ class StockDividendView(APIView):
         super().__init__(*args, **kwargs)
         self.csv_service = CsvService()
 
-    @allow_content_types(('multipart/form-data',))
+    @allow_content_types(("multipart/form-data",))
     def post(self, request: Request, ticker: str, format=None) -> Response:
         # TODO: Add consistency checks
         # TODO: Add cross checks
@@ -96,14 +116,20 @@ class StockDividendView(APIView):
         sync.save()
 
         try:
-            dividends = self.csv_service.parse(request.FILES['data'].file, {
-                'Date': 'payout_date', 'Dividends': 'amount'})
-            latest_saved = StockDividend.objects.all() \
-                .filter(ticker=stock) \
-                .aggregate(Max('payout_date'))['payout_date__max']
+            dividends = self.csv_service.parse(
+                request.FILES["data"].file,
+                {"Date": "payout_date", "Dividends": "amount"},
+            )
+            latest_saved = (
+                StockDividend.objects.all()
+                .filter(ticker=stock)
+                .aggregate(Max("payout_date"))["payout_date__max"]
+            )
             dividends = [
-                dividend for dividend in dividends
-                if not latest_saved or parser.parse(dividend['payout_date']).date() > latest_saved
+                dividend
+                for dividend in dividends
+                if not latest_saved
+                or parser.parse(dividend["payout_date"]).date() > latest_saved
             ]
 
             serializer = StockDividendSerializer(data=dividends, many=True)
@@ -128,10 +154,17 @@ class StockDividendView(APIView):
 
 class StockDividendStatsView(APIView):
     def get(self, request: Request, format=None) -> Response:
-        stats = StockDividend.objects.all() \
-            .values('ticker') \
-            .annotate(count=Count('ticker'), min=Min('amount'), avg=Avg('amount'), max=Max('amount')) \
-            .order_by('count')
+        stats = (
+            StockDividend.objects.all()
+            .values("ticker")
+            .annotate(
+                count=Count("ticker"),
+                min=Min("amount"),
+                avg=Avg("amount"),
+                max=Max("amount"),
+            )
+            .order_by("count")
+        )
 
         return Response(stats)
 
@@ -143,7 +176,7 @@ class StockSplitView(APIView):
         super().__init__(*args, **kwargs)
         self.csv_service = CsvService()
 
-    @allow_content_types(('multipart/form-data',))
+    @allow_content_types(("multipart/form-data",))
     def post(self, request: Request, ticker: str, format=None) -> Response:
         # TODO: Add consistency checks
         # TODO: Add cross checks
@@ -154,28 +187,32 @@ class StockSplitView(APIView):
         sync.save()
 
         try:
-            splits = self.csv_service.parse(request.FILES['data'].file, {
-                                            'Date': 'date', 'Stock Splits': 'ratio'})
-            latest_saved = StockPrice.objects.all() \
-                .filter(ticker=stock) \
-                .aggregate(Max('date'))['date__max']
+            splits = self.csv_service.parse(
+                request.FILES["data"].file, {"Date": "date", "Stock Splits": "ratio"}
+            )
+            latest_saved = (
+                StockPrice.objects.all()
+                .filter(ticker=stock)
+                .aggregate(Max("date"))["date__max"]
+            )
 
             formatted_splits = []
             for split in splits:
-                if latest_saved and parser.parse(split['date']).date() > latest_saved:
+                if latest_saved and parser.parse(split["date"]).date() > latest_saved:
                     continue
 
-                ratio = findall('(\d+):(\d+)', split['ratio'])
+                ratio = findall(r"(\d+):(\d+)", split["ratio"])
 
                 if len(ratio) == 0:
                     sync.status = SyncStatus.FAILED
                     sync.save()
 
-                    return Response(f'Couldn\'t parse ratio {ratio}.')
+                    return Response(f"Couldn't parse ratio {ratio}.")
 
                 dividend, divisor = ratio[0]
                 formatted_splits.append(
-                    {**split, 'ratio': float(dividend) / float(divisor)})
+                    {**split, "ratio": float(dividend) / float(divisor)}
+                )
 
             serializer = StockSplitSerializer(data=formatted_splits, many=True)
             if not serializer.is_valid():
@@ -199,9 +236,11 @@ class StockSplitView(APIView):
 
 class StockSplitStatsView(APIView):
     def get(self, request: Request, format=None) -> Response:
-        stats = StockSplit.objects.all() \
-            .values('ticker') \
-            .annotate(count=Count('ticker')) \
-            .order_by('count')
+        stats = (
+            StockSplit.objects.all()
+            .values("ticker")
+            .annotate(count=Count("ticker"))
+            .order_by("count")
+        )
 
         return Response(stats)

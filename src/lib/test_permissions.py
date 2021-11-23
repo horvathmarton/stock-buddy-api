@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Group, User
 from django.test import TestCase
 
-from .permissions import IsBot, IsOwnerOrAdmin
+from .permissions import IsBot
 
 
 class _RequestStub:
@@ -19,12 +19,20 @@ class TestIsBotPermission(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.admin = User.objects.create_user('admin', 'admin@stock-buddy.com', 'password', is_superuser=True, is_staff=True)
-        cls.bot = User.objects.create_user('bot', 'bot@stock-buddy.com', 'password')
-        cls.other = User.objects.create_user('other', 'owner@stock-buddy.com', 'password')
+        cls.admin = User.objects.create_user(
+            "admin",
+            "admin@stock-buddy.com",
+            "password",
+            is_superuser=True,
+            is_staff=True,
+        )
+        cls.bot = User.objects.create_user("bot", "bot@stock-buddy.com", "password")
+        cls.other = User.objects.create_user(
+            "other", "owner@stock-buddy.com", "password"
+        )
 
-        admin_group = Group.objects.create(name='Admins')
-        bots_group = Group.objects.create(name='Bots')
+        admin_group = Group.objects.create(name="Admins")
+        bots_group = Group.objects.create(name="Bots")
 
         cls.admin.groups.add(admin_group)
         cls.bot.groups.add(bots_group)

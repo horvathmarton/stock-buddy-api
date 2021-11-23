@@ -1,7 +1,6 @@
 from os import getenv
 
 from django.core.management.base import BaseCommand
-from dotenv import load_dotenv
 from psycopg2 import connect, extensions, sql
 
 
@@ -9,18 +8,18 @@ class Command(BaseCommand):
     help = "Drop the existing database and recreate it with schemas."
 
     def handle(self, *args, **kwargs):
-        self.stdout.write(f'Drop and recreate the database {getenv("DATABASE_NAME")}.')
+        self.stdout.write(f"Drop and recreate the database {getenv('DATABASE_NAME')}.")
         drop_and_recreate_database()
-        self.stdout.write(f'Create schemas in the new database.')
+        self.stdout.write("Create schemas in the new database.")
         create_schemas()
-        
+
 
 def drop_and_recreate_database():
     connection = connect(
-        host=getenv('DATABASE_HOST'),
-        user=getenv('DATABASE_USER'),
-        password=getenv('DATABASE_PASSWORD'),
-        dbname='postgres',
+        host=getenv("DATABASE_HOST"),
+        user=getenv("DATABASE_USER"),
+        password=getenv("DATABASE_PASSWORD"),
+        dbname="postgres",
     )
     connection.set_isolation_level(extensions.ISOLATION_LEVEL_AUTOCOMMIT)
     cursor = connection.cursor()
@@ -30,17 +29,18 @@ def drop_and_recreate_database():
 
     connection.close()
 
+
 def create_schemas():
     connection = connect(
-        host=getenv('DATABASE_HOST'),
-        user=getenv('DATABASE_USER'),
-        password=getenv('DATABASE_PASSWORD'),
-        dbname=getenv('DATABASE_NAME'),
+        host=getenv("DATABASE_HOST"),
+        user=getenv("DATABASE_USER"),
+        password=getenv("DATABASE_PASSWORD"),
+        dbname=getenv("DATABASE_NAME"),
     )
 
     with connection:
         cursor = connection.cursor()
 
-        cursor.execute(sql.SQL(f"CREATE SCHEMA raw_data"))
-        cursor.execute(sql.SQL(f"CREATE SCHEMA stocks"))
-        cursor.execute(sql.SQL(f"CREATE SCHEMA transactions"))
+        cursor.execute(sql.SQL("CREATE SCHEMA raw_data"))
+        cursor.execute(sql.SQL("CREATE SCHEMA stocks"))
+        cursor.execute(sql.SQL("CREATE SCHEMA transactions"))

@@ -1,51 +1,60 @@
 from django.contrib.auth.models import User
-from django.db import models
+from django.db.models import (
+    RESTRICT,
+    CharField,
+    DateField,
+    DateTimeField,
+    FloatField,
+    ForeignKey,
+    Model,
+    TextField,
+)
 from src.stocks.models import Stock, StockPortfolio
 
 from .enums import Currency
 
 
-class CashTransaction(models.Model):
-    currency = models.CharField(max_length=3, choices=Currency.choices)
-    amount = models.FloatField()
-    date = models.DateField()
+class CashTransaction(Model):
+    currency: CharField = CharField(max_length=3, choices=Currency.choices)
+    amount: FloatField = FloatField()
+    date: DateField = DateField()
 
-    owner = models.ForeignKey(User, models.RESTRICT)
-    portfolio = models.ForeignKey(StockPortfolio, models.RESTRICT)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    owner: ForeignKey = ForeignKey(User, RESTRICT)
+    portfolio: ForeignKey = ForeignKey(StockPortfolio, RESTRICT)
+    created_at: DateTimeField = DateTimeField(auto_now_add=True)
+    updated_at: DateTimeField = DateTimeField(auto_now=True)
 
     class Meta:
         db_table = '"transactions"."cash_transaction"'
 
 
-class ForexTransaction(models.Model):
-    date = models.DateField()
-    amount = models.FloatField()
-    ratio = models.FloatField()
-    source_currency = models.CharField(max_length=3, choices=Currency.choices)
-    target_currency = models.CharField(max_length=3, choices=Currency.choices)
+class ForexTransaction(Model):
+    date: DateField = DateField()
+    amount: FloatField = FloatField()
+    ratio: FloatField = FloatField()
+    source_currency: CharField = CharField(max_length=3, choices=Currency.choices)
+    target_currency: CharField = CharField(max_length=3, choices=Currency.choices)
 
-    owner = models.ForeignKey(User, models.RESTRICT)
-    portfolio = models.ForeignKey(StockPortfolio, models.RESTRICT)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    owner: ForeignKey = ForeignKey(User, RESTRICT)
+    portfolio: ForeignKey = ForeignKey(StockPortfolio, RESTRICT)
+    created_at: DateTimeField = DateTimeField(auto_now_add=True)
+    updated_at: DateTimeField = DateTimeField(auto_now=True)
 
     class Meta:
         db_table = '"transactions"."forex_transaction"'
 
 
-class StockTransaction(models.Model):
-    ticker = models.ForeignKey(Stock, on_delete=models.RESTRICT)
-    amount = models.FloatField()
-    price = models.FloatField()
-    date = models.DateField()
-    comment = models.TextField(null=True)
+class StockTransaction(Model):
+    ticker: ForeignKey = ForeignKey(Stock, on_delete=RESTRICT)
+    amount: FloatField = FloatField()
+    price: FloatField = FloatField()
+    date: DateField = DateField()
+    comment: TextField = TextField(null=True)
 
-    owner = models.ForeignKey(User, models.RESTRICT)
-    portfolio = models.ForeignKey(StockPortfolio, models.RESTRICT)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    owner: ForeignKey = ForeignKey(User, RESTRICT)
+    portfolio: ForeignKey = ForeignKey(StockPortfolio, RESTRICT)
+    created_at: DateTimeField = DateTimeField(auto_now_add=True)
+    updated_at: DateTimeField = DateTimeField(auto_now=True)
 
     class Meta:
         db_table = '"transactions"."stock_transaction"'
