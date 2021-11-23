@@ -21,7 +21,7 @@ class FinanceService:
         Present value. Discounts the provided value to present.
         """
 
-        raise NotImplemented("This function has not been implemented yet.")
+        raise NotImplementedError("This function has not been implemented yet.")
 
     @staticmethod
     def fv(
@@ -35,7 +35,7 @@ class FinanceService:
         Future value. Compounds the provided value to future.
         """
 
-        raise NotImplemented("This function has not been implemented yet.")
+        raise NotImplementedError("This function has not been implemented yet.")
 
     @staticmethod
     def rri(periods: float, present_value: float, future_value: float) -> float:
@@ -49,10 +49,10 @@ class FinanceService:
         return round((future_value / present_value) ** (1 / periods) - 1, 4)
 
     def internal_rate_of_return(self):
-        raise NotImplemented("This function has not been implemented yet.")
+        raise NotImplementedError("This function has not been implemented yet.")
 
     def net_present_value(self):
-        raise NotImplemented("This function has not been implemented yet.")
+        raise NotImplementedError("This function has not been implemented yet.")
 
     @classmethod
     def get_portfolio_snapshot(

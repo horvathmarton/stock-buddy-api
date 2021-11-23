@@ -8,9 +8,12 @@ class Command(BaseCommand):
     help = "Seeds the database with example data."
 
     def handle(self, *args, **kwargs):
-        self.stdout.write("-------- Seeding users. --------")
+        self.stdout.write(ending="\n")
+
+        self.stdout.write("-------- Seeding users. --------", ending="\n\n")
         seed_users()
-        self.stdout.write("-------- Seeding stocks. --------")
+
+        self.stdout.write("-------- Seeding stocks. --------", ending="\n\n")
         seed_stocks()
 
 
