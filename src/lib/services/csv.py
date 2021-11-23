@@ -3,7 +3,6 @@ from typing import Callable, Dict, ItemsView, List, TextIO
 
 ParsedRow = Dict[str, str]
 
-
 # TODO: Rework me to use the built-in csv module.
 class CsvService:
     """

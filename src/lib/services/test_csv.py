@@ -1,7 +1,8 @@
 from os import path
+
 from django.test import SimpleTestCase
 
-from .services import CsvService
+from .csv import CsvService
 
 TESTDATA_FOLDER = path.join(path.dirname(__file__), 'test')
 
@@ -18,12 +19,14 @@ class TestCsvParse(SimpleTestCase):
     def test_normal_csv_with_comma(self):
         with open(path.join(TESTDATA_FOLDER, 'normal_with_commas.csv')) as f:
             result = self.service.parse(f, self.schema)
-            self.assertSequenceEqual(tuple(result), ({'egy': '1', 'harom': '3'}, {'egy': 'hola', 'harom': 'hello'}))
+            self.assertSequenceEqual(tuple(result), ({'egy': '1', 'harom': '3'}, {
+                                     'egy': 'hola', 'harom': 'hello'}))
 
     def test_normal_csv_with_semicolon(self):
         with open(path.join(TESTDATA_FOLDER, 'normal_with_semicolons.csv')) as f:
             result = self.service.parse(f, self.schema)
-            self.assertSequenceEqual(tuple(result), ({'egy': '1', 'harom': '3'}, {'egy': 'hola', 'harom': 'hello'}))
+            self.assertSequenceEqual(tuple(result), ({'egy': '1', 'harom': '3'}, {
+                                     'egy': 'hola', 'harom': 'hello'}))
 
     def test_missing_delimiter_from_header(self):
         with open(path.join(TESTDATA_FOLDER, 'missing_delimiter.csv')) as f:
@@ -49,7 +52,8 @@ class TestCsvParse(SimpleTestCase):
     def test_normal_csv_in_binary_format(self):
         with open(path.join(TESTDATA_FOLDER, 'normal_with_commas.csv'), 'rb') as f:
             result = self.service.parse(f, self.schema)
-            self.assertSequenceEqual(tuple(result), ({'egy': '1', 'harom': '3'}, {'egy': 'hola', 'harom': 'hello'}))
+            self.assertSequenceEqual(tuple(result), ({'egy': '1', 'harom': '3'}, {
+                                     'egy': 'hola', 'harom': 'hello'}))
 
 
 class TestCsvFromFile(SimpleTestCase):
@@ -64,11 +68,12 @@ class TestCsvFromFile(SimpleTestCase):
     def test_normal_csv_file(self):
         result = self.service.from_file(
             path.join(TESTDATA_FOLDER, 'normal_with_commas.csv'), self.schema)
-        self.assertSequenceEqual(tuple(result), ({'egy': '1', 'harom': '3'}, {'egy': 'hola', 'harom': 'hello'}))
+        self.assertSequenceEqual(tuple(result), ({'egy': '1', 'harom': '3'}, {
+                                 'egy': 'hola', 'harom': 'hello'}))
 
     def test_exception_passthrough(self):
         with self.assertRaises(ValueError) as manager:
-            self.service.from_file(path.join(TESTDATA_FOLDER, 'ambigous_delimiter.csv'), self.schema)
+            self.service.from_file(
+                path.join(TESTDATA_FOLDER, 'ambigous_delimiter.csv'), self.schema)
         self.assertEqual(str(
             manager.exception), "Couldn't guess separator, because both , ; are possible candidates.")
-

@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from src.lib.decorators import allow_content_types
 from src.lib.enums import SyncStatus
 from src.lib.permissions import IsBot
-from src.lib.services import CsvService
+from src.lib.services.csv import CsvService
 from src.stocks.models import Stock
 
 from .models import (StockDividend, StockDividendSync, StockPrice,
