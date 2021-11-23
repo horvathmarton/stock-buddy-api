@@ -1,18 +1,17 @@
-from datetime import datetime
 from re import findall
-from typing import Any, BinaryIO, Generator
 
 from dateutil import parser
 from django.db.models import Avg, Count, Max, Min
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions, status
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from src.shared.decorators import allow_content_types
-from src.shared.enums import SyncStatus
-from src.shared.permissions import IsBot
-from src.shared.services import CsvService
+from src.lib.decorators import allow_content_types
+from src.lib.enums import SyncStatus
+from src.lib.permissions import IsBot
+from src.lib.services import CsvService
 from src.stocks.models import Stock
 
 from .models import (StockDividend, StockDividendSync, StockPrice,
@@ -22,7 +21,7 @@ from .serializers import (StockDividendSerializer, StockPriceSerializer,
 
 
 class StockPriceView(APIView):
-    permission_classes = [permissions.IsAuthenticated, IsBot]
+    permission_classes = [IsAuthenticated, IsBot]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -70,8 +69,6 @@ class StockPriceView(APIView):
 
 
 class StockPriceStatsView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
     def get(self, request: Request, format=None) -> Response:
         stats = StockPrice.objects.all() \
             .values('ticker') \
@@ -82,7 +79,7 @@ class StockPriceStatsView(APIView):
 
 
 class StockDividendView(APIView):
-    permission_classes = [permissions.IsAuthenticated, IsBot]
+    permission_classes = [IsAuthenticated, IsBot]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -106,7 +103,7 @@ class StockDividendView(APIView):
                 .aggregate(Max('payout_date'))['payout_date__max']
             dividends = [
                 dividend for dividend in dividends
-                if not latest_saved or parser.parse(price['payout_date']).date() > latest_saved
+                if not latest_saved or parser.parse(dividend['payout_date']).date() > latest_saved
             ]
 
             serializer = StockDividendSerializer(data=dividends, many=True)
@@ -130,8 +127,6 @@ class StockDividendView(APIView):
 
 
 class StockDividendStatsView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
     def get(self, request: Request, format=None) -> Response:
         stats = StockDividend.objects.all() \
             .values('ticker') \
@@ -142,7 +137,7 @@ class StockDividendStatsView(APIView):
 
 
 class StockSplitView(APIView):
-    permission_classes = [permissions.IsAuthenticated, IsBot]
+    permission_classes = [IsAuthenticated, IsBot]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -203,8 +198,6 @@ class StockSplitView(APIView):
 
 
 class StockSplitStatsView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
     def get(self, request: Request, format=None) -> Response:
         stats = StockSplit.objects.all() \
             .values('ticker') \

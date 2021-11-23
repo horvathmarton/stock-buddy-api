@@ -1,7 +1,10 @@
 from functools import reduce
-from typing import Any, Dict, List, TextIO
+from typing import Callable, Dict, ItemsView, List, TextIO
+
+ParsedRow = Dict[str, str]
 
 
+# TODO: Rework me to use the built-in csv module.
 class CsvService:
     """
     This service could parse a CSV file based on file path or buffer.
@@ -14,8 +17,7 @@ class CsvService:
 
         raise NotImplementedError('Implement is_csv_file')
 
-
-    def from_file(self, path: str, schema: Dict[str, str]) -> Any:
+    def from_file(self, path: str, schema: Dict[str, str]) -> List[ParsedRow]:
         """
         Reads the file at the given path and parses it to a tuple of dicts based on the provided schema.
         """
@@ -23,7 +25,7 @@ class CsvService:
         with open(path) as f:
             return self.parse(f, schema)
 
-    def parse(self, buffer: TextIO, schema: Dict[str, str]) -> Any:
+    def parse(self, buffer: TextIO, schema: Dict[str, str]) -> List[ParsedRow]:
         """
         Parses the passed buffer to a tuple of dicts based on the provided schema.
         """
@@ -54,7 +56,7 @@ class CsvService:
 
         Raises ValueError if unsuccessful.
         """
-        
+
         possible_delimiters = (',', ';', '\t', '|')
         delimiter_candidates = [
             delimiter for delimiter in possible_delimiters if delimiter in header]
@@ -77,12 +79,12 @@ class CsvService:
 
         return reduce(self.__create_header_index_finder(header_cells), schema.items(), {})
 
-    def __create_header_index_finder(self, header_cells: List[str]) -> Any:
+    def __create_header_index_finder(self, header_cells: List[str]) -> Callable[[int, List[ItemsView[str, str]]], int]:
         """
         Factory method to find a named cell's position from the list or raise custom ValueError.
         """
 
-        def find_header_index(index, header_mapping):
+        def find_header_index(index: int, header_mapping: List[ItemsView[str, str]]) -> int:
             name, alias = header_mapping
             try:
                 idx = header_cells.index(name)

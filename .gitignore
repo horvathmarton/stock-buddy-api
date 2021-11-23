@@ -37,7 +37,6 @@ dist/
 static/
 downloads/
 eggs/
-lib/
 lib64/
 parts/
 pip-wheel-metadata/

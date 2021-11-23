@@ -1,8 +1,15 @@
-from django.urls import path
-from django.urls.resolvers import URLPattern
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
 
-from .views import CashTransactionsView
+from .views import (CashTransactionViewSet, ForexTransactionViewSet,
+                    StockTransactionViewSet)
+
+router = DefaultRouter()
+router.register(r'cash', CashTransactionViewSet)
+router.register(r'forex', ForexTransactionViewSet)
+router.register(r'stocks', StockTransactionViewSet)
+
 
 urlpatterns = [
-    path('cash-transaction', CashTransactionsView.as_view())
+    path('', include(router.urls)),
 ]

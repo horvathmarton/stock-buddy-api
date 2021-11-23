@@ -7,6 +7,10 @@ TESTDATA_FOLDER = path.join(path.dirname(__file__), 'test')
 
 
 class TestCsvParse(SimpleTestCase):
+    """
+    Parsing string or byte IO object to internal representation.
+    """
+
     def setUp(self):
         self.service = CsvService()
         self.schema = {'one': 'egy', 'three': 'harom'}
@@ -49,6 +53,10 @@ class TestCsvParse(SimpleTestCase):
 
 
 class TestCsvFromFile(SimpleTestCase):
+    """
+    Opening a file object and parsing it to internal representation.
+    """
+
     def setUp(self):
         self.service = CsvService()
         self.schema = {'one': 'egy', 'three': 'harom'}

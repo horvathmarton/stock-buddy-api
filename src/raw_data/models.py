@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
-from src.shared.enums import SyncStatus
+from src.lib.enums import SyncStatus
 from src.stocks.models import Stock
 
 

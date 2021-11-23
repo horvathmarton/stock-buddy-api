@@ -1,11 +1,26 @@
 from rest_framework import serializers
 
-from .models import Stock
+from .models import Stock, StockPortfolio, StockWatchlist
+
 
 class StockSerializer(serializers.ModelSerializer):
-    ticker = serializers.CharField(max_length=8)
-    name = serializers.TextField()
 
     class Meta:
         model = Stock
-        fields = ('__all__')
+        fields = ('ticker', 'name', 'description', 'sector')
+
+
+class StockPortfolioSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+
+    class Meta:
+        model = StockPortfolio
+        fields = ('name', 'description', 'owner')
+
+
+class StockWatchlistSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    
+    class Meta:
+        model = StockWatchlist
+        fields = ('name', 'description', 'owner')

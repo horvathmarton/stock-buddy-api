@@ -1,13 +1,17 @@
-from django.db import models
-from src.stocks.models import Stock
 from django.contrib.auth.models import User
+from django.db import models
+from src.stocks.models import Stock, StockPortfolio
+
 from .enums import Currency
+
 
 class CashTransaction(models.Model):
     currency = models.CharField(max_length=3, choices=Currency.choices)
     amount = models.FloatField()
     date = models.DateField()
+
     owner = models.ForeignKey(User, models.RESTRICT)
+    portfolio = models.ForeignKey(StockPortfolio, models.RESTRICT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -21,7 +25,9 @@ class ForexTransaction(models.Model):
     ratio = models.FloatField()
     source_currency = models.CharField(max_length=3, choices=Currency.choices)
     target_currency = models.CharField(max_length=3, choices=Currency.choices)
+
     owner = models.ForeignKey(User, models.RESTRICT)
+    portfolio = models.ForeignKey(StockPortfolio, models.RESTRICT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -34,8 +40,10 @@ class StockTransaction(models.Model):
     amount = models.FloatField()
     price = models.FloatField()
     date = models.DateField()
+    comment = models.TextField(null=True)
+
     owner = models.ForeignKey(User, models.RESTRICT)
-    comment = models.TextField()
+    portfolio = models.ForeignKey(StockPortfolio, models.RESTRICT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
