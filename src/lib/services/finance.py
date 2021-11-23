@@ -9,23 +9,54 @@ from ..dataclasses import StockPosition
 
 
 class FinanceService:
-    def rate_of_investment_return(self):
-        pass
+    @staticmethod
+    def pv(
+        rate: float,
+        periods: float,
+        periodic_payment: float,
+        future_value: float = 0,
+        paid_at_period_start: bool = False,
+    ) -> float:
+        """
+        Present value. Discounts the provided value to present.
+        """
+
+        raise NotImplemented("This function has not been implemented yet.")
+
+    @staticmethod
+    def fv(
+        rate: float,
+        periods: float,
+        periodic_payment: float,
+        present_value: float,
+        paid_at_period_start: bool = False,
+    ) -> float:
+        """
+        Future value. Compounds the provided value to future.
+        """
+
+        raise NotImplemented("This function has not been implemented yet.")
+
+    @staticmethod
+    def rri(periods: float, present_value: float, future_value: float) -> float:
+        """
+        Rate of investment return.
+        Calculate Compound Annual Growth Rate (CAGR).
+
+        Rounding to four precision to avoid floating point math error.
+        """
+
+        return round((future_value / present_value) ** (1 / periods) - 1, 4)
 
     def internal_rate_of_return(self):
-        pass
-
-    def present_value(self):
-        pass
-
-    def future_value(self):
-        pass
+        raise NotImplemented("This function has not been implemented yet.")
 
     def net_present_value(self):
-        pass
+        raise NotImplemented("This function has not been implemented yet.")
 
+    @classmethod
     def get_portfolio_snapshot(
-        self, portfolio: StockPortfolio, at: date = date.today()
+        cls, portfolio: StockPortfolio, at: date = date.today()
     ) -> List[StockPosition]:
         """
         Returns the snapshot of the portfolio at a given time.
@@ -40,8 +71,8 @@ class FinanceService:
             ticker = transaction.ticker.ticker
 
             if ticker not in positions:
-                latest_price = self._get_latest_stock_price(ticker, at)
-                latest_dividend = self._get_latest_dividend(ticker, at)
+                latest_price = cls._get_latest_stock_price(ticker, at)
+                latest_dividend = cls._get_latest_dividend(ticker, at)
 
                 # The dividend info is multiplied by 4 to project the latest quarterly
                 # value to the next year.
@@ -76,14 +107,16 @@ class FinanceService:
 
         return list(positions.values())
 
-    def _get_latest_stock_price(self, ticker: Stock, at: date) -> float:
+    @staticmethod
+    def _get_latest_stock_price(ticker: Stock, at: date) -> float:
         latest_price_date = (
             StockPrice.objects.filter(ticker=ticker, date__lte=at).latest("date").date
         )
 
         return StockPrice.objects.filter(ticker=ticker, date=latest_price_date)[0].value
 
-    def _get_latest_dividend(self, ticker: Stock, at: date) -> float:
+    @staticmethod
+    def _get_latest_dividend(ticker: Stock, at: date) -> float:
         try:
             latest_dividend_date = (
                 StockDividend.objects.filter(ticker=ticker, payout_date__lte=at)
