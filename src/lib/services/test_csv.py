@@ -67,6 +67,18 @@ class TestCsvParse(SimpleTestCase):
                 ({"egy": "1", "harom": "3"}, {"egy": "hola", "harom": "hello"}),
             )
 
+    def test_csv_with_empty_last_row(self):
+        # TODO: Write me!
+        pass
+
+    def test_csv_with_less_cells_in_a_line(self):
+        # TODO: Write me!
+        pass
+
+    def test_malformed_csv(self):
+        # TODO: Write me!
+        pass
+
 
 class TestCsvFromFile(SimpleTestCase):
     """

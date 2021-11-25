@@ -56,15 +56,13 @@ class FinanceService:
 
     @classmethod
     def get_portfolio_snapshot(
-        cls, portfolio: StockPortfolio, at: date = date.today()
+        cls, portfolios: List[StockPortfolio], at: date = date.today()
     ) -> List[StockPosition]:
         """
         Returns the snapshot of the portfolio at a given time.
         """
 
-        # TODO: We don't account for stock splits currently this should be fixed in the future.
-
-        transactions = StockTransaction.objects.all().filter(portfolio=portfolio)
+        transactions = StockTransaction.objects.all().filter(portfolio__in=portfolios)
 
         positions = {}
         for transaction in transactions:
@@ -82,7 +80,8 @@ class FinanceService:
                     price=latest_price,
                     dividend=latest_dividend * 4,
                     purchase_price=transaction.price,
-                    purchase_date=transaction.date,
+                    first_purchase_date=transaction.date,
+                    latest_purchase_date=transaction.date,
                 )
             else:
                 current_position = positions[ticker]
@@ -95,8 +94,11 @@ class FinanceService:
                         + (transaction.amount * transaction.price)
                     ) / (current_position.shares + transaction.amount)
 
-                current_position.purchase_date = max(
-                    current_position.purchase_date, transaction.date
+                current_position.first_purchase_date = min(
+                    current_position.first_purchase_date, transaction.date
+                )
+                current_position.latest_purchase_date = max(
+                    current_position.latest_purchase_date, transaction.date
                 )
                 current_position.shares += transaction.amount
 

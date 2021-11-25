@@ -18,8 +18,10 @@ class StockPosition:
     dividend: float
     # Averate purchase price of one stock in USD.
     purchase_price: float
+    # Date when the position was initiated.
+    first_purchase_date: date
     # Latest date when the position was changed.
-    purchase_date: date
+    latest_purchase_date: date
 
     def __init__(
         self,
@@ -29,14 +31,16 @@ class StockPosition:
         price: float,
         dividend: float,
         purchase_price: float,
-        purchase_date: date
+        first_purchase_date: date,
+        latest_purchase_date: date,
     ):
         self.stock = stock
         self.shares = shares
         self.price = price
         self.dividend = dividend
         self.purchase_price = purchase_price
-        self.purchase_date = purchase_date
+        self.first_purchase_date = first_purchase_date
+        self.latest_purchase_date = latest_purchase_date
 
     def __eq__(self, o: object) -> bool:
         if not isinstance(o, StockPosition):
@@ -48,40 +52,41 @@ class StockPosition:
             and self.price == o.price
             and self.dividend == o.dividend
             and self.purchase_price == o.purchase_price
-            and self.purchase_date == o.purchase_date
+            and self.first_purchase_date == o.first_purchase_date
+            and self.latest_purchase_date == o.latest_purchase_date
         )
 
     # Position size at the current price in USD.
     @property
     def size_of_position(self) -> float:
-        return self.shares * self.price
+        return round(self.shares * self.price, 2)
 
     # Position size at the purchase price in USD.
     @property
     def size_of_position_at_cost(self) -> float:
-        return self.shares * self.purchase_price
+        return round(self.shares * self.purchase_price, 2)
 
     # Dividend yield in percentage (e.g.: 0.12 means 12%).
     @property
     def dividend_yield(self) -> float:
-        return self.dividend / self.price
+        return round(self.dividend / self.price, 4)
 
     # Dividend yield in percentage based on the purchase price (e.g.: 0.12 means 12%).
     @property
     def dividend_yield_on_cost(self) -> float:
-        return self.dividend / self.purchase_price
+        return round(self.dividend / self.purchase_price, 4)
 
     # Yearly dividend income from the position in USD (forward looking)
     @property
     def dividend_income(self) -> float:
-        return self.shares * self.dividend
+        return round(self.shares * self.dividend, 2)
 
     # Percentage change from the purchase price (e.g.: 0.12 means 12%)
     @property
     def pnl_percentage(self) -> float:
-        return (self.price - self.purchase_price) / self.purchase_price
+        return round((self.price - self.purchase_price) / self.purchase_price, 4)
 
     # Amount of PnL of the entire position in USD.
     @property
     def pnl(self) -> float:
-        return self.shares * (self.price - self.purchase_price)
+        return round(self.shares * (self.price - self.purchase_price), 2)

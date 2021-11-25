@@ -47,8 +47,6 @@ class CsvService:
         # We also remove empty lines with the conditional.
         data_lines = (line.split(delimiter) for line in lines[1:] if line)
 
-        # TODO: What happens if one of the lines has less cells?
-        # TODO: What happens with a CSV with an empty last line?
         return (
             {name: cells[idx] for name, idx in header_index.items()}
             for cells in data_lines

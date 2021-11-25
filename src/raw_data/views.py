@@ -40,7 +40,6 @@ class StockPriceView(APIView):
     def post(self, request: Request, ticker: str, format=None) -> Response:
         # TODO: Add consistency checks
         # TODO: Add cross checks
-        # TODO: Error handling is not complete, invalid CSV results in 500
 
         stock = get_object_or_404(Stock, ticker=ticker)
         sync = StockPriceSync(owner=request.user)
@@ -109,7 +108,6 @@ class StockDividendView(APIView):
     def post(self, request: Request, ticker: str, format=None) -> Response:
         # TODO: Add consistency checks
         # TODO: Add cross checks
-        # TODO: Error handling is not complete, invalid CSV results in 500
 
         stock = get_object_or_404(Stock, ticker=ticker)
         sync = StockDividendSync(owner=request.user)
@@ -180,7 +178,6 @@ class StockSplitView(APIView):
     def post(self, request: Request, ticker: str, format=None) -> Response:
         # TODO: Add consistency checks
         # TODO: Add cross checks
-        # TODO: Error handling is not complete, invalid CSV results in 500
 
         stock = get_object_or_404(Stock, ticker=ticker)
         sync = StockSplitSync(owner=request.user)

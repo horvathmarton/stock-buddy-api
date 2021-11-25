@@ -107,7 +107,7 @@ class TestGetPortfolioSnapshot(TestCase):
 
     def test_empty_portfolio(self):
         self.assertEqual(
-            self.service.get_portfolio_snapshot(self.portfolio, date(2021, 1, 3)), []
+            self.service.get_portfolio_snapshot([self.portfolio], date(2021, 1, 3)), []
         )
 
     def test_summarize_distinct_buys(self):
@@ -132,7 +132,7 @@ class TestGetPortfolioSnapshot(TestCase):
             price=50.02,
         )
 
-        result = self.service.get_portfolio_snapshot(self.portfolio, date(2021, 1, 3))
+        result = self.service.get_portfolio_snapshot([self.portfolio], date(2021, 1, 3))
 
         self.assertEqual(len(result), 2)
         self.assertEqual(
@@ -143,7 +143,8 @@ class TestGetPortfolioSnapshot(TestCase):
                 price=90,
                 dividend=0,
                 purchase_price=100.01,
-                purchase_date=date(2021, 1, 2),
+                first_purchase_date=date(2021, 1, 2),
+                latest_purchase_date=date(2021, 1, 2),
             ),
         )
         self.assertEqual(
@@ -154,7 +155,8 @@ class TestGetPortfolioSnapshot(TestCase):
                 price=45,
                 dividend=8.0,
                 purchase_price=50.02,
-                purchase_date=date(2021, 1, 2),
+                first_purchase_date=date(2021, 1, 2),
+                latest_purchase_date=date(2021, 1, 2),
             ),
         )
 
@@ -181,7 +183,7 @@ class TestGetPortfolioSnapshot(TestCase):
             price=80.00,
         )
 
-        result = self.service.get_portfolio_snapshot(self.portfolio, date(2021, 1, 3))
+        result = self.service.get_portfolio_snapshot([self.portfolio], date(2021, 1, 3))
 
         self.assertEqual(len(result), 1)
         self.assertEqual(
@@ -192,7 +194,8 @@ class TestGetPortfolioSnapshot(TestCase):
                 price=90,
                 dividend=0,
                 purchase_price=88.00,
-                purchase_date=date(2021, 1, 2),
+                first_purchase_date=date(2021, 1, 1),
+                latest_purchase_date=date(2021, 1, 2),
             ),
         )
 
@@ -219,7 +222,7 @@ class TestGetPortfolioSnapshot(TestCase):
             price=80.00,
         )
 
-        result = self.service.get_portfolio_snapshot(self.portfolio, date(2021, 1, 3))
+        result = self.service.get_portfolio_snapshot([self.portfolio], date(2021, 1, 3))
 
         self.assertEqual(len(result), 1)
         self.assertEqual(
@@ -230,7 +233,8 @@ class TestGetPortfolioSnapshot(TestCase):
                 price=90,
                 dividend=0,
                 purchase_price=100.00,
-                purchase_date=date(2021, 1, 2),
+                first_purchase_date=date(2021, 1, 1),
+                latest_purchase_date=date(2021, 1, 2),
             ),
         )
 
@@ -265,6 +269,22 @@ class TestGetPortfolioSnapshot(TestCase):
             price=80.00,
         )
 
-        result = self.service.get_portfolio_snapshot(self.portfolio, date(2021, 1, 3))
+        result = self.service.get_portfolio_snapshot([self.portfolio], date(2021, 1, 3))
 
         self.assertEqual(result, [])
+
+    def test_doesnt_contain_excluded_portfolios(self):
+        # TODO: Write me!
+        pass
+
+    def test_could_handle_multiple_portfolios(self):
+        # TODO: Write me!
+        pass
+
+    def test_at_parameter_works_properly(self):
+        # TODO: Write me!
+        pass
+
+    def test_stock_splits_are_handled(self):
+        # TODO: Write me!
+        pass
