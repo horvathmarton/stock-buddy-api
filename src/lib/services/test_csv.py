@@ -68,16 +68,37 @@ class TestCsvParse(SimpleTestCase):
             )
 
     def test_csv_with_empty_last_row(self):
-        # TODO: Write me!
-        pass
+        with open(path.join(TESTDATA_FOLDER, "empty_last_row.csv")) as f:
+            result = self.service.parse(f, self.schema)
+            self.assertSequenceEqual(
+                tuple(result),
+                ({"egy": "1", "harom": "3"}, {"egy": "hola", "harom": "hello"}),
+            )
+
+    def test_csv_with_empty_first_row(self):
+        with open(path.join(TESTDATA_FOLDER, "empty_first_row.csv")) as f:
+            result = self.service.parse(f, self.schema)
+            self.assertSequenceEqual(
+                tuple(result),
+                ({"egy": "1", "harom": "3"}, {"egy": "hola", "harom": "hello"}),
+            )
+
+    def test_csv_with_empty_intermediate_row(self):
+        with open(path.join(TESTDATA_FOLDER, "empty_intermediate_row.csv")) as f:
+            result = self.service.parse(f, self.schema)
+            self.assertSequenceEqual(
+                tuple(result),
+                ({"egy": "1", "harom": "3"}, {"egy": "hola", "harom": "hello"}),
+            )
 
     def test_csv_with_less_cells_in_a_line(self):
-        # TODO: Write me!
-        pass
-
-    def test_malformed_csv(self):
-        # TODO: Write me!
-        pass
+        with open(path.join(TESTDATA_FOLDER, "missing_cell.csv")) as f:
+            with self.assertRaises(Exception) as manager:
+                self.service.parse(f, self.schema)
+            self.assertEqual(
+                str(manager.exception),
+                "Malformed CSV file.",
+            )
 
 
 class TestCsvFromFile(SimpleTestCase):

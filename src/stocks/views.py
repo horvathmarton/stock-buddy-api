@@ -31,7 +31,7 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
 
         self.finance_service = FinanceService()
 
-    def retrieve(self, request: Request, pk: int = None) -> Response:
+    def retrieve(self, request: Request, pk: int = None, *args, **kwargs) -> Response:
         portfolio = get_object_or_404(StockPortfolio, pk=pk)
         positions = self.finance_service.get_portfolio_snapshot([portfolio])
 

@@ -5,17 +5,9 @@ ParsedRow = Dict[str, str]
 
 
 class CsvService:
-    # TODO: Rework me to use the built-in csv module.
     """
     This service could parse a CSV file based on file path or buffer.
     """
-
-    def is_csv_file(self, file: TextIO) -> bool:
-        """
-        Tries to detect if the file is a valid CSV file or not.
-        """
-
-        raise NotImplementedError("Implement is_csv_file")
 
     def from_file(
         self, path: str, schema: Dict[str, str]
@@ -34,23 +26,37 @@ class CsvService:
         Parses the passed buffer to a tuple of dicts based on the provided schema.
         """
 
-        content = buffer.read()
-        if isinstance(content, bytes):
-            content = content.decode("utf-8")
-        lines = content.split("\n")
+        try:
+            content = buffer.read()
+            if isinstance(content, bytes):
+                content = content.decode("utf-8")
+            # We remove empty lines with the conditional.
+            lines = [line for line in content.split("\n") if line]
 
-        header = lines[0]
-        delimiter = self.__guess_delimiter(header)
-        header_index = self.__index_header(header, delimiter, schema)
+            header = lines[0]
+            delimiter = self.__guess_delimiter(header)
+            header_index = self.__index_header(header, delimiter, schema)
 
-        # We remove the first row as we don't want to parse the header.
-        # We also remove empty lines with the conditional.
-        data_lines = (line.split(delimiter) for line in lines[1:] if line)
+            # We remove the first row as we don't want to parse the header.
+            cells_count = len(header.split(delimiter))
+            data_lines = []
+            for line in lines[1:]:
+                cells = line.split(delimiter)
+                if len(cells) != cells_count:
+                    raise Exception(
+                        "Cells count is not equal to cells count in the header."
+                    )
 
-        return (
-            {name: cells[idx] for name, idx in header_index.items()}
-            for cells in data_lines
-        )
+                data_lines.append(cells)
+
+            return (
+                {name: cells[idx] for name, idx in header_index.items()}
+                for cells in data_lines
+            )
+        except ValueError:
+            raise
+        except Exception:
+            raise Exception("Malformed CSV file.")
 
     def __guess_delimiter(self, header: str) -> str:
         """

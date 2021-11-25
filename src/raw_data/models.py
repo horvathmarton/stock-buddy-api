@@ -34,6 +34,7 @@ class StockPrice(Model):
 
     class Meta:
         db_table = '"raw_data"."stock_price"'
+        ordering = ["date"]
 
 
 class StockSplitSync(Model):
@@ -56,6 +57,7 @@ class StockSplit(Model):
 
     class Meta:
         db_table = '"raw_data"."stock_split"'
+        ordering = ["date"]
 
 
 class StockDividendSync(Model):
@@ -80,6 +82,7 @@ class StockDividend(Model):
 
     class Meta:
         db_table = '"raw_data"."stock_dividend"'
+        ordering = ["payout_date"]
 
 
 class StockFiling(Model):

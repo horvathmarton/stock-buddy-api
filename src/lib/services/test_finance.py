@@ -274,17 +274,13 @@ class TestGetPortfolioSnapshot(TestCase):
         self.assertEqual(result, [])
 
     def test_doesnt_contain_excluded_portfolios(self):
-        # TODO: Write me!
-        pass
+        self.skipTest("TODO: Write me!")
 
     def test_could_handle_multiple_portfolios(self):
-        # TODO: Write me!
-        pass
+        self.skipTest("TODO: Write me!")
 
     def test_at_parameter_works_properly(self):
-        # TODO: Write me!
-        pass
+        self.skipTest("TODO: Write me!")
 
     def test_stock_splits_are_handled(self):
-        # TODO: Write me!
-        pass
+        self.skipTest("TODO: Write me!")
