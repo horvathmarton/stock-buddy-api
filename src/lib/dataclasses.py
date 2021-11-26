@@ -1,3 +1,5 @@
+"""Dataclasses shared throughout the project."""
+
 from dataclasses import dataclass
 from datetime import date
 
@@ -6,9 +8,7 @@ from src.stocks.models import Stock
 
 @dataclass
 class StockPosition:
-    """
-    Represents a position at a given time.
-    """
+    """Represents a position at a given time."""
 
     stock: Stock
     shares: int
@@ -56,37 +56,44 @@ class StockPosition:
             and self.latest_purchase_date == o.latest_purchase_date
         )
 
-    # Position size at the current price in USD.
     @property
     def size_of_position(self) -> float:
+        """Position size at the current price in USD."""
+
         return round(self.shares * self.price, 2)
 
-    # Position size at the purchase price in USD.
     @property
     def size_of_position_at_cost(self) -> float:
+        """Position size at the purchase price in USD."""
+
         return round(self.shares * self.purchase_price, 2)
 
-    # Dividend yield in percentage (e.g.: 0.12 means 12%).
     @property
     def dividend_yield(self) -> float:
+        """Dividend yield in percentage (e.g.: 0.12 means 12%)."""
+
         return round(self.dividend / self.price, 4)
 
-    # Dividend yield in percentage based on the purchase price (e.g.: 0.12 means 12%).
     @property
     def dividend_yield_on_cost(self) -> float:
+        """Dividend yield in percentage based on the purchase price (e.g.: 0.12 means 12%)."""
+
         return round(self.dividend / self.purchase_price, 4)
 
-    # Yearly dividend income from the position in USD (forward looking)
     @property
     def dividend_income(self) -> float:
+        """Yearly dividend income from the position in USD (forward looking)."""
+
         return round(self.shares * self.dividend, 2)
 
-    # Percentage change from the purchase price (e.g.: 0.12 means 12%)
     @property
     def pnl_percentage(self) -> float:
+        """Percentage change from the purchase price (e.g.: 0.12 means 12%)."""
+
         return round((self.price - self.purchase_price) / self.purchase_price, 4)
 
-    # Amount of PnL of the entire position in USD.
     @property
     def pnl(self) -> float:
+        """Amount of PnL of the entire position in USD."""
+
         return round(self.shares * (self.price - self.purchase_price), 2)

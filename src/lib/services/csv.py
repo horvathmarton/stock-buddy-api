@@ -1,3 +1,7 @@
+"""
+CSV handling related service.
+"""
+
 from functools import reduce
 from typing import Callable, Dict, Generator, List, TextIO, Tuple
 
@@ -16,8 +20,8 @@ class CsvService:
         Reads the file at the given path and parses it to a tuple of dicts based on the provided schema.
         """
 
-        with open(path) as f:
-            return self.parse(f, schema)
+        with open(path, encoding="utf-8") as file:
+            return self.parse(file, schema)
 
     def parse(
         self, buffer: TextIO, schema: Dict[str, str]
@@ -55,10 +59,11 @@ class CsvService:
             )
         except ValueError:
             raise
-        except Exception:
-            raise Exception("Malformed CSV file.")
+        except Exception as exception:
+            raise Exception("Malformed CSV file.") from exception
 
-    def __guess_delimiter(self, header: str) -> str:
+    @staticmethod
+    def __guess_delimiter(header: str) -> str:
         """
         Tries to find out the delimiter of the file based on the header.
 
@@ -74,7 +79,8 @@ class CsvService:
             raise ValueError(
                 "Couldn't guess separator, because no possible delimiters are present in the header."
             )
-        elif len(delimiter_candidates) != 1:
+
+        if len(delimiter_candidates) != 1:
             raise ValueError(
                 f"Couldn't guess separator, because both {' '.join(delimiter_candidates)} are possible candidates."
             )
@@ -94,8 +100,9 @@ class CsvService:
             self.__create_header_index_finder(header_cells), schema.items(), {}
         )
 
+    @staticmethod
     def __create_header_index_finder(
-        self, header_cells: List[str]
+        header_cells: List[str],
     ) -> Callable[[Dict[str, int], Tuple[str, str]], Dict[str, int]]:
         """
         Factory method to find a named cell's position from the list or raise custom ValueError.
@@ -110,9 +117,9 @@ class CsvService:
                 index[alias] = idx
 
                 return index
-            except ValueError:
+            except ValueError as error:
                 raise ValueError(
                     f"Couldn't find {name} in the header, so we are unable to map it properly."
-                )
+                ) from error
 
         return find_header_index

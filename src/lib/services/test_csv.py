@@ -1,3 +1,5 @@
+"""Test cases for the CSV service."""
+
 from os import path
 
 from django.test import SimpleTestCase
@@ -17,84 +19,105 @@ class TestCsvParse(SimpleTestCase):
         self.schema = {"one": "egy", "three": "harom"}
 
     def test_normal_csv_with_comma(self):
-        with open(path.join(TESTDATA_FOLDER, "normal_with_commas.csv")) as f:
-            result = self.service.parse(f, self.schema)
+        with open(
+            path.join(TESTDATA_FOLDER, "normal_with_commas.csv"), encoding="utf-8"
+        ) as file:
+            result = self.service.parse(file, self.schema)
             self.assertSequenceEqual(
                 tuple(result),
                 ({"egy": "1", "harom": "3"}, {"egy": "hola", "harom": "hello"}),
             )
 
     def test_normal_csv_with_semicolon(self):
-        with open(path.join(TESTDATA_FOLDER, "normal_with_semicolons.csv")) as f:
-            result = self.service.parse(f, self.schema)
+        with open(
+            path.join(TESTDATA_FOLDER, "normal_with_semicolons.csv"), encoding="utf-8"
+        ) as file:
+            result = self.service.parse(file, self.schema)
             self.assertSequenceEqual(
                 tuple(result),
                 ({"egy": "1", "harom": "3"}, {"egy": "hola", "harom": "hello"}),
             )
 
     def test_missing_delimiter_from_header(self):
-        with open(path.join(TESTDATA_FOLDER, "missing_delimiter.csv")) as f:
+        with open(
+            path.join(TESTDATA_FOLDER, "missing_delimiter.csv"), encoding="utf-8"
+        ) as file:
             with self.assertRaises(ValueError) as manager:
-                self.service.parse(f, self.schema)
+                self.service.parse(file, self.schema)
             self.assertEqual(
                 str(manager.exception),
                 "Couldn't guess separator, because no possible delimiters are present in the header.",
             )
 
     def test_ambigous_delimiter_from_header(self):
-        with open(path.join(TESTDATA_FOLDER, "ambigous_delimiter.csv")) as f:
+        with open(
+            path.join(TESTDATA_FOLDER, "ambigous_delimiter.csv"), encoding="utf-8"
+        ) as file:
             with self.assertRaises(ValueError) as manager:
-                self.service.parse(f, self.schema)
+                self.service.parse(file, self.schema)
             self.assertEqual(
                 str(manager.exception),
                 "Couldn't guess separator, because both , ; are possible candidates.",
             )
 
     def test_unknown_item_in_schema(self):
-        with open(path.join(TESTDATA_FOLDER, "normal_with_commas.csv")) as f:
+        with open(
+            path.join(TESTDATA_FOLDER, "normal_with_commas.csv"), encoding="utf-8"
+        ) as file:
             with self.assertRaises(ValueError) as manager:
-                self.service.parse(f, {**self.schema, "Hello": "hello"})
+                self.service.parse(file, {**self.schema, "Hello": "hello"})
             self.assertEqual(
                 str(manager.exception),
                 "Couldn't find Hello in the header, so we are unable to map it properly.",
             )
 
     def test_normal_csv_in_binary_format(self):
-        with open(path.join(TESTDATA_FOLDER, "normal_with_commas.csv"), "rb") as f:
-            result = self.service.parse(f, self.schema)
+        with open(
+            path.join(TESTDATA_FOLDER, "normal_with_commas.csv"),
+            mode="rb",
+        ) as file:
+            result = self.service.parse(file, self.schema)
             self.assertSequenceEqual(
                 tuple(result),
                 ({"egy": "1", "harom": "3"}, {"egy": "hola", "harom": "hello"}),
             )
 
     def test_csv_with_empty_last_row(self):
-        with open(path.join(TESTDATA_FOLDER, "empty_last_row.csv")) as f:
-            result = self.service.parse(f, self.schema)
+        with open(
+            path.join(TESTDATA_FOLDER, "empty_last_row.csv"), encoding="utf-8"
+        ) as file:
+            result = self.service.parse(file, self.schema)
             self.assertSequenceEqual(
                 tuple(result),
                 ({"egy": "1", "harom": "3"}, {"egy": "hola", "harom": "hello"}),
             )
 
     def test_csv_with_empty_first_row(self):
-        with open(path.join(TESTDATA_FOLDER, "empty_first_row.csv")) as f:
-            result = self.service.parse(f, self.schema)
+        with open(
+            path.join(TESTDATA_FOLDER, "empty_first_row.csv"), encoding="utf-8"
+        ) as file:
+            result = self.service.parse(file, self.schema)
             self.assertSequenceEqual(
                 tuple(result),
                 ({"egy": "1", "harom": "3"}, {"egy": "hola", "harom": "hello"}),
             )
 
     def test_csv_with_empty_intermediate_row(self):
-        with open(path.join(TESTDATA_FOLDER, "empty_intermediate_row.csv")) as f:
-            result = self.service.parse(f, self.schema)
+        with open(
+            path.join(TESTDATA_FOLDER, "empty_intermediate_row.csv"), encoding="utf-8"
+        ) as file:
+            result = self.service.parse(file, self.schema)
             self.assertSequenceEqual(
                 tuple(result),
                 ({"egy": "1", "harom": "3"}, {"egy": "hola", "harom": "hello"}),
             )
 
     def test_csv_with_less_cells_in_a_line(self):
-        with open(path.join(TESTDATA_FOLDER, "missing_cell.csv")) as f:
+        with open(
+            path.join(TESTDATA_FOLDER, "missing_cell.csv"), encoding="utf-8"
+        ) as file:
             with self.assertRaises(Exception) as manager:
-                self.service.parse(f, self.schema)
+                self.service.parse(file, self.schema)
             self.assertEqual(
                 str(manager.exception),
                 "Malformed CSV file.",

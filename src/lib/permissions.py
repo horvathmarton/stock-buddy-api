@@ -1,3 +1,5 @@
+"""Custom Django permission classes shared throughout the project."""
+
 from typing import cast
 
 from django.contrib.auth.models import User
@@ -7,9 +9,7 @@ from rest_framework.views import APIView
 
 
 class IsBot(permissions.BasePermission):
-    """
-    Permission for views that only bot users could access.
-    """
+    """Permission for views that only bot users could access."""
 
     def has_permission(self, request: Request, view: APIView) -> bool:
         user = cast(User, request.user)

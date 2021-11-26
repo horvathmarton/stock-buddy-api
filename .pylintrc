@@ -1,2 +1,18 @@
+[MASTER]
+
+load-plugins = pylint_django
+
+[MESSAGES CONTROL]
+
+; E5142: User model imported from django.contrib.auth.models (imported-auth-user)
+disable = E5142
+
+[BASIC]
+
+# Regular expression which should only match function or class names that do
+# not require a docstring.
+no-docstring-rgx=^(Test|test_).*$
+
 [FORMAT]
+
 max-line-length = 120

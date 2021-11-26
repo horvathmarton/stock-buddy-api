@@ -1,3 +1,7 @@
+"""
+Basic financial calculation realted services and functions.
+"""
+
 from datetime import date
 from typing import List
 
@@ -9,31 +13,29 @@ from ..dataclasses import StockPosition
 
 
 class FinanceService:
+    """Implements some basic Excel finance functions and a portfolio snapshot generator."""
+
     @staticmethod
-    def pv(
+    def present_value(
         rate: float,
         periods: float,
         periodic_payment: float,
         future_value: float = 0,
         paid_at_period_start: bool = False,
     ) -> float:
-        """
-        Present value. Discounts the provided value to present.
-        """
+        """Present value. Discounts the provided value to present."""
 
         raise NotImplementedError("This function has not been implemented yet.")
 
     @staticmethod
-    def fv(
+    def future_value(
         rate: float,
         periods: float,
         periodic_payment: float,
         present_value: float,
         paid_at_period_start: bool = False,
     ) -> float:
-        """
-        Future value. Compounds the provided value to future.
-        """
+        """Future value. Compounds the provided value to future."""
 
         raise NotImplementedError("This function has not been implemented yet.")
 
@@ -49,18 +51,20 @@ class FinanceService:
         return round((future_value / present_value) ** (1 / periods) - 1, 4)
 
     def internal_rate_of_return(self):
+        """Calculates the internal rate of return (IRR) from a list of cash flows."""
+
         raise NotImplementedError("This function has not been implemented yet.")
 
     def net_present_value(self):
+        """Discounts the net present value form a list of cash flows at the discount rate."""
+
         raise NotImplementedError("This function has not been implemented yet.")
 
     @classmethod
     def get_portfolio_snapshot(
-        cls, portfolios: List[StockPortfolio], at: date = date.today()
+        cls, portfolios: List[StockPortfolio], snapshot_date: date = date.today()
     ) -> List[StockPosition]:
-        """
-        Returns the snapshot of the portfolio at a given time.
-        """
+        """Returns the snapshot of the portfolio at a given time."""
 
         transactions = StockTransaction.objects.all().filter(portfolio__in=portfolios)
 
@@ -69,8 +73,8 @@ class FinanceService:
             ticker = transaction.ticker.ticker
 
             if ticker not in positions:
-                latest_price = cls._get_latest_stock_price(ticker, at)
-                latest_dividend = cls._get_latest_dividend(ticker, at)
+                latest_price = cls._get_latest_stock_price(ticker, snapshot_date)
+                latest_dividend = cls._get_latest_dividend(ticker, snapshot_date)
 
                 # The dividend info is multiplied by 4 to project the latest quarterly
                 # value to the next year.
@@ -110,18 +114,26 @@ class FinanceService:
         return list(positions.values())
 
     @staticmethod
-    def _get_latest_stock_price(ticker: Stock, at: date) -> float:
+    def _get_latest_stock_price(ticker: Stock, snapshot_date: date) -> float:
+        """Queries the latest stock price info for the stock."""
+
         latest_price_date = (
-            StockPrice.objects.filter(ticker=ticker, date__lte=at).latest("date").date
+            StockPrice.objects.filter(ticker=ticker, date__lte=snapshot_date)
+            .latest("date")
+            .date
         )
 
         return StockPrice.objects.filter(ticker=ticker, date=latest_price_date)[0].value
 
     @staticmethod
-    def _get_latest_dividend(ticker: Stock, at: date) -> float:
+    def _get_latest_dividend(ticker: Stock, snapshot_date: date) -> float:
+        """Queries for the latest dividend info for the stock."""
+
         try:
             latest_dividend_date = (
-                StockDividend.objects.filter(ticker=ticker, payout_date__lte=at)
+                StockDividend.objects.filter(
+                    ticker=ticker, payout_date__lte=snapshot_date
+                )
                 .latest("payout_date")
                 .payout_date
             )

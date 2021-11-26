@@ -1,10 +1,10 @@
+"""Shared enums used in multiple modules."""
+
 from django.db import models
 
 
 class SyncStatus(models.TextChoices):
-    """
-    Enum indicating the status of a sync operation.
-    """
+    """Enum indicating the status of a sync operation."""
 
     STARTED = "started"
     FINISHED = "finished"

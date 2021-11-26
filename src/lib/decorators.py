@@ -1,3 +1,5 @@
+"""Decorators shared throughout the project."""
+
 from collections.abc import Iterable
 from typing import Any, Callable
 

@@ -1,3 +1,5 @@
+"""Test cases for finance service."""
+
 from datetime import date
 
 from django.contrib.auth.models import User
@@ -48,9 +50,7 @@ class TestRateOfInvestmentReturn(SimpleTestCase):
 
 
 class TestGetPortfolioSnapshot(TestCase):
-    """
-    Returns the snapshot of the portfolio at a given time.
-    """
+    """Returns the snapshot of the portfolio at a given time."""
 
     def setUp(self):
         self.service = FinanceService()
