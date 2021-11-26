@@ -1,3 +1,5 @@
+"""Seeding command for the project."""
+
 from django.contrib.auth.models import Group, User
 from django.core.management.base import BaseCommand
 from apps.stocks.enums import Sector
@@ -5,6 +7,12 @@ from apps.stocks.models import Stock
 
 
 class Command(BaseCommand):
+    """
+    Custom command to seed a testing database for the project.
+
+    This is dummy data only use on testing databases!
+    """
+
     help = "Seeds the database with example data."
 
     def handle(self, *args, **kwargs):
@@ -18,6 +26,8 @@ class Command(BaseCommand):
 
 
 def seed_users():
+    """Create some dummy users in the database."""
+
     mhorvath = User.objects.create_user(
         "mhorvath",
         "mhorvath@stock-buddy.com",
@@ -35,6 +45,8 @@ def seed_users():
 
 
 def seed_stocks():
+    """Create some dummy stocks in the database."""
+
     Stock.objects.bulk_create(
         [
             Stock(ticker="MSFT", name="Microsoft Corporation", sector=Sector.SOFTWARE),

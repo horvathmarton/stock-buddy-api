@@ -1,9 +1,13 @@
+"""Linter command for the project."""
+
 from os import system
 
 from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
+    """Custom command to run formatters and linters on the project."""
+
     help = "Format, lint and type check the code. (black, flake8, pylint, mypy, bandit)"
 
     def handle(self, *args, **kwargs):
@@ -40,5 +44,7 @@ class Command(BaseCommand):
         self.stdout.write(f"{black=} {flake8=} {pylint=} {mypy=}\n\n")
 
     @staticmethod
-    def _result(exit_code) -> str:
+    def _result(exit_code: int) -> str:
+        """Map the result exit code to a proper emoji."""
+
         return "❌" if exit_code else "🔥"

@@ -1,3 +1,5 @@
+"""Database recreation for the project."""
+
 from os import getenv
 
 from django.core.management.base import BaseCommand
@@ -5,6 +7,12 @@ from psycopg2 import connect, extensions, sql
 
 
 class Command(BaseCommand):
+    """
+    Custom command to drop and recreate a database for the project.
+
+    It removes existing data so only use on development environment!
+    """
+
     help = "Drop the existing database and recreate it with schemas."
 
     def handle(self, *args, **kwargs):
@@ -23,6 +31,8 @@ class Command(BaseCommand):
 
 
 def drop_and_recreate_database():
+    """Drops the database accessible with the provided creds and recreates an empty database."""
+
     connection = connect(
         host=getenv("DATABASE_HOST"),
         user=getenv("DATABASE_USER"),
@@ -39,6 +49,8 @@ def drop_and_recreate_database():
 
 
 def create_schemas():
+    """Create the schemas for the Postgres database."""
+
     connection = connect(
         host=getenv("DATABASE_HOST"),
         user=getenv("DATABASE_USER"),
