@@ -4,16 +4,16 @@ from datetime import date
 
 from django.contrib.auth.models import User
 from django.test import TestCase, SimpleTestCase
-from src.lib.enums import SyncStatus
-from src.raw_data.models import (
+from lib.enums import SyncStatus
+from apps.raw_data.models import (
     StockDividend,
     StockDividendSync,
     StockPrice,
     StockPriceSync,
 )
-from src.stocks.enums import Sector
-from src.stocks.models import Stock, StockPortfolio
-from src.transactions.models import StockTransaction
+from apps.stocks.enums import Sector
+from apps.stocks.models import Stock, StockPortfolio
+from apps.transactions.models import StockTransaction
 
 from ..dataclasses import StockPosition
 from .finance import FinanceService

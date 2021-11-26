@@ -4,8 +4,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from src.lib.permissions import IsOwnerOrAdmin
-from src.lib.services.finance import FinanceService
+from lib.permissions import IsOwnerOrAdmin
+from lib.services.finance import FinanceService
 
 from .models import Stock, StockPortfolio, StockWatchlist
 from .serializers import (

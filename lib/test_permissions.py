@@ -2,7 +2,7 @@
 
 from django.contrib.auth.models import Group, User
 from django.test import TestCase
-from src.stocks.models import StockPortfolio
+from apps.stocks.models import StockPortfolio
 
 from .permissions import IsBot, IsOwnerOrAdmin
 

@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from src.lib.permissions import IsOwnerOrAdmin
+from lib.permissions import IsOwnerOrAdmin
 
 from .models import CashTransaction, ForexTransaction, StockTransaction
 from .serializers import (

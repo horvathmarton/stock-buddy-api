@@ -9,7 +9,7 @@ from django.db.models import (
     Model,
     TextField,
 )
-from src.stocks.models import Stock, StockPortfolio
+from apps.stocks.models import Stock, StockPortfolio
 
 from .enums import Currency
 

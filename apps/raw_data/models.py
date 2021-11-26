@@ -10,8 +10,8 @@ from django.db.models import (
     TextField,
     URLField,
 )
-from src.lib.enums import SyncStatus
-from src.stocks.models import Stock
+from lib.enums import SyncStatus
+from apps.stocks.models import Stock
 
 
 class StockPriceSync(Model):

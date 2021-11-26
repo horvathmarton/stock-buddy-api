@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from datetime import date
 
-from src.stocks.models import Stock
+from apps.stocks.models import Stock
 
 
 @dataclass

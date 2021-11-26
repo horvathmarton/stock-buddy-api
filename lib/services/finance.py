@@ -5,9 +5,9 @@ Basic financial calculation realted services and functions.
 from datetime import date
 from typing import List
 
-from src.raw_data.models import StockDividend, StockPrice
-from src.stocks.models import Stock, StockPortfolio
-from src.transactions.models import StockTransaction
+from apps.raw_data.models import StockDividend, StockPrice
+from apps.stocks.models import Stock, StockPortfolio
+from apps.transactions.models import StockTransaction
 
 from ..dataclasses import StockPosition
 

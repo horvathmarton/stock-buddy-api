@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Group, User
 from django.core.management.base import BaseCommand
-from src.stocks.enums import Sector
-from src.stocks.models import Stock
+from apps.stocks.enums import Sector
+from apps.stocks.models import Stock
 
 
 class Command(BaseCommand):

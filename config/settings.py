@@ -30,10 +30,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework.authtoken",
-    "src.core",
-    "src.raw_data",
-    "src.stocks",
-    "src.transactions",
+    "core",
+    "apps.raw_data",
+    "apps.stocks",
+    "apps.transactions",
 ]
 
 MIDDLEWARE = [
@@ -128,4 +128,4 @@ REST_FRAMEWORK = {
     ],
 }
 
-TEST_RUNNER = "src.core.test.runner.PostgresSchemaTestRunner"
+TEST_RUNNER = "core.test.runner.PostgresSchemaTestRunner"

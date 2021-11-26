@@ -8,11 +8,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from src.lib.decorators import allow_content_types
-from src.lib.enums import SyncStatus
-from src.lib.permissions import IsBot
-from src.lib.services.csv import CsvService
-from src.stocks.models import Stock
+from lib.decorators import allow_content_types
+from lib.enums import SyncStatus
+from lib.permissions import IsBot
+from lib.services.csv import CsvService
+from apps.stocks.models import Stock
 
 from .models import (
     StockDividend,
