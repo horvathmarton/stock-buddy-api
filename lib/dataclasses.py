@@ -1,13 +1,16 @@
 """Dataclasses shared throughout the project."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import date
+from typing import Dict
 
 from apps.stocks.models import Stock
 
 
 @dataclass
-class StockPosition:
+class StockPositionSnapshot:
     """Represents a position at a given time."""
 
     stock: Stock
@@ -22,28 +25,12 @@ class StockPosition:
     first_purchase_date: date
     # Latest date when the position was changed.
     latest_purchase_date: date
-
-    def __init__(
-        self,
-        *,
-        stock: Stock,
-        shares: int,
-        price: float,
-        dividend: float,
-        purchase_price: float,
-        first_purchase_date: date,
-        latest_purchase_date: date,
-    ):
-        self.stock = stock
-        self.shares = shares
-        self.price = price
-        self.dividend = dividend
-        self.purchase_price = purchase_price
-        self.first_purchase_date = first_purchase_date
-        self.latest_purchase_date = latest_purchase_date
+    # TODO: Uncomment us!
+    # ex_dividend_date: date
+    # dividend_declaration_date: date
 
     def __eq__(self, o: object) -> bool:
-        if not isinstance(o, StockPosition):
+        if not isinstance(o, StockPositionSnapshot):
             return NotImplemented
 
         return (
@@ -57,13 +44,13 @@ class StockPosition:
         )
 
     @property
-    def size_of_position(self) -> float:
+    def size(self) -> float:
         """Position size at the current price in USD."""
 
         return round(self.shares * self.price, 2)
 
     @property
-    def size_of_position_at_cost(self) -> float:
+    def size_at_cost(self) -> float:
         """Position size at the purchase price in USD."""
 
         return round(self.shares * self.purchase_price, 2)
@@ -97,3 +84,84 @@ class StockPosition:
         """Amount of PnL of the entire position in USD."""
 
         return round(self.shares * (self.price - self.purchase_price), 2)
+
+
+@dataclass
+class StockPortfolioSnapshot:
+    """
+    Represents a portfolio at a given time.
+
+    Contains a list of positions in the portfolio and the aggregate data.
+    """
+
+    # List of the summarized position in the current portfolio.
+    positions: Dict[str, StockPositionSnapshot]
+
+    @property
+    def assets_under_management(self) -> float:
+        return sum((position.size for position in self.positions.values()))
+
+    @property
+    def capital_invested(self) -> float:
+        return sum((position.size_at_cost for position in self.positions.values()))
+
+    @property
+    def dividend(self) -> float:
+        return sum((position.dividend_income for position in self.positions.values()))
+
+    @property
+    def dividend_yield(self) -> float:
+        return round(self.dividend / self.assets_under_management, 4)
+
+    @property
+    def number_of_positions(self) -> int:
+        return len(self.positions)
+
+    @property
+    def sector_distribution(self) -> Dict[str, float]:
+        """Mapping with the sector name as key and the portfolio percentage as value (e.g.: 0.12 means 12%)."""
+
+        sectors = {}
+
+        for position in self.positions.values():
+            sector = position.stock.sector
+            size_in_portfolio = round(position.size / self.assets_under_management, 4)
+
+            if sector not in sectors:
+                sectors[sector] = size_in_portfolio
+            else:
+                sectors[sector] += size_in_portfolio
+
+        return sectors
+
+    @property
+    def size_distribution(self) -> Dict[str, float]:
+        """Maps each ticker in the portfolio to its size in percentage (e.g.: 0.12 means 12%)."""
+
+        return {
+            position.stock.ticker: round(
+                position.size / self.assets_under_management, 4
+            )
+            for position in self.positions.values()
+        }
+
+    @property
+    def size_at_cost_distribution(self) -> Dict[str, float]:
+        """Maps each ticker in the portfolio to its size @ cost in percentage (e.g.: 0.12 means 12%)."""
+
+        return {
+            position.stock.ticker: round(
+                position.size_at_cost / self.capital_invested, 4
+            )
+            for position in self.positions.values()
+        }
+
+    @property
+    def dividend_distribution(self) -> Dict[str, float]:
+        """Maps each ticker in the portfolio to its dividend size in percentage (e.g.: 0.12 means 12%)."""
+
+        return {
+            position.stock.ticker: round(position.dividend_income / self.dividend)
+            for position in self.positions.values()
+            if position.dividend_income > 0
+        }

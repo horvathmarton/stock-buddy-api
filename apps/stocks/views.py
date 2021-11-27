@@ -10,9 +10,9 @@ from lib.services.finance import FinanceService
 from .models import Stock, StockPortfolio, StockWatchlist
 from .serializers import (
     StockPortfolioSerializer,
-    StockPositionSerializer,
     StockSerializer,
     StockWatchlistSerializer,
+    StockPortfolioSnapshotSerializer,
 )
 
 
@@ -23,7 +23,6 @@ class StockViewSet(viewsets.ReadOnlyModelViewSet):
 
 class StockPortfolioViewSet(viewsets.ModelViewSet):
     queryset = StockPortfolio.objects.all()
-    serializer_class = StockPortfolioSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
 
     def __init__(self, *args, **kwargs):
@@ -33,9 +32,9 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request: Request, pk: int = None, *args, **kwargs) -> Response:
         portfolio = get_object_or_404(StockPortfolio, pk=pk)
-        positions = self.finance_service.get_portfolio_snapshot([portfolio])
+        portfolio = self.finance_service.get_portfolio_snapshot([portfolio])
 
-        serializer = StockPositionSerializer(positions, many=True)
+        serializer = StockPortfolioSnapshotSerializer(portfolio)
 
         return Response(serializer.data)
 
@@ -46,9 +45,9 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
         """
 
         portfolios = get_list_or_404(StockPortfolio, owner=request.user)
-        positions = self.finance_service.get_portfolio_snapshot(portfolios)
+        portfolio = self.finance_service.get_portfolio_snapshot(portfolios)
 
-        serializer = StockPositionSerializer(positions, many=True)
+        serializer = StockPortfolioSnapshotSerializer(portfolio)
 
         return Response(serializer.data)
 
@@ -62,6 +61,11 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
             return queryset
 
         return queryset.filter(owner=self.request.user)
+
+    def get_serializer_class(self):
+        if self.action in ("retrieve", "summary"):
+            return StockPortfolioSnapshotSerializer
+        return StockPortfolioSerializer
 
 
 class StockWatchlistViewSet(viewsets.ModelViewSet):

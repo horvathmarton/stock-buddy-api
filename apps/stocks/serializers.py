@@ -14,7 +14,7 @@ class StockPortfolioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StockPortfolio
-        fields = ("name", "description", "owner")
+        fields = ("description", "owner")
 
 
 class StockWatchlistSerializer(serializers.ModelSerializer):
@@ -25,7 +25,7 @@ class StockWatchlistSerializer(serializers.ModelSerializer):
         fields = ("name", "description", "owner")
 
 
-class StockPositionSerializer(serializers.Serializer):
+class StockPositionSnapshotSerializer(serializers.Serializer):
     ticker = serializers.ReadOnlyField(source="stock.ticker")
     name = serializers.ReadOnlyField(source="stock.name")
     sector = serializers.ReadOnlyField(source="stock.sector")
@@ -36,10 +36,24 @@ class StockPositionSerializer(serializers.Serializer):
     first_purchase_date = serializers.DateField()
     latest_purchase_date = serializers.DateField()
 
-    size_of_position = serializers.FloatField()
-    size_of_position_at_cost = serializers.FloatField()
+    size = serializers.FloatField()
+    size_at_cost = serializers.FloatField()
     dividend_yield = serializers.FloatField()
     dividend_yield_on_cost = serializers.FloatField()
     dividend_income = serializers.FloatField()
     pnl_percentage = serializers.FloatField()
     pnl = serializers.FloatField()
+
+
+class StockPortfolioSnapshotSerializer(serializers.Serializer):
+    positions = serializers.DictField(child=StockPositionSnapshotSerializer())
+    sector_distribution = serializers.DictField(child=serializers.FloatField())
+    size_distribution = serializers.DictField(child=serializers.FloatField())
+    size_at_cost_distribution = serializers.DictField(child=serializers.FloatField())
+    dividend_distribution = serializers.DictField(child=serializers.FloatField())
+
+    assets_under_management = serializers.FloatField()
+    capital_invested = serializers.FloatField()
+    dividend = serializers.FloatField()
+    dividend_yield = serializers.FloatField()
+    number_of_positions = serializers.IntegerField()
