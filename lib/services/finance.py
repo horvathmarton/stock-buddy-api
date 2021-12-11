@@ -90,9 +90,11 @@ class FinanceService:
                 latest_price = cls.__get_latest_stock_price(ticker, snapshot_date)
                 latest_dividend = cls.__get_latest_dividend(ticker, snapshot_date)
 
-                positions[ticker] = cls.__create_position(
-                    action, latest_price, latest_dividend
-                )
+                # In this situation we consider a negative or zero value a spinoff sellout.
+                if action.amount > 0:
+                    positions[ticker] = cls.__create_position(
+                        action, latest_price, latest_dividend
+                    )
             elif isinstance(action, StockTransaction) and ticker in positions:
                 updated_position = cls.__update_position(positions[ticker], action)
                 positions[ticker] = updated_position

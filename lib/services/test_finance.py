@@ -622,3 +622,24 @@ class TestGetPortfolioSnapshot(TestCase):
                 latest_purchase_date=date(2021, 1, 10),
             ),
         )
+
+    def test_selling_non_existent_position_(self):
+        """
+        We sell a position from the portfolio that was non-existent.
+
+        In this case we consider this a spinoff from another position and book the transaction,
+        but consider it a non-existent position.
+        """
+
+        StockTransaction.objects.create(
+            amount=-2,
+            date=date(2021, 1, 1),
+            ticker=self.pm,
+            owner=self.owner,
+            portfolio=self.portfolio,
+            price=90.0,
+        )
+
+        result = self.service.get_portfolio_snapshot([self.portfolio], date(2021, 1, 2))
+
+        self.assertEqual(result.number_of_positions, 0)
