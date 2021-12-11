@@ -15,3 +15,4 @@ class Sector(models.TextChoices):
     ENERGY = ("Energy",)
     UTILITIES = ("Utilities",)
     REAL_ESTATE = ("Real estate",)
+    ETF = ("ETF",)
