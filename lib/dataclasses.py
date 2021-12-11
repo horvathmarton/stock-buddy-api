@@ -7,6 +7,7 @@ from datetime import date
 from typing import Dict
 
 from apps.stocks.models import Stock
+from django.contrib.auth.models import User
 
 
 @dataclass
@@ -96,6 +97,13 @@ class StockPortfolioSnapshot:
 
     # List of the summarized position in the current portfolio.
     positions: Dict[str, StockPositionSnapshot]
+    owner: User
+
+    def __eq__(self, o: object) -> bool:
+        if not isinstance(o, StockPortfolioSnapshot):
+            return NotImplemented
+
+        return self.positions == o.positions and self.owner == o.owner
 
     @property
     def assets_under_management(self) -> float:

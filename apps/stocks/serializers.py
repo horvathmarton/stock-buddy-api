@@ -14,7 +14,7 @@ class StockPortfolioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StockPortfolio
-        fields = ("description", "owner")
+        fields = ("name", "description", "owner")
 
 
 class StockWatchlistSerializer(serializers.ModelSerializer):
@@ -57,3 +57,5 @@ class StockPortfolioSnapshotSerializer(serializers.Serializer):
     dividend = serializers.FloatField()
     dividend_yield = serializers.FloatField()
     number_of_positions = serializers.IntegerField()
+
+    owner = serializers.ReadOnlyField(source="owner.username")

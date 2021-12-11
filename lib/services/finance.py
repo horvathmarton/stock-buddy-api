@@ -61,6 +61,16 @@ class FinanceService:
         raise NotImplementedError("This function has not been implemented yet.")
 
     @classmethod
+    def get_portfolio_snapshot(
+        cls, portfolios: List[StockPortfolio], snapshot_date: date = date.today()
+    ) -> StockPortfolioSnapshot:
+        """Returns the snapshot of the portfolio at a given time."""
+
+        positions = cls.__get_postions_for_portfolio(portfolios, snapshot_date)
+
+        return StockPortfolioSnapshot(positions=positions, owner=portfolios[0].owner)
+
+    @classmethod
     def __get_postions_for_portfolio(
         cls, portfolios: List[StockPortfolio], snapshot_date: date
     ) -> Dict[str, StockPositionSnapshot]:
@@ -96,16 +106,6 @@ class FinanceService:
                 positions[ticker] = split_position
 
         return positions
-
-    @classmethod
-    def get_portfolio_snapshot(
-        cls, portfolios: List[StockPortfolio], snapshot_date: date = date.today()
-    ) -> StockPortfolioSnapshot:
-        """Returns the snapshot of the portfolio at a given time."""
-
-        positions = cls.__get_postions_for_portfolio(portfolios, snapshot_date)
-
-        return StockPortfolioSnapshot(positions=positions)
 
     @staticmethod
     def __get_latest_stock_price(ticker: Stock, snapshot_date: date) -> float:

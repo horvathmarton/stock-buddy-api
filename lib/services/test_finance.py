@@ -141,7 +141,7 @@ class TestGetPortfolioSnapshot(TestCase):
     def test_empty_portfolio(self):
         self.assertEqual(
             self.service.get_portfolio_snapshot([self.portfolio], date(2021, 1, 3)),
-            StockPortfolioSnapshot(positions={}),
+            StockPortfolioSnapshot(positions={}, owner=self.owner),
         )
 
     def test_summarize_distinct_buys(self):
@@ -305,7 +305,7 @@ class TestGetPortfolioSnapshot(TestCase):
 
         result = self.service.get_portfolio_snapshot([self.portfolio], date(2021, 1, 3))
 
-        self.assertEqual(result, StockPortfolioSnapshot(positions={}))
+        self.assertEqual(result, StockPortfolioSnapshot(positions={}, owner=self.owner))
 
     def test_doesnt_contain_excluded_portfolios(self):
         """When requesting for one portfolio it shouldn't contain positions from other portfolios from the user."""

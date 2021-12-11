@@ -21,7 +21,8 @@ class StockViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = StockSerializer
 
 
-class StockPortfolioViewSet(viewsets.ModelViewSet):
+# TODO: Enable updating portfolios later (only the name and description)
+class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = StockPortfolio.objects.all()
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
 
