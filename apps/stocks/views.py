@@ -1,18 +1,22 @@
+from datetime import date
+
+from dateutil import parser
+from dateutil.parser._parser import ParserError
 from django.shortcuts import get_list_or_404, get_object_or_404
-from rest_framework import viewsets
+from lib.permissions import IsOwnerOrAdmin
+from lib.services.finance import FinanceService
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from lib.permissions import IsOwnerOrAdmin
-from lib.services.finance import FinanceService
 
 from .models import Stock, StockPortfolio, StockWatchlist
 from .serializers import (
     StockPortfolioSerializer,
+    StockPortfolioSnapshotSerializer,
     StockSerializer,
     StockWatchlistSerializer,
-    StockPortfolioSnapshotSerializer,
 )
 
 
@@ -33,8 +37,8 @@ class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
 
     def retrieve(self, request: Request, pk: int = None, *args, **kwargs) -> Response:
         portfolio = get_object_or_404(StockPortfolio, pk=pk)
-        portfolio = self.finance_service.get_portfolio_snapshot([portfolio])
 
+        portfolio = self.finance_service.get_portfolio_snapshot([portfolio])
         serializer = StockPortfolioSnapshotSerializer(portfolio)
 
         return Response(serializer.data)
@@ -44,9 +48,20 @@ class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
         """
         Returns a summary for every postion owned by the user.
         """
+        asOf = request.query_params.get("asOf")
+        if asOf:
+            try:
+                asOf = parser.parse(asOf)
+            except ParserError as e:
+                return Response(
+                    {"error": "Invalid date in asOf query param"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         portfolios = get_list_or_404(StockPortfolio, owner=request.user)
-        portfolio = self.finance_service.get_portfolio_snapshot(portfolios)
+        portfolio = self.finance_service.get_portfolio_snapshot(
+            portfolios, snapshot_date=asOf or date.today()
+        )
 
         serializer = StockPortfolioSnapshotSerializer(portfolio)
 
