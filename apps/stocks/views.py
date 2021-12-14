@@ -35,9 +35,21 @@ class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
         self.finance_service = FinanceService()
 
     def retrieve(self, request: Request, pk: int = None, *args, **kwargs) -> Response:
+        asOf = request.query_params.get("asOf")
+        if asOf:
+            try:
+                asOf = parser.parse(asOf)
+            except ParserError as e:
+                return Response(
+                    {"error": "Invalid date in asOf query param"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
         portfolio = get_object_or_404(StockPortfolio, pk=pk)
 
-        portfolio = self.finance_service.get_portfolio_snapshot([portfolio])
+        portfolio = self.finance_service.get_portfolio_snapshot(
+            [portfolio], snapshot_date=asOf or date.today()
+        )
         serializer = StockPortfolioSnapshotSerializer(portfolio)
 
         return Response(serializer.data)
