@@ -30,7 +30,6 @@ from .serializers import (
 
 
 class StockPriceView(APIView):
-    # TODO: Add logging.
     permission_classes = [IsAuthenticated, IsBot]
 
     def __init__(self, *args, **kwargs):
@@ -39,9 +38,6 @@ class StockPriceView(APIView):
 
     @allow_content_types(("multipart/form-data",))
     def post(self, request: Request, ticker: str, format=None) -> Response:
-        # TODO: Add consistency checks.
-        # TODO: Add cross checks.
-
         stock = get_object_or_404(Stock, ticker=ticker)
         sync = StockPriceSync(owner=request.user)
         sync.save()
@@ -107,9 +103,6 @@ class StockDividendView(APIView):
 
     @allow_content_types(("multipart/form-data",))
     def post(self, request: Request, ticker: str, format=None) -> Response:
-        # TODO: Add consistency checks.
-        # TODO: Add cross checks.
-
         stock = get_object_or_404(Stock, ticker=ticker)
         sync = StockDividendSync(owner=request.user)
         sync.save()
@@ -177,9 +170,6 @@ class StockSplitView(APIView):
 
     @allow_content_types(("multipart/form-data",))
     def post(self, request: Request, ticker: str, format=None) -> Response:
-        # TODO: Add consistency checks.
-        # TODO: Add cross checks.
-
         stock = get_object_or_404(Stock, ticker=ticker)
         sync = StockSplitSync(owner=request.user)
         sync.save()

@@ -35,8 +35,6 @@ class Command(BaseCommand):
         mypy = self._result(system(f"mypy {target_folders}"))
         self.stdout.write(ending="\n\n")
 
-        # TODO: This should be integrated later, but for now it only provides false positives.
-        # TODO: The return value is also not usable as it is always 0.
         # self.stdout.write("-------- Analyzing code using bandit. --------", ending="\n\n")
         # bandit = self._result(system(f"bandit -r {target_folder}"))
         # self.stdout.write(ending="\n\n")

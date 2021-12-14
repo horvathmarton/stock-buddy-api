@@ -26,7 +26,6 @@ class StockPositionSnapshot:
     first_purchase_date: date
     # Latest date when the position was changed.
     latest_purchase_date: date
-    # TODO: Uncomment us!
     # ex_dividend_date: date
     # dividend_declaration_date: date
 
