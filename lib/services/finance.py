@@ -50,7 +50,7 @@ class FinanceService:
 
         return round((future_value / present_value) ** (1 / periods) - 1, 4)
 
-    def internal_rate_of_return(self):
+    def internal_rate_of_return(self) -> str:
         """Calculates the internal rate of return (IRR) from a list of cash flows."""
 
         raise NotImplementedError("This function has not been implemented yet.")
@@ -191,7 +191,7 @@ class FinanceService:
     ) -> StockPositionSnapshot:
         ratio = split.ratio
 
-        current_position.shares *= ratio
+        current_position.shares = int(current_position.shares * ratio)
         current_position.purchase_price /= ratio
         current_position.dividend /= ratio
 
