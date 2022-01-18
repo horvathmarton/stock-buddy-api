@@ -6,8 +6,10 @@ from typing import List
 from os import path, getenv
 from pathlib import Path
 from dotenv import load_dotenv
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
-load_dotenv("environments/development.env")
+load_dotenv("environments/staging.env")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -135,3 +137,15 @@ TEST_RUNNER = "core.test.runner.PostgresSchemaTestRunner"
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
 ]
+
+
+# We only want to report in non-development environments.
+environment = getenv("PYTHON_ENV")
+if environment in ("staging", "production"):
+    sentry_sdk.init(
+        dsn="https://7eb17183206c490f9f6283b1707cec07@o1120245.ingest.sentry.io/6155939",
+        integrations=[DjangoIntegration()],
+        traces_sample_rate=0.0,
+        send_default_pii=True,
+        environment=environment,
+    )
