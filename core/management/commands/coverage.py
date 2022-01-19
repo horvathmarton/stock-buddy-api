@@ -11,11 +11,13 @@ class Command(BaseCommand):
     help = "Displays the test coverage report for the project."
 
     def handle(self, *args, **kwargs):
-        target_folders = " ".join(("apps", "lib"))
+        TARGET_FOLDERS = " ".join(("apps", "lib"))
 
         self.stdout.write(ending="\n")
 
         self.stdout.write("-------- Running coverage report. --------", ending="\n\n")
-        system(f"coverage run manage.py test {target_folders}")
-        system("coverage report")
+        system(  # nosec - Target folders are fixed.
+            f"coverage run manage.py test {TARGET_FOLDERS}"
+        )
+        system("coverage report")  # nosec - Fixed command.
         self.stdout.write(ending="\n\n")

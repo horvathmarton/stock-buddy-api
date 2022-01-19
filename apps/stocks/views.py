@@ -39,7 +39,7 @@ class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
         if asOf:
             try:
                 asOf = parser.parse(asOf)
-            except ParserError as e:
+            except ParserError:
                 return Response(
                     {"error": "Invalid date in asOf query param"},
                     status=status.HTTP_400_BAD_REQUEST,
@@ -63,7 +63,7 @@ class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
         if asOf:
             try:
                 asOf = parser.parse(asOf)
-            except ParserError as e:
+            except ParserError:
                 return Response(
                     {"error": "Invalid date in asOf query param"},
                     status=status.HTTP_400_BAD_REQUEST,

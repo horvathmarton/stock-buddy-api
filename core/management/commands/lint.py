@@ -11,35 +11,49 @@ class Command(BaseCommand):
     help = "Format, lint and type check the code. (black, flake8, pylint, mypy, bandit)"
 
     def handle(self, *args, **kwargs):
-        target_folders = " ".join(("apps", "config", "core", "lib"))
+        TARGET_FOLDERS = " ".join(("apps", "config", "core", "lib"))
 
         self.stdout.write(ending="\n")
 
         self.stdout.write(
             "-------- Formatting the code using black. --------", ending="\n\n"
         )
-        black = self._result(system(f"black {target_folders}"))
+        black = self._result(
+            system(f"black {TARGET_FOLDERS}")  # nosec - Target folders are fixed.
+        )
         self.stdout.write(ending="\n\n")
 
         self.stdout.write("-------- Linting code using flake8. --------", ending="\n\n")
-        flake8 = self._result(system(f"flake8 {target_folders}"))
+        flake8 = self._result(
+            system(f"flake8 {TARGET_FOLDERS}")  # nosec - Target folders are fixed.
+        )
         self.stdout.write(ending="\n\n")
 
         self.stdout.write("-------- Linting code using pylint. --------", ending="\n\n")
-        pylint = self._result(system(f"pylint {target_folders}"))
+        pylint = self._result(
+            system(f"pylint {TARGET_FOLDERS}")  # nosec - Target folders are fixed.
+        )
         self.stdout.write(ending="\n\n")
 
         self.stdout.write(
             "-------- Type checking code using mypy. --------", ending="\n\n"
         )
-        mypy = self._result(system(f"mypy {target_folders}"))
+        mypy = self._result(
+            system(f"mypy {TARGET_FOLDERS}")  # nosec - Target folders are fixed.
+        )
         self.stdout.write(ending="\n\n")
 
-        # self.stdout.write("-------- Analyzing code using bandit. --------", ending="\n\n")
-        # bandit = self._result(system(f"bandit -r {target_folder}"))
-        # self.stdout.write(ending="\n\n")
+        self.stdout.write(
+            "-------- Analyzing code using bandit. --------", ending="\n\n"
+        )
+        bandit = self._result(
+            system(f"bandit -r {TARGET_FOLDERS}")  # nosec - Target folders are fixed.
+        )
+        self.stdout.write(ending="\n\n")
 
-        self.stdout.write(f"{black=} {flake8=} {pylint=} {mypy=}\n\n")
+        self.stdout.write(
+            f"{black=} {flake8=} {pylint=} {mypy=} {bandit=}", ending="\n\n"
+        )
 
     @staticmethod
     def _result(exit_code: int) -> str:
