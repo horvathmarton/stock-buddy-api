@@ -147,6 +147,8 @@ class FinanceService:
     def __create_position(
         transaction: StockTransaction, latest_price: float, latest_dividend: float
     ) -> StockPositionSnapshot:
+        """Helper function to generate a new position entity."""
+
         # The dividend info is multiplied by 4 to project the latest quarterly
         # value to the next year.
         return StockPositionSnapshot(
@@ -163,6 +165,8 @@ class FinanceService:
     def __update_position(
         current_position: StockPositionSnapshot, transaction: StockTransaction
     ) -> StockPositionSnapshot:
+        """Helper function to update a position entity."""
+
         # We only change the average price if we buy more stock.
         # We should keep the average untouched when selling.
         if transaction.amount >= 0:
@@ -189,6 +193,8 @@ class FinanceService:
     def __split_position(
         current_position: StockPositionSnapshot, split: StockSplit
     ) -> StockPositionSnapshot:
+        """Helper function to split a position entity."""
+
         ratio = split.ratio
 
         current_position.shares = int(current_position.shares * ratio)

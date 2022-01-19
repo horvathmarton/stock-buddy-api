@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Dict
 
-from apps.stocks.models import Stock
 from django.contrib.auth.models import User
+from apps.stocks.models import Stock
 
 
 @dataclass
@@ -106,22 +106,32 @@ class StockPortfolioSnapshot:
 
     @property
     def assets_under_management(self) -> float:
+        """Property to calculate the total assets under the management of the portfolio."""
+
         return sum((position.size for position in self.positions.values()))
 
     @property
     def capital_invested(self) -> float:
+        """Property to calculate the total invested capital into the portfolio."""
+
         return sum((position.size_at_cost for position in self.positions.values()))
 
     @property
     def dividend(self) -> float:
+        """Property to calculate the total dividend income from the portfolio."""
+
         return sum((position.dividend_income for position in self.positions.values()))
 
     @property
     def dividend_yield(self) -> float:
+        """Property to calculate the aggregated dividend yield in the portfolio."""
+
         return round(self.dividend / self.assets_under_management, 4)
 
     @property
     def number_of_positions(self) -> int:
+        """Property to calculate the number of position in the portfolio."""
+
         return len(self.positions)
 
     @property
