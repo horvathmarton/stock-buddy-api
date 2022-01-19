@@ -1,3 +1,5 @@
+"""Models related to the transactions schema."""
+
 from django.contrib.auth.models import User
 from django.db.models import (
     RESTRICT,
@@ -15,6 +17,8 @@ from .enums import Currency
 
 
 class CashTransaction(Model):
+    """Represents a single transaction where the user deposits or withdraws money from the account."""
+
     currency: CharField = CharField(max_length=3, choices=Currency.choices)
     amount: FloatField = FloatField()
     date: DateField = DateField()
@@ -30,6 +34,8 @@ class CashTransaction(Model):
 
 
 class ForexTransaction(Model):
+    """Represents a single transaction where the user converts between currencies."""
+
     date: DateField = DateField()
     amount: FloatField = FloatField()
     ratio: FloatField = FloatField()
@@ -47,6 +53,8 @@ class ForexTransaction(Model):
 
 
 class StockTransaction(Model):
+    """Represents a single transaction where the user buys or sells a stock."""
+
     ticker: ForeignKey = ForeignKey(Stock, on_delete=RESTRICT)
     amount: FloatField = FloatField()
     price: FloatField = FloatField()

@@ -1,3 +1,5 @@
+"""Define the URL schemes for the stocks route."""
+
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 

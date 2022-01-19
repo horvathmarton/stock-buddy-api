@@ -1,3 +1,5 @@
+"""Models related to the stocks schema."""
+
 from django.contrib.auth.models import User
 from django.db.models import (
     RESTRICT,
@@ -13,6 +15,8 @@ from .enums import Sector
 
 
 class Stock(Model):
+    """Represents a stock tracked by the application."""
+
     ticker: CharField = CharField(primary_key=True, max_length=8)
     name: TextField = TextField()
     description: TextField = TextField(null=True)
@@ -30,6 +34,10 @@ class Stock(Model):
 
 
 class StockPortfolio(Model):
+    """
+    Represents an existing or imaginary portfolio of stocks where each stock has a share count associated to it.
+    """
+
     name: TextField = TextField()
     description: TextField = TextField(null=True)
 
@@ -45,6 +53,8 @@ class StockPortfolio(Model):
 
 
 class StockWatchlist(Model):
+    """Represents a stock watchlist which is a list of stocks tracked by the user."""
+
     name: TextField = TextField()
     description: TextField = TextField(null=True)
 

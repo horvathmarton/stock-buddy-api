@@ -1,7 +1,11 @@
+"""Enums related to the stock module."""
+
 from django.db import models
 
 
 class Sector(models.TextChoices):
+    """Supported stock sectors in the application."""
+
     SOFTWARE = ("Software",)
     HARDWARE = ("Hardware",)
     MEDIA = ("Media",)
