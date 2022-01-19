@@ -2,11 +2,12 @@
 Contains every configuration variable for the application.
 """
 
-from typing import List
-from os import path, getenv
+from os import getenv, path
 from pathlib import Path
-from dotenv import load_dotenv
+from typing import List
+
 import sentry_sdk
+from dotenv import load_dotenv
 from sentry_sdk.integrations.django import DjangoIntegration
 
 load_dotenv("environments/staging.env")
