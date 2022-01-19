@@ -1,9 +1,13 @@
+"""Serializers for the transaction payloads."""
+
 from rest_framework import serializers
 
 from .models import CashTransaction, ForexTransaction, StockTransaction
 
 
 class CashTransactionSerializer(serializers.ModelSerializer):
+    """Serializer of the cash transaction model."""
+
     owner = serializers.ReadOnlyField(source="owner.username")
 
     class Meta:
@@ -12,6 +16,8 @@ class CashTransactionSerializer(serializers.ModelSerializer):
 
 
 class ForexTransactionSerializer(serializers.ModelSerializer):
+    """Serializer of the forex transaction model."""
+
     owner = serializers.ReadOnlyField(source="owner.username")
 
     class Meta:
@@ -28,6 +34,8 @@ class ForexTransactionSerializer(serializers.ModelSerializer):
 
 
 class StockTransactionSerializer(serializers.ModelSerializer):
+    """Serializer of the stock transaction model."""
+
     owner = serializers.ReadOnlyField(source="owner.username")
 
     class Meta:

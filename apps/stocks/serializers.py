@@ -1,15 +1,21 @@
+"""Serializers for the stocks payloads."""
+
 from rest_framework import serializers
 
 from .models import Stock, StockPortfolio, StockWatchlist
 
 
 class StockSerializer(serializers.ModelSerializer):
+    """Serializer of the stock model."""
+
     class Meta:
         model = Stock
         fields = ("ticker", "name", "description", "sector")
 
 
 class StockPortfolioSerializer(serializers.ModelSerializer):
+    """Serializer of the stock portfolio model."""
+
     owner = serializers.ReadOnlyField(source="owner.username")
 
     class Meta:
@@ -18,6 +24,8 @@ class StockPortfolioSerializer(serializers.ModelSerializer):
 
 
 class StockWatchlistSerializer(serializers.ModelSerializer):
+    """Serializer of the stock watchlist model."""
+
     owner = serializers.ReadOnlyField(source="owner.username")
 
     class Meta:
@@ -26,6 +34,10 @@ class StockWatchlistSerializer(serializers.ModelSerializer):
 
 
 class StockPositionSnapshotSerializer(serializers.Serializer):
+    """Serializer of the stock position snapshot payload."""
+
+    # pylint: disable=abstract-method
+
     ticker = serializers.ReadOnlyField(source="stock.ticker")
     name = serializers.ReadOnlyField(source="stock.name")
     sector = serializers.ReadOnlyField(source="stock.sector")
@@ -46,6 +58,10 @@ class StockPositionSnapshotSerializer(serializers.Serializer):
 
 
 class StockPortfolioSnapshotSerializer(serializers.Serializer):
+    """Serializer of the stock portfolio snapshot payload."""
+
+    # pylint: disable=abstract-method
+
     positions = serializers.DictField(child=StockPositionSnapshotSerializer())
     sector_distribution = serializers.DictField(child=serializers.FloatField())
     size_distribution = serializers.DictField(child=serializers.FloatField())

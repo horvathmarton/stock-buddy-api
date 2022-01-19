@@ -1,3 +1,5 @@
+"""Define the URL schemes for the raw data route."""
+
 from django.urls import path
 
 from .views import (

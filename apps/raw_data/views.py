@@ -1,3 +1,5 @@
+"""Business logic for the raw data module."""
+
 from re import findall
 
 from dateutil import parser
@@ -14,7 +16,7 @@ from lib.permissions import IsBot
 from lib.services.csv import CsvService
 from apps.stocks.models import Stock
 
-from .models import (
+from apps.raw_data.models import (
     StockDividend,
     StockDividendSync,
     StockPrice,
@@ -22,7 +24,7 @@ from .models import (
     StockSplit,
     StockSplitSync,
 )
-from .serializers import (
+from apps.raw_data.serializers import (
     StockDividendSerializer,
     StockPriceSerializer,
     StockSplitSerializer,
@@ -30,6 +32,8 @@ from .serializers import (
 
 
 class StockPriceView(APIView):
+    """Business logic for the stock price API."""
+
     permission_classes = [IsAuthenticated, IsBot]
 
     def __init__(self, *args, **kwargs):
@@ -37,7 +41,9 @@ class StockPriceView(APIView):
         self.csv_service = CsvService()
 
     @allow_content_types(("multipart/form-data",))
-    def post(self, request: Request, ticker: str, format=None) -> Response:
+    def post(self, request: Request, ticker: str) -> Response:
+        """Sync price timeseries for a given stock."""
+
         stock = get_object_or_404(Stock, ticker=ticker)
         sync = StockPriceSync(owner=request.user)
         sync.save()
@@ -78,7 +84,11 @@ class StockPriceView(APIView):
 
 
 class StockPriceStatsView(APIView):
-    def get(self, request: Request, format=None) -> Response:
+    """Business logic for the stock price statistics API."""
+
+    def get(self, request: Request) -> Response:
+        """Collect statistical information for the stock prices in the app."""
+
         stats = (
             StockPrice.objects.all()
             .values("ticker")
@@ -95,6 +105,8 @@ class StockPriceStatsView(APIView):
 
 
 class StockDividendView(APIView):
+    """Business logic for the stock dividend API."""
+
     permission_classes = [IsAuthenticated, IsBot]
 
     def __init__(self, *args, **kwargs):
@@ -102,7 +114,9 @@ class StockDividendView(APIView):
         self.csv_service = CsvService()
 
     @allow_content_types(("multipart/form-data",))
-    def post(self, request: Request, ticker: str, format=None) -> Response:
+    def post(self, request: Request, ticker: str) -> Response:
+        """Sync dividend timeseries for a given stock."""
+
         stock = get_object_or_404(Stock, ticker=ticker)
         sync = StockDividendSync(owner=request.user)
         sync.save()
@@ -145,7 +159,11 @@ class StockDividendView(APIView):
 
 
 class StockDividendStatsView(APIView):
-    def get(self, request: Request, format=None) -> Response:
+    """Business logic for the stock dividend statistics API."""
+
+    def get(self, request: Request) -> Response:
+        """Collect statistical information for the stock dividends in the app."""
+
         stats = (
             StockDividend.objects.all()
             .values("ticker")
@@ -162,6 +180,8 @@ class StockDividendStatsView(APIView):
 
 
 class StockSplitView(APIView):
+    """Business logic for the stock split API."""
+
     permission_classes = [IsAuthenticated, IsBot]
 
     def __init__(self, *args, **kwargs):
@@ -169,7 +189,9 @@ class StockSplitView(APIView):
         self.csv_service = CsvService()
 
     @allow_content_types(("multipart/form-data",))
-    def post(self, request: Request, ticker: str, format=None) -> Response:
+    def post(self, request: Request, ticker: str) -> Response:
+        """Sync split timeseries for a given stock."""
+
         stock = get_object_or_404(Stock, ticker=ticker)
         sync = StockSplitSync(owner=request.user)
         sync.save()
@@ -223,7 +245,11 @@ class StockSplitView(APIView):
 
 
 class StockSplitStatsView(APIView):
-    def get(self, request: Request, format=None) -> Response:
+    """Business logic for the stock split statistics API."""
+
+    def get(self, request: Request) -> Response:
+        """Collect statistical information for the stock splits in the app."""
+
         stats = (
             StockSplit.objects.all()
             .values("ticker")

@@ -1,3 +1,5 @@
+"""Models related to the raw data schema."""
+
 from django.contrib.auth.models import User
 from django.db.models import (
     RESTRICT,
@@ -15,6 +17,8 @@ from apps.stocks.models import Stock
 
 
 class StockPriceSync(Model):
+    """Represents a sync action for stock prices."""
+
     status: CharField = CharField(
         max_length=8, choices=SyncStatus.choices, default=SyncStatus.STARTED
     )
@@ -27,6 +31,8 @@ class StockPriceSync(Model):
 
 
 class StockPrice(Model):
+    """Represents a stock price on a given date."""
+
     ticker: ForeignKey = ForeignKey(Stock, on_delete=RESTRICT)
     date: DateField = DateField()
     value: FloatField = FloatField()
@@ -38,6 +44,8 @@ class StockPrice(Model):
 
 
 class StockSplitSync(Model):
+    """Represents a sync action for stock splits."""
+
     status: CharField = CharField(
         max_length=8, choices=SyncStatus.choices, default=SyncStatus.STARTED
     )
@@ -50,6 +58,8 @@ class StockSplitSync(Model):
 
 
 class StockSplit(Model):
+    """Represents a stock split."""
+
     ticker: ForeignKey = ForeignKey(Stock, on_delete=RESTRICT)
     date: DateField = DateField()
     ratio: FloatField = FloatField()
@@ -61,6 +71,8 @@ class StockSplit(Model):
 
 
 class StockDividendSync(Model):
+    """Represents a sync action for stock dividends."""
+
     status: CharField = CharField(
         max_length=8, choices=SyncStatus.choices, default=SyncStatus.STARTED
     )
@@ -73,6 +85,8 @@ class StockDividendSync(Model):
 
 
 class StockDividend(Model):
+    """Represents a stock dividend."""
+
     ticker: ForeignKey = ForeignKey(Stock, on_delete=RESTRICT)
     declaration_date: DateField = DateField(null=True)
     ex_dividend_date: DateField = DateField(null=True)
@@ -86,6 +100,8 @@ class StockDividend(Model):
 
 
 class StockFiling(Model):
+    """Represents a stock filing."""
+
     ticker: ForeignKey = ForeignKey(Stock, on_delete=RESTRICT)
     date: DateField = DateField()
     filename: TextField = TextField()
