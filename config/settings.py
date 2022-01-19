@@ -143,6 +143,7 @@ CORS_ALLOWED_ORIGINS = [
 # We only want to report in non-development environments.
 environment = getenv("PYTHON_ENV")
 if environment in ("staging", "production"):
+    # pylint: disable=abstract-class-instantiated
     sentry_sdk.init(
         dsn="https://7eb17183206c490f9f6283b1707cec07@o1120245.ingest.sentry.io/6155939",
         integrations=[DjangoIntegration()],

@@ -5,7 +5,9 @@ load-plugins = pylint_django
 [MESSAGES CONTROL]
 
 ; E5142: User model imported from django.contrib.auth.models (imported-auth-user)
-disable = E5142
+; R0801: Code duplication (duplicate-code)
+; R0901: Too many accessor during an inheritance (too-many-ancestors)
+disable = E5142,R0801,R0901
 
 [BASIC]
 
