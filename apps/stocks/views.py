@@ -42,6 +42,8 @@ class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
     def retrieve(self, request: Request, *args, pk: int = None, **kwargs) -> Response:
         # pylint: disable=arguments-differ, disable=invalid-name
         as_of = request.query_params.get("asOf")
+        parsed_as_of = None
+
         if as_of:
             try:
                 parsed_as_of = dateutil.parser.parse(as_of)
@@ -66,6 +68,8 @@ class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
         Returns a summary for every postion owned by the user.
         """
         as_of = request.query_params.get("asOf")
+        parsed_as_of = None
+
         if as_of:
             try:
                 parsed_as_of = dateutil.parser.parse(as_of)
