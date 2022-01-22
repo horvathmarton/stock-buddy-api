@@ -14,6 +14,7 @@ def prepare_database(self):
             CREATE SCHEMA raw_data;
             CREATE SCHEMA stocks;
             CREATE SCHEMA transactions;
+            CREATE SCHEMA dashboard;
     """
     )
 

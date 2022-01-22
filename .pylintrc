@@ -14,6 +14,8 @@ disable = E5142,R0801,R0901
 # Regular expression which should only match function or class names that do
 # not require a docstring.
 no-docstring-rgx=^(Test|test_).*$
+# Valid method name for self reference.
+good-names=me
 
 [FORMAT]
 

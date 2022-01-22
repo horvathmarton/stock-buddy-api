@@ -35,13 +35,16 @@ def seed_users():
         is_superuser=True,
         is_staff=True,
     )
-    sync_bot = User.objects.create_user("sync-bot", "sync@stock-buddy.com", "botpass1")
+    sync_bot = User.objects.create_user("sync-bot", "sync@stock-buddy.com", "password")
+    general_user = User.objects.create_user("user", "user@stock-buddy.com", "password")
 
     admin_group = Group.objects.create(name="Admins")
     bots_group = Group.objects.create(name="Bots")
+    investor_group = Group.objects.create(name="Investors")
 
     mhorvath.groups.add(admin_group)
     sync_bot.groups.add(bots_group)
+    general_user.groups.add(investor_group)
 
 
 def seed_stocks():

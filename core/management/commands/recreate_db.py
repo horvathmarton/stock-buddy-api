@@ -64,3 +64,4 @@ def create_schemas():
         cursor.execute(sql.SQL("CREATE SCHEMA raw_data"))
         cursor.execute(sql.SQL("CREATE SCHEMA stocks"))
         cursor.execute(sql.SQL("CREATE SCHEMA transactions"))
+        cursor.execute(sql.SQL("CREATE SCHEMA dashboard"))
