@@ -1,20 +1,21 @@
 """Business logic for the dashboard module."""
 
 from datetime import datetime
+
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
-from rest_framework.exceptions import MethodNotAllowed, ValidationError, NotFound
+from rest_framework.exceptions import MethodNotAllowed, NotFound, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from apps.stocks.models import StockPortfolio
 from lib.enums import Visibility
 from lib.services.finance import FinanceService
 
 from apps.dashboard.models import Strategy, UserStrategy
 from apps.dashboard.serializers import StrategySerializer
+from apps.stocks.models import StockPortfolio
 
 
 class StrategyView(ModelViewSet):
@@ -100,8 +101,9 @@ class StrategyView(ModelViewSet):
 class PortfolioIndicatorView(APIView):
     """Business logic for the portfolio indicators API."""
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self.finance_service = FinanceService()
+        super().__init__(*args, **kwargs)
 
     def get(self, request: Request):
         """
@@ -109,10 +111,7 @@ class PortfolioIndicatorView(APIView):
         of the whole portfolio and the stock section specifically.
         """
 
-        user_portfolios = [
-            portfolio
-            for portfolio in StockPortfolio.objects.filter(owner=self.request.user)
-        ]
+        user_portfolios = list(StockPortfolio.objects.filter(owner=self.request.user))
         if not user_portfolios:
             raise NotFound("The user has no stock portfolios.")
 
