@@ -9,6 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 from lib.permissions import IsOwnerOrAdmin
 from lib.services.finance import FinanceService
 
@@ -55,10 +56,15 @@ class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
 
         portfolio = get_object_or_404(StockPortfolio, pk=pk)
 
-        portfolio = self.finance_service.get_portfolio_snapshot(
+        snapshot = self.finance_service.get_portfolio_snapshot(
             [portfolio], snapshot_date=parsed_as_of or date.today()
         )
-        serializer = StockPortfolioSnapshotSerializer(portfolio)
+        if not snapshot.number_of_positions:
+            raise NotFound(
+                "The portfolio has no transaction data before the selected date."
+            )
+
+        serializer = StockPortfolioSnapshotSerializer(snapshot)
 
         return Response(serializer.data)
 
@@ -83,6 +89,11 @@ class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
         portfolio = self.finance_service.get_portfolio_snapshot(
             portfolios, snapshot_date=parsed_as_of or date.today()
         )
+
+        if not portfolio.number_of_positions:
+            raise NotFound(
+                "The portfolio has no transaction data before the selected date."
+            )
 
         serializer = StockPortfolioSnapshotSerializer(portfolio)
 
