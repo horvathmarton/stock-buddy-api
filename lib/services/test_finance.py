@@ -126,7 +126,13 @@ class TestGetPortfolioSnapshot(TestCase):
 
         StockDividend.objects.create(
             ticker=cls.pm,
-            amount=2,
+            amount=1.5,
+            payout_date=date(2021, 1, 1),
+            sync=cls.dividend_sync,
+        )
+        StockDividend.objects.create(
+            ticker=cls.msft,
+            amount=3,
             payout_date=date(2021, 1, 1),
             sync=cls.dividend_sync,
         )
@@ -175,7 +181,7 @@ class TestGetPortfolioSnapshot(TestCase):
                 stock=self.msft,
                 shares=2,
                 price=90,
-                dividend=0,
+                dividend=12.0,
                 purchase_price=100.01,
                 first_purchase_date=date(2021, 1, 2),
                 latest_purchase_date=date(2021, 1, 2),
@@ -187,7 +193,7 @@ class TestGetPortfolioSnapshot(TestCase):
                 stock=self.pm,
                 shares=3,
                 price=45,
-                dividend=8.0,
+                dividend=6.0,
                 purchase_price=50.02,
                 first_purchase_date=date(2021, 1, 2),
                 latest_purchase_date=date(2021, 1, 2),
@@ -226,7 +232,7 @@ class TestGetPortfolioSnapshot(TestCase):
                 stock=self.msft,
                 shares=5,
                 price=90,
-                dividend=0,
+                dividend=12.0,
                 purchase_price=88.00,
                 first_purchase_date=date(2021, 1, 1),
                 latest_purchase_date=date(2021, 1, 2),
@@ -265,7 +271,7 @@ class TestGetPortfolioSnapshot(TestCase):
                 stock=self.msft,
                 shares=3,
                 price=90,
-                dividend=0,
+                dividend=12.0,
                 purchase_price=100.00,
                 first_purchase_date=date(2021, 1, 1),
                 latest_purchase_date=date(2021, 1, 2),
@@ -352,7 +358,7 @@ class TestGetPortfolioSnapshot(TestCase):
                 stock=self.msft,
                 shares=2,
                 price=90,
-                dividend=0,
+                dividend=12.0,
                 purchase_price=100.01,
                 first_purchase_date=date(2021, 1, 2),
                 latest_purchase_date=date(2021, 1, 2),
@@ -364,7 +370,7 @@ class TestGetPortfolioSnapshot(TestCase):
                 stock=self.pm,
                 shares=3,
                 price=45,
-                dividend=8.0,
+                dividend=6.0,
                 purchase_price=50.02,
                 first_purchase_date=date(2021, 1, 2),
                 latest_purchase_date=date(2021, 1, 2),
@@ -417,7 +423,7 @@ class TestGetPortfolioSnapshot(TestCase):
                 stock=self.msft,
                 shares=2,
                 price=90,
-                dividend=0,
+                dividend=12.0,
                 purchase_price=100.01,
                 first_purchase_date=date(2021, 1, 2),
                 latest_purchase_date=date(2021, 1, 2),
@@ -429,7 +435,7 @@ class TestGetPortfolioSnapshot(TestCase):
                 stock=self.pm,
                 shares=3,
                 price=45,
-                dividend=8.0,
+                dividend=6.0,
                 purchase_price=50.02,
                 first_purchase_date=date(2021, 1, 2),
                 latest_purchase_date=date(2021, 1, 2),
@@ -484,7 +490,7 @@ class TestGetPortfolioSnapshot(TestCase):
                 stock=self.msft,
                 shares=102,
                 price=90,
-                dividend=0,
+                dividend=12.0,
                 purchase_price=100.98,
                 first_purchase_date=date(2021, 1, 2),
                 latest_purchase_date=date(2021, 1, 2),
@@ -496,7 +502,7 @@ class TestGetPortfolioSnapshot(TestCase):
                 stock=self.pm,
                 shares=3,
                 price=45,
-                dividend=8.0,
+                dividend=6.0,
                 purchase_price=50.02,
                 first_purchase_date=date(2021, 1, 2),
                 latest_purchase_date=date(2021, 1, 2),
@@ -560,7 +566,7 @@ class TestGetPortfolioSnapshot(TestCase):
                 stock=self.msft,
                 shares=2,
                 price=90,
-                dividend=0,
+                dividend=12.0,
                 purchase_price=100.01,
                 first_purchase_date=date(2021, 1, 2),
                 latest_purchase_date=date(2021, 1, 2),
@@ -572,7 +578,7 @@ class TestGetPortfolioSnapshot(TestCase):
                 stock=self.pm,
                 shares=3,
                 price=45,
-                dividend=8.0,
+                dividend=6.0,
                 purchase_price=50.02,
                 first_purchase_date=date(2021, 1, 2),
                 latest_purchase_date=date(2021, 1, 2),
@@ -616,14 +622,14 @@ class TestGetPortfolioSnapshot(TestCase):
                 stock=self.pm,
                 shares=7,
                 price=45,
-                dividend=4.0,
+                dividend=3.0,
                 purchase_price=47.14,  # (4 * 45 + 3 * 50) / (4 + 3)
                 first_purchase_date=date(2021, 1, 1),
                 latest_purchase_date=date(2021, 1, 10),
             ),
         )
 
-    def test_selling_non_existent_position_(self):
+    def test_selling_non_existent_position(self):
         """
         We sell a position from the portfolio that was non-existent.
 
@@ -643,3 +649,30 @@ class TestGetPortfolioSnapshot(TestCase):
         result = self.service.get_portfolio_snapshot([self.portfolio], date(2021, 1, 2))
 
         self.assertEqual(result.number_of_positions, 0)
+
+    def test_dividend_distribution_calculation(self):
+        """
+        Buy multiple stocks with dividend the snapshot should contain their dividend distribution.
+        """
+
+        StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 2),
+            ticker=self.msft,
+            owner=self.owner,
+            portfolio=self.portfolio,
+            price=100.01,
+        )
+        StockTransaction.objects.create(
+            amount=3,
+            date=date(2021, 1, 2),
+            ticker=self.pm,
+            owner=self.owner,
+            portfolio=self.portfolio,
+            price=50.02,
+        )
+
+        result = self.service.get_portfolio_snapshot([self.portfolio], date(2021, 1, 3))
+
+        self.assertEqual(result.dividend, 42.0)
+        self.assertEqual(result.dividend_distribution, {"MSFT": 0.5714, "PM": 0.4286})

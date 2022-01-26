@@ -178,7 +178,7 @@ class StockPortfolioSnapshot:
         """Maps each ticker in the portfolio to its dividend size in percentage (e.g.: 0.12 means 12%)."""
 
         return {
-            position.stock.ticker: round(position.dividend_income / self.dividend)
+            position.stock.ticker: round(position.dividend_income / self.dividend, 4)
             for position in self.positions.values()
             if position.dividend_income > 0
         }
