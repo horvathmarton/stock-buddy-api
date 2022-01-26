@@ -2,7 +2,7 @@
 name: Bug report
 about: Report a bug in the system
 title: ''
-labels: "bug \U0001F525"
+labels: "bug \U0001F525, TBW ✍\U0001F3FC"
 assignees: ''
 
 ---
@@ -16,8 +16,6 @@ assignees: ''
 ### Steps to Reproduce the Problem
 
   1.
-
-#### Screenshots
 
 #### Specifications
 
