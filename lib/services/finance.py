@@ -3,6 +3,7 @@ Basic financial calculation realted services and functions.
 """
 
 from datetime import date
+from logging import getLogger
 from typing import List, Dict
 
 from apps.raw_data.models import StockDividend, StockPrice, StockSplit
@@ -10,6 +11,9 @@ from apps.stocks.models import Stock, StockPortfolio
 from apps.transactions.models import StockTransaction
 
 from ..dataclasses import StockPositionSnapshot, StockPortfolioSnapshot
+
+
+LOGGER = getLogger(__name__)
 
 
 class FinanceService:
@@ -48,6 +52,8 @@ class FinanceService:
         Rounding to four precision to avoid floating point math error.
         """
 
+        LOGGER.debug("Calculating rate of investment return.")
+
         return round((future_value / present_value) ** (1 / periods) - 1, 4)
 
     def internal_rate_of_return(self) -> str:
@@ -65,6 +71,8 @@ class FinanceService:
         cls, portfolios: List[StockPortfolio], snapshot_date: date = date.today()
     ) -> StockPortfolioSnapshot:
         """Returns the snapshot of the portfolio at a given time."""
+
+        LOGGER.debug("Generating snapshot for %s portfolio.", len(portfolios))
 
         positions = cls.__get_postions_for_portfolio(portfolios, snapshot_date)
 

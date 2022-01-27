@@ -2,8 +2,8 @@
 Contains every configuration variable for the application.
 """
 
-from os import getenv, path
-from pathlib import Path
+import time
+from os import getenv
 from typing import List
 
 import sentry_sdk
@@ -11,10 +11,6 @@ from dotenv import load_dotenv
 from sentry_sdk.integrations.django import DjangoIntegration
 
 load_dotenv("environments/staging.env")
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent
-LOGS_DIR = path.join(BASE_DIR, "logs")
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = getenv("SECRET_KEY")
@@ -139,6 +135,46 @@ TEST_RUNNER = "core.test.runner.PostgresSchemaTestRunner"
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
 ]
+
+# Logging config
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {
+            "format": f"[%(asctime)s{time.strftime('%z')}] %(levelname)s - %(message)s",
+        },
+        "verbose": {
+            "format": f"""
+                %(asctime)s{
+                    time.strftime('%z (%Z)')
+                } | %(levelname)s | %(message)s | %(module)s | %(process)d | %(thread)d
+            """,
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": getenv("LOG_LEVEL"),
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+        "info_file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": getenv("LOG_INFO_PATH"),
+            "formatter": "verbose",
+        },
+        "error_file": {
+            "level": "ERROR",
+            "class": "logging.FileHandler",
+            "filename": getenv("LOG_ERROR_PATH"),
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "": {"level": "DEBUG", "handlers": ["console", "info_file", "error_file"]},
+    },
+}
 
 
 # We only want to report in non-development environments.

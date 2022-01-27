@@ -2,10 +2,14 @@
 CSV handling related service.
 """
 
+from logging import getLogger
 from functools import reduce
 from typing import Callable, Dict, Generator, List, TextIO, Tuple
 
 ParsedRow = Dict[str, str]
+
+
+LOGGER = getLogger(__name__)
 
 
 class CsvService:
@@ -30,6 +34,7 @@ class CsvService:
         Parses the passed buffer to a tuple of dicts based on the provided schema.
         """
 
+        LOGGER.debug("Parsing CSV buffer.")
         try:
             content = buffer.read()
             if isinstance(content, bytes):
@@ -70,6 +75,8 @@ class CsvService:
         Raises ValueError if unsuccessful.
         """
 
+        LOGGER.debug("Trying to guess the CSV delimiter in the file.")
+
         possible_delimiters = (",", ";", "\t", "|")
         delimiter_candidates = [
             delimiter for delimiter in possible_delimiters if delimiter in header
@@ -93,6 +100,8 @@ class CsvService:
         """
         Generates and index where the key is the alias for the column and the value is the index in a CSV row.
         """
+
+        LOGGER.debug("Indexing the file header.")
 
         header_cells = header.split(delimiter)
 
