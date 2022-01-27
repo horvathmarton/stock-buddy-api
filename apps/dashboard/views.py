@@ -1,6 +1,7 @@
 """Business logic for the dashboard module."""
 
 from datetime import datetime
+from logging import getLogger
 
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
@@ -18,6 +19,9 @@ from apps.dashboard.serializers import StrategySerializer
 from apps.stocks.models import StockPortfolio
 
 
+LOGGER = getLogger(__name__)
+
+
 class StrategyView(ModelViewSet):
     """Business logic for the strategy API."""
 
@@ -29,11 +33,20 @@ class StrategyView(ModelViewSet):
     def me(self, request: Request) -> Response:
         """Fetch the authenticated user's current and target strategy."""
 
+        LOGGER.info("Lookup target and current strategies for %s.", self.request.user)
+
+        LOGGER.debug("List strategies belonging to %s.", self.request.user)
         strategies = UserStrategy.objects.filter(user=self.request.user)
 
         if not strategies:
+            LOGGER.warning("%s sees no strategies.", self.request.user)
             return Response("Not found")
 
+        LOGGER.debug(
+            "Selecting the target strategy %s for %s.",
+            strategies[0].id,
+            self.request.user,
+        )
         strategy = Strategy.objects.get(pk=strategies[0].id)
         serializer = self.get_serializer(strategy)
 
@@ -49,12 +62,17 @@ class StrategyView(ModelViewSet):
         """Sets a target strategy for the authenticated user."""
 
         strategy_id = request.data.get("strategy")
-
+        LOGGER.info(
+            "%s is trying to select %s as target strategy.",
+            self.request.user,
+            strategy_id,
+        )
         if not isinstance(strategy_id, int):
             raise ValidationError(
                 "Strategy property is required and must be an integer."
             )
 
+        LOGGER.debug("Looking up %s.", strategy_id)
         strategy = get_object_or_404(Strategy, pk=strategy_id)
         if (
             strategy.visibility != Visibility.PUBLIC
@@ -62,6 +80,9 @@ class StrategyView(ModelViewSet):
         ):
             raise NotFound()
 
+        LOGGER.debug(
+            "Updating target strategy for %s to %s.", self.request.user, strategy_id
+        )
         UserStrategy.objects.update_or_create(
             user=self.request.user, defaults={"strategy": strategy}
         )
@@ -72,11 +93,19 @@ class StrategyView(ModelViewSet):
         """Update the name of the given strategy."""
 
         name = request.data.get("name")
-
+        strategy_id = kwargs["pk"]
+        LOGGER.info(
+            "%s is trying to update %s strategy's name to %s.",
+            self.request.user,
+            strategy_id,
+            name,
+        )
         if not isinstance(name, str):
             raise ValidationError("Name property is required and must be a string.")
 
-        strategy = get_object_or_404(Strategy, id=kwargs["pk"])
+        LOGGER.debug("Looking up %s.", strategy_id)
+        strategy = get_object_or_404(Strategy, id=strategy_id)
+        LOGGER.debug("Updating %s strategy's name to %s.", strategy_id, name)
         strategy.name = name
         strategy.save()
 
@@ -85,6 +114,7 @@ class StrategyView(ModelViewSet):
         return Response(serializer.data)
 
     def destroy(self, request: Request, *args, **kwargs) -> Response:
+        LOGGER.warning("%s is trying to delete a strategy.", self.request.user)
         raise MethodNotAllowed(
             detail="Strategies cannot be deleted via API.", method="DELETE"
         )
@@ -111,14 +141,26 @@ class PortfolioIndicatorView(APIView):
         of the whole portfolio and the stock section specifically.
         """
 
+        LOGGER.info(
+            "Collecting portfolio indicators for %s's dashboard.",
+            self.request.user,
+        )
+
+        LOGGER.debug("Lookup stock portfolios for %s.", self.request.user)
         user_portfolios = list(StockPortfolio.objects.filter(owner=self.request.user))
         if not user_portfolios:
             raise NotFound("The user has no stock portfolios.")
 
+        LOGGER.debug(
+            "Calculating the summary of %s portfolio for %s.",
+            len(user_portfolios),
+            self.request.user,
+        )
         summary = self.finance_service.get_portfolio_snapshot(
             portfolios=user_portfolios
         )
 
+        LOGGER.debug("Calculating portfolio indicators for %s.", self.request.user)
         aum = summary.assets_under_management
         capital = summary.capital_invested
         pnl = aum - capital

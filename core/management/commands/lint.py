@@ -23,15 +23,11 @@ class Command(BaseCommand):
         )
         self.stdout.write(ending="\n\n")
 
-        self.stdout.write("-------- Linting code using flake8. --------", ending="\n\n")
-        flake8 = self._result(
-            system(f"flake8 {TARGET_FOLDERS}")  # nosec - Target folders are fixed.
+        self.stdout.write(
+            "-------- Analyzing code using bandit. --------", ending="\n\n"
         )
-        self.stdout.write(ending="\n\n")
-
-        self.stdout.write("-------- Linting code using pylint. --------", ending="\n\n")
-        pylint = self._result(
-            system(f"pylint {TARGET_FOLDERS}")  # nosec - Target folders are fixed.
+        bandit = self._result(
+            system(f"bandit -r {TARGET_FOLDERS}")  # nosec - Target folders are fixed.
         )
         self.stdout.write(ending="\n\n")
 
@@ -43,11 +39,15 @@ class Command(BaseCommand):
         )
         self.stdout.write(ending="\n\n")
 
-        self.stdout.write(
-            "-------- Analyzing code using bandit. --------", ending="\n\n"
+        self.stdout.write("-------- Linting code using flake8. --------", ending="\n\n")
+        flake8 = self._result(
+            system(f"flake8 {TARGET_FOLDERS}")  # nosec - Target folders are fixed.
         )
-        bandit = self._result(
-            system(f"bandit -r {TARGET_FOLDERS}")  # nosec - Target folders are fixed.
+        self.stdout.write(ending="\n\n")
+
+        self.stdout.write("-------- Linting code using pylint. --------", ending="\n\n")
+        pylint = self._result(
+            system(f"pylint {TARGET_FOLDERS}")  # nosec - Target folders are fixed.
         )
         self.stdout.write(ending="\n\n")
 

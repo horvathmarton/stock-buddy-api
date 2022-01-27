@@ -1,5 +1,7 @@
 """Business logic for the transactions module."""
 
+from logging import getLogger
+
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from lib.permissions import IsOwnerOrAdmin
@@ -12,6 +14,9 @@ from .serializers import (
 )
 
 
+LOGGER = getLogger(__name__)
+
+
 class CashTransactionViewSet(viewsets.ModelViewSet):
     """Business logic for the cash transaction API."""
 
@@ -20,6 +25,7 @@ class CashTransactionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
 
     def perform_create(self, serializer):
+        LOGGER.debug("Inserting a new cash transaction for %s.", self.request.user)
         serializer.save(owner=self.request.user)
 
     def filter_queryset(self, queryset):
@@ -39,6 +45,7 @@ class ForexTransactionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOwnerOrAdmin]
 
     def perform_create(self, serializer):
+        LOGGER.debug("Inserting a new forex transaction for %s.", self.request.user)
         serializer.save(owner=self.request.user)
 
     def filter_queryset(self, queryset):
@@ -56,6 +63,7 @@ class StockTransactionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
 
     def perform_create(self, serializer):
+        LOGGER.debug("Inserting a new stock transaction for %s.", self.request.user)
         serializer.save(owner=self.request.user)
 
     def filter_queryset(self, queryset):

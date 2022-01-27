@@ -1,8 +1,10 @@
 """Custom test runners for the project."""
 
+import logging
 from types import MethodType
-from django.test.runner import DiscoverRunner
+
 from django.db import connections
+from django.test.runner import DiscoverRunner
 
 
 def prepare_database(self):
@@ -15,12 +17,16 @@ def prepare_database(self):
             CREATE SCHEMA stocks;
             CREATE SCHEMA transactions;
             CREATE SCHEMA dashboard;
-    """
+        """
     )
 
 
 class PostgresSchemaTestRunner(DiscoverRunner):
     """Custom test runner to set up Postgres database schemas properly, before running."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        logging.disable(logging.CRITICAL)
 
     def setup_databases(self, **kwargs):
         for connection_name in connections:

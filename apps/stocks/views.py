@@ -1,5 +1,6 @@
 """Business logic for the stocks module."""
 
+from logging import getLogger
 from datetime import date
 
 import dateutil
@@ -22,6 +23,9 @@ from .serializers import (
 )
 
 
+LOGGER = getLogger(__name__)
+
+
 class StockViewSet(viewsets.ReadOnlyModelViewSet):
     """Business logic for the stock API."""
 
@@ -42,6 +46,7 @@ class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
 
     def retrieve(self, request: Request, *args, pk: int = None, **kwargs) -> Response:
         # pylint: disable=arguments-differ, disable=invalid-name
+        LOGGER.debug("Parsing as_of parameter from the request.")
         as_of = request.query_params.get("asOf")
         parsed_as_of = None
 
@@ -54,6 +59,14 @@ class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
+        LOGGER.info(
+            "The user %s has requested %s portfolio as of %s.",
+            request.user,
+            pk,
+            parsed_as_of,
+        )
+
+        LOGGER.debug("Looking for %s portfolio.", pk)
         portfolio = get_object_or_404(StockPortfolio, pk=pk)
 
         snapshot = self.finance_service.get_portfolio_snapshot(
@@ -64,6 +77,7 @@ class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
                 "The portfolio has no transaction data before the selected date."
             )
 
+        LOGGER.debug("Validating output for %s stock portfolio snapshot.", pk)
         serializer = StockPortfolioSnapshotSerializer(snapshot)
 
         return Response(serializer.data)
@@ -73,6 +87,8 @@ class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
         """
         Returns a summary for every postion owned by the user.
         """
+
+        LOGGER.debug("Parsing as_of parameter from the request.")
         as_of = request.query_params.get("asOf")
         parsed_as_of = None
 
@@ -85,16 +101,30 @@ class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
+        LOGGER.info(
+            "The user %s has requested a portfolio summary as of %s.",
+            self.request.user,
+            parsed_as_of,
+        )
+
+        LOGGER.debug("Looking up portfolios belonging to %s.", request.user)
         portfolios = get_list_or_404(StockPortfolio, owner=request.user)
         portfolio = self.finance_service.get_portfolio_snapshot(
             portfolios, snapshot_date=parsed_as_of or date.today()
         )
 
         if not portfolio.number_of_positions:
+            LOGGER.warning(
+                "%s has no active postion to summarize as of %s.",
+                request.user,
+                parsed_as_of,
+            )
+
             raise NotFound(
                 "The portfolio has no transaction data before the selected date."
             )
 
+        LOGGER.debug("Validating output for stock portfolio summary snapshot.")
         serializer = StockPortfolioSnapshotSerializer(portfolio)
 
         return Response(serializer.data)
@@ -102,6 +132,7 @@ class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
     def perform_create(self, serializer):
         """We have to redefine the saving process to use the serializer."""
 
+        LOGGER.debug("Inserting a new stock portfolio for %s.", self.request.user)
         serializer.save(owner=self.request.user)
 
     def filter_queryset(self, queryset):
@@ -126,6 +157,7 @@ class StockWatchlistViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
 
     def perform_create(self, serializer):
+        LOGGER.debug("Inserting a new stock portfolio for %s.", self.request.user)
         serializer.save(owner=self.request.user)
 
     def filter_queryset(self, queryset):
