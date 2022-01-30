@@ -4,6 +4,7 @@ from datetime import datetime
 from logging import getLogger
 
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed, NotFound, ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -125,7 +126,9 @@ class StrategyView(ModelViewSet):
         if is_admin:
             return queryset
 
-        return queryset.filter(owner=self.request.user)
+        return queryset.filter(
+            Q(owner=self.request.user) | Q(visibility=Visibility.PUBLIC)
+        )
 
 
 class PortfolioIndicatorView(APIView):

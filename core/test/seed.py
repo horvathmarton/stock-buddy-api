@@ -3,6 +3,7 @@
 from datetime import date
 
 from django.contrib.auth.models import Group, User
+from apps.dashboard.models import Strategy, StrategyItem, UserStrategy
 from apps.raw_data.models import (
     StockDividend,
     StockDividendSync,
@@ -13,7 +14,7 @@ from apps.raw_data.models import (
 )
 from apps.stocks.enums import Sector
 from apps.stocks.models import Stock, StockPortfolio, StockWatchlist
-from lib.enums import SyncStatus
+from lib.enums import SyncStatus, Visibility
 
 
 class _UsersSeed:  # pylint: disable=too-few-public-methods
@@ -226,6 +227,45 @@ class _StockSplitsSeed:  # pylint: disable=too-few-public-methods
         )
 
 
+class _StrategySeed:  # pylint: disable=too-few-public-methods
+    """
+    main - Main strategy could be the focus of the test cases.
+    public - A public strategy could be used for comparison and visibility check.
+    other_users - A strategy owned by the other user.
+    """
+
+    def __init__(self, USERS):
+        self.main = Strategy.objects.create(
+            name="Main strategy",
+            visibility=Visibility.PRIVATE,
+            owner=USERS.owner,
+        )
+        self.public = Strategy.objects.create(
+            name="Public strategy",
+            visibility=Visibility.PUBLIC,
+            owner=USERS.other,
+        )
+        self.other_users = Strategy.objects.create(
+            name="Other user's strategy",
+            visibility=Visibility.PRIVATE,
+            owner=USERS.other,
+        )
+
+        # Main strategy items.
+        StrategyItem.objects.create(name="stock", size=0.5, strategy=self.main)
+        StrategyItem.objects.create(name="real-estate", size=0.4, strategy=self.main)
+        StrategyItem.objects.create(name="crypto", size=0.1, strategy=self.main)
+        # Public strategy items.
+        StrategyItem.objects.create(name="stock", size=0.4, strategy=self.public)
+        StrategyItem.objects.create(name="bond", size=0.6, strategy=self.public)
+        # Other user's strategy items.
+        StrategyItem.objects.create(
+            name="commodity", size=0.3, strategy=self.other_users
+        )
+        StrategyItem.objects.create(name="gold", size=0.3, strategy=self.other_users)
+        StrategyItem.objects.create(name="cash", size=0.4, strategy=self.other_users)
+
+
 class _Seed:  # pylint: disable=too-few-public-methods, disable=invalid-name, too-many-instance-attributes
     """
     Seed object that is returned when generating test data.
@@ -247,6 +287,7 @@ class _Seed:  # pylint: disable=too-few-public-methods, disable=invalid-name, to
         STOCK_SPLIT_SYNCS,
         STOCK_SPLITS,
         WATCHLISTS,
+        STRATEGIES,
     ):
         self.USERS = USERS
         self.GROUPS = GROUPS
@@ -259,6 +300,7 @@ class _Seed:  # pylint: disable=too-few-public-methods, disable=invalid-name, to
         self.STOCK_SPLIT_SYNCS = STOCK_SPLIT_SYNCS
         self.STOCK_SPLITS = STOCK_SPLITS
         self.WATCHLISTS = WATCHLISTS
+        self.STRATEGIES = STRATEGIES
 
 
 def generate_test_data():
@@ -287,6 +329,10 @@ def generate_test_data():
     stock_dividends = _StockDividendsSeed(stocks, stock_dividend_syncs)
     stock_splits = _StockSplitsSeed(stocks, stock_split_syncs)
 
+    strategies = _StrategySeed(users)
+
+    UserStrategy.objects.create(user=users.owner, strategy=strategies.main)
+
     return _Seed(
         USERS=users,
         GROUPS=groups,
@@ -299,4 +345,5 @@ def generate_test_data():
         STOCK_SPLIT_SYNCS=stock_split_syncs,
         STOCK_SPLITS=stock_splits,
         WATCHLISTS=watchlists,
+        STRATEGIES=strategies,
     )
