@@ -2,15 +2,11 @@
 
 from datetime import date
 
-from django.contrib.auth.models import User
 from django.test import TestCase
 from rest_framework.test import APIClient
+from core.test.seed import generate_test_data
 
-from apps.raw_data.models import StockPrice, StockPriceSync
-from apps.stocks.enums import Sector
-from apps.stocks.models import Stock, StockPortfolio
 from apps.transactions.models import StockTransaction
-from lib.enums import SyncStatus
 
 
 class TestStockPortfolioDetail(TestCase):
@@ -19,39 +15,22 @@ class TestStockPortfolioDetail(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.owner = User.objects.create_user(
-            "owner", "owner@stock-buddy.com", "password"
-        )
-
-        cls.msft = Stock.objects.create(
-            active=True,
-            name="Microsoft Corporation",
-            ticker="MSFT",
-            sector=Sector.SOFTWARE,
-        )
-
-        cls.portfolio = StockPortfolio.objects.create(
-            name="Example portfolio", owner=cls.owner
-        )
-
-        cls.price_sync = StockPriceSync.objects.create(
-            owner=cls.owner, status=SyncStatus.FINISHED
-        )
-
-        StockPrice.objects.create(
-            ticker=cls.msft, date=date(2021, 1, 1), value=89, sync=cls.price_sync
-        )
+        data = generate_test_data()
+        cls.USERS = data.USERS
+        cls.STOCKS = data.STOCKS
+        cls.PORTFOLIOS = data.PORTFOLIOS
+        cls.SYNCS = data.STOCK_PRICE_SYNCS
 
         StockTransaction.objects.create(
             amount=2,
             date=date(2021, 1, 1),
-            ticker=cls.msft,
-            owner=cls.owner,
-            portfolio=cls.portfolio,
+            ticker=cls.STOCKS.MSFT,
+            owner=cls.USERS.owner,
+            portfolio=cls.PORTFOLIOS.main,
             price=100.01,
         )
 
-        cls.url = f"/stocks/portfolios/{cls.portfolio.id}/"
+        cls.url = f"/stocks/portfolios/{cls.PORTFOLIOS.main.id}/"
 
     def test_fetch_before_first_transaction(self):
         self.client.login(  # nosec - Password hardcoded intentionally in test.
@@ -73,49 +52,25 @@ class TestStockPortfolioSummary(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.owner = User.objects.create_user(
-            "owner", "owner@stock-buddy.com", "password"
-        )
-
-        cls.msft = Stock.objects.create(
-            active=True,
-            name="Microsoft Corporation",
-            ticker="MSFT",
-            sector=Sector.SOFTWARE,
-        )
-
-        cls.portfolio = StockPortfolio.objects.create(
-            name="Example portfolio", owner=cls.owner
-        )
-        cls.other_portfolio = StockPortfolio.objects.create(
-            name="Other portfolio", owner=cls.owner
-        )
-
-        cls.price_sync = StockPriceSync.objects.create(
-            owner=cls.owner, status=SyncStatus.FINISHED
-        )
-
-        StockPrice.objects.create(
-            ticker=cls.msft, date=date(2020, 12, 31), value=89, sync=cls.price_sync
-        )
-        StockPrice.objects.create(
-            ticker=cls.msft, date=date(2021, 1, 1), value=89, sync=cls.price_sync
-        )
+        data = generate_test_data()
+        cls.USERS = data.USERS
+        cls.STOCKS = data.STOCKS
+        cls.PORTFOLIOS = data.PORTFOLIOS
 
         StockTransaction.objects.create(
             amount=2,
             date=date(2021, 1, 1),
-            ticker=cls.msft,
-            owner=cls.owner,
-            portfolio=cls.portfolio,
+            ticker=cls.STOCKS.MSFT,
+            owner=cls.USERS.owner,
+            portfolio=cls.PORTFOLIOS.main,
             price=90.02,
         )
         StockTransaction.objects.create(
             amount=2,
             date=date(2020, 12, 31),
-            ticker=cls.msft,
-            owner=cls.owner,
-            portfolio=cls.other_portfolio,
+            ticker=cls.STOCKS.MSFT,
+            owner=cls.USERS.owner,
+            portfolio=cls.PORTFOLIOS.other,
             price=100.01,
         )
 

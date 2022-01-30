@@ -29,6 +29,11 @@ class StockPositionSnapshot:
     # ex_dividend_date: date
     # dividend_declaration_date: date
 
+    def __repr__(self) -> str:
+        return f"""{self.stock.ticker} (p={self.price}, s={self.shares}, pp={
+            self.purchase_price
+        }, d={self.dividend}, fp={self.first_purchase_date}, lp={self.latest_purchase_date})"""
+
     def __eq__(self, o: object) -> bool:
         if not isinstance(o, StockPositionSnapshot):
             return NotImplemented
