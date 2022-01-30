@@ -29,7 +29,7 @@ LOGGER = getLogger(__name__)
 class StockViewSet(viewsets.ReadOnlyModelViewSet):
     """Business logic for the stock API."""
 
-    queryset = Stock.objects.all().filter(active=True)
+    queryset = Stock.objects.filter(active=True)
     serializer_class = StockSerializer
 
 

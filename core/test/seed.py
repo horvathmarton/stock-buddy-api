@@ -1,4 +1,4 @@
-"""Seed data fro testing."""
+"""Seed data for testing."""
 
 from datetime import date
 
@@ -12,7 +12,7 @@ from apps.raw_data.models import (
     StockSplitSync,
 )
 from apps.stocks.enums import Sector
-from apps.stocks.models import Stock, StockPortfolio
+from apps.stocks.models import Stock, StockPortfolio, StockWatchlist
 from lib.enums import SyncStatus
 
 
@@ -57,6 +57,8 @@ class _StocksSeed:  # pylint: disable=too-few-public-methods
     MSFT - Microsoft Corporation
     PM - Philip Morris International
     BABA - Alibaba Group Holding
+
+    EV - Eaton Vance, this is an acquired company, not existing anymore. Good for testing an inactive stock.
     """
 
     def __init__(self):
@@ -80,9 +82,15 @@ class _StocksSeed:  # pylint: disable=too-few-public-methods
             ticker="BABA",
             sector=Sector.CONSUMER_SERVICES,
         )
+        self.EV = Stock.objects.create(
+            active=False,
+            name="Eaton Vance",
+            ticker="EV",
+            sector=Sector.FINANCIAL_SERVICES,
+        )
 
 
-class _PortfolioSeed:  # pylint: disable=too-few-public-methods ∑
+class _PortfolioSeed:  # pylint: disable=too-few-public-methods
     """
     main - Main portfolio that could be the focus of the test cases.
     other - A secondary portfolio that could be used for comparison.
@@ -97,6 +105,21 @@ class _PortfolioSeed:  # pylint: disable=too-few-public-methods ∑
             name="Other portfolio", owner=USERS.owner
         )
         self.other_users = StockPortfolio.objects.create(
+            name="Other user's portfolio", owner=USERS.other
+        )
+
+
+class _StockWatchlistSeed:  # pylint: disable=too-few-public-methods
+    """
+    main - Main watchlist that could be the focus of the test cases.
+    other_users - A watchlist owned by the other user.
+    """
+
+    def __init__(self, USERS):
+        self.main = StockWatchlist.objects.create(
+            name="Example portfolio", owner=USERS.owner
+        )
+        self.other_users = StockWatchlist.objects.create(
             name="Other user's portfolio", owner=USERS.other
         )
 
@@ -223,6 +246,7 @@ class _Seed:  # pylint: disable=too-few-public-methods, disable=invalid-name, to
         STOCK_DIVIDENDS,
         STOCK_SPLIT_SYNCS,
         STOCK_SPLITS,
+        WATCHLISTS,
     ):
         self.USERS = USERS
         self.GROUPS = GROUPS
@@ -234,6 +258,7 @@ class _Seed:  # pylint: disable=too-few-public-methods, disable=invalid-name, to
         self.STOCK_DIVIDENDS = STOCK_DIVIDENDS
         self.STOCK_SPLIT_SYNCS = STOCK_SPLIT_SYNCS
         self.STOCK_SPLITS = STOCK_SPLITS
+        self.WATCHLISTS = WATCHLISTS
 
 
 def generate_test_data():
@@ -252,6 +277,8 @@ def generate_test_data():
     users.bot.groups.add(groups.bots)
 
     portfolios = _PortfolioSeed(users)
+    watchlists = _StockWatchlistSeed(users)
+
     stock_price_syncs = _StockPriceSyncsSeed(users)
     stock_dividend_syncs = _StockDividendSyncsSeed(users)
     stock_split_syncs = _StockSplitSyncsSeed(users)
@@ -271,4 +298,5 @@ def generate_test_data():
         STOCK_DIVIDENDS=stock_dividends,
         STOCK_SPLIT_SYNCS=stock_split_syncs,
         STOCK_SPLITS=stock_splits,
+        WATCHLISTS=watchlists,
     )
