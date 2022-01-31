@@ -315,11 +315,11 @@ class TestStockWatchlistDetail(TestCase):
 
 
 class TestStockWatchlistCreate(TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.client = APIClient()
 
     @classmethod
-    def setUpTestData(cls) -> None:
+    def setUpTestData(cls):
         data = generate_test_data()
         cls.USERS = data.USERS
         cls.WATCHLISTS = data.WATCHLISTS
@@ -388,11 +388,11 @@ class TestStockWatchlistCreate(TestCase):
 
 
 class TestStockWatchlistUpdate(TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.client = APIClient()
 
     @classmethod
-    def setUpTestData(cls) -> None:
+    def setUpTestData(cls):
         data = generate_test_data()
         cls.USERS = data.USERS
         cls.WATCHLISTS = data.WATCHLISTS
@@ -454,11 +454,11 @@ class TestStockWatchlistUpdate(TestCase):
 
 
 class TestStockWatchlistDelete(TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.client = APIClient()
 
     @classmethod
-    def setUpTestData(cls) -> None:
+    def setUpTestData(cls):
         data = generate_test_data()
         cls.USERS = data.USERS
         cls.WATCHLISTS = data.WATCHLISTS

@@ -42,7 +42,7 @@ class ForexTransactionViewSet(viewsets.ModelViewSet):
 
     queryset = ForexTransaction.objects.all()
     serializer_class = ForexTransactionSerializer
-    permission_classes = [IsOwnerOrAdmin]
+    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
 
     def perform_create(self, serializer):
         LOGGER.debug("Inserting a new forex transaction for %s.", self.request.user)
