@@ -1,22 +1,23 @@
 """Integration tests for the dashboard API."""
 
 from datetime import date
+
 from django.db.models import Q
 from django.test import TestCase
 from rest_framework.test import APIClient
-from apps.transactions.models import StockTransaction
 from core.test.seed import generate_test_data
+from lib.enums import Visibility
 
 from apps.dashboard.models import Strategy, UserStrategy
-from lib.enums import Visibility
+from apps.transactions.models import StockTransaction
 
 
 class TestStrategyList(TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.client = APIClient()
 
     @classmethod
-    def setUpTestData(cls) -> None:
+    def setUpTestData(cls):
         data = generate_test_data()
         cls.USERS = data.USERS
 
@@ -45,11 +46,11 @@ class TestStrategyList(TestCase):
 
 
 class TestStrategyDetail(TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.client = APIClient()
 
     @classmethod
-    def setUpTestData(cls) -> None:
+    def setUpTestData(cls):
         data = generate_test_data()
         cls.USERS = data.USERS
         cls.STRATEGIES = data.STRATEGIES
@@ -93,11 +94,11 @@ class TestStrategyDetail(TestCase):
 
 
 class TestCurrentStrategy(TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.client = APIClient()
 
     @classmethod
-    def setUpTestData(cls) -> None:
+    def setUpTestData(cls):
         data = generate_test_data()
         cls.USERS = data.USERS
         cls.STRATEGIES = data.STRATEGIES
@@ -122,11 +123,11 @@ class TestCurrentStrategy(TestCase):
 
 
 class TestStrategySelection(TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.client = APIClient()
 
     @classmethod
-    def setUpTestData(cls) -> None:
+    def setUpTestData(cls):
         data = generate_test_data()
         cls.USERS = data.USERS
         cls.STRATEGIES = data.STRATEGIES
@@ -159,11 +160,11 @@ class TestStrategySelection(TestCase):
 
 
 class TestStrategyCreate(TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.client = APIClient()
 
     @classmethod
-    def setUpTestData(cls) -> None:
+    def setUpTestData(cls):
         data = generate_test_data()
         cls.USERS = data.USERS
 
@@ -282,11 +283,11 @@ class TestStrategyCreate(TestCase):
 
 
 class TestStrategyUpdate(TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.client = APIClient()
 
     @classmethod
-    def setUpTestData(cls) -> None:
+    def setUpTestData(cls):
         data = generate_test_data()
         cls.USERS = data.USERS
         cls.STRATEGIES = data.STRATEGIES
@@ -422,11 +423,11 @@ class TestStrategyUpdate(TestCase):
 
 
 class TestStrategyDelete(TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.client = APIClient()
 
     @classmethod
-    def setUpTestData(cls) -> None:
+    def setUpTestData(cls):
         data = generate_test_data()
         cls.USERS = data.USERS
         cls.STRATEGIES = data.STRATEGIES
@@ -450,11 +451,11 @@ class TestStrategyDelete(TestCase):
 
 
 class TestPortfolioIndicators(TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.client = APIClient()
 
     @classmethod
-    def setUpTestData(cls) -> None:
+    def setUpTestData(cls):
         data = generate_test_data()
         cls.USERS = data.USERS
         cls.STOCKS = data.STOCKS
