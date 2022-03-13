@@ -1,5 +1,7 @@
 """Business logic for the raw data module."""
 
+import json
+
 from logging import getLogger
 from re import findall
 
@@ -14,7 +16,6 @@ from rest_framework.views import APIView
 from lib.decorators import allow_content_types
 from lib.enums import SyncStatus
 from lib.permissions import IsBot
-from lib.services.csv import CsvService
 from apps.stocks.models import Stock
 
 from apps.raw_data.models import (
@@ -40,11 +41,7 @@ class StockPriceView(APIView):
 
     permission_classes = [IsAuthenticated, IsBot]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.csv_service = CsvService()
-
-    @allow_content_types(("multipart/form-data",))
+    @allow_content_types(("application/json",))
     def post(self, request: Request, ticker: str) -> Response:
         """Sync price timeseries for a given stock."""
 
@@ -61,9 +58,7 @@ class StockPriceView(APIView):
         sync.save()
 
         try:
-            prices = self.csv_service.parse(
-                request.FILES["data"].file, {"Date": "date", "Close": "value"}
-            )
+            prices = json.loads(request.body)["data"]
             LOGGER.debug("Looking up price values for %s from the latest sync.", ticker)
             latest_saved = (
                 StockPrice.objects.all()
@@ -76,10 +71,10 @@ class StockPriceView(APIView):
                 if not latest_saved or parser.parse(price["date"]).date() > latest_saved
             ]
 
-            LOGGER.debug("Validating price data parsed from the CSV.")
+            LOGGER.debug("Validating price data parsed from JSON.")
             serializer = StockPriceSerializer(data=prices, many=True)
             if not serializer.is_valid():
-                LOGGER.warning("The price data from CSV was invalid.")
+                LOGGER.warning("The price data from JSON was invalid.")
                 sync.status = SyncStatus.FAILED
                 sync.save()
 
@@ -131,11 +126,7 @@ class StockDividendView(APIView):
 
     permission_classes = [IsAuthenticated, IsBot]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.csv_service = CsvService()
-
-    @allow_content_types(("multipart/form-data",))
+    @allow_content_types(("application/json",))
     def post(self, request: Request, ticker: str) -> Response:
         """Sync dividend timeseries for a given stock."""
 
@@ -152,10 +143,7 @@ class StockDividendView(APIView):
         sync.save()
 
         try:
-            dividends = self.csv_service.parse(
-                request.FILES["data"].file,
-                {"Date": "payout_date", "Dividends": "amount"},
-            )
+            dividends = json.loads(request.body)["data"]
             LOGGER.debug(
                 "Looking up dividend values for %s from the latest sync.", ticker
             )
@@ -171,7 +159,7 @@ class StockDividendView(APIView):
                 or parser.parse(dividend["payout_date"]).date() > latest_saved
             ]
 
-            LOGGER.debug("Validating dividend data parsed from the CSV.")
+            LOGGER.debug("Validating dividend data parsed from the JSON.")
             serializer = StockDividendSerializer(data=dividends, many=True)
             if not serializer.is_valid():
                 sync.status = SyncStatus.FAILED
@@ -225,11 +213,7 @@ class StockSplitView(APIView):
 
     permission_classes = [IsAuthenticated, IsBot]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.csv_service = CsvService()
-
-    @allow_content_types(("multipart/form-data",))
+    @allow_content_types(("application/json",))
     def post(self, request: Request, ticker: str) -> Response:
         """Sync split timeseries for a given stock."""
 
@@ -246,12 +230,10 @@ class StockSplitView(APIView):
         sync.save()
 
         try:
-            splits = self.csv_service.parse(
-                request.FILES["data"].file, {"Date": "date", "Stock Splits": "ratio"}
-            )
+            splits = json.loads(request.body)["data"]
             LOGGER.debug("Looking up split values for %s from the latest sync.", ticker)
             latest_saved = (
-                StockPrice.objects.all()
+                StockSplit.objects.all()
                 .filter(ticker=stock)
                 .aggregate(Max("date"))["date__max"]
             )
@@ -259,7 +241,7 @@ class StockSplitView(APIView):
             LOGGER.debug("Formatting split values before inserting for %s.", ticker)
             formatted_splits = []
             for split in splits:
-                if latest_saved and parser.parse(split["date"]).date() > latest_saved:
+                if latest_saved and parser.parse(split["date"]).date() <= latest_saved:
                     continue
 
                 ratio = findall(r"(\d+):(\d+)", split["ratio"])
@@ -275,7 +257,7 @@ class StockSplitView(APIView):
                     {**split, "ratio": float(dividend) / float(divisor)}
                 )
 
-            LOGGER.debug("Validating split data parsed from the CSV.")
+            LOGGER.debug("Validating split data parsed from the JSON.")
             serializer = StockSplitSerializer(data=formatted_splits, many=True)
             if not serializer.is_valid():
                 sync.status = SyncStatus.FAILED
