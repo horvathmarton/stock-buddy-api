@@ -205,7 +205,7 @@ class TestGetPortfolioSnapshot(TestCase):
         )
 
     def test_doesnt_contain_excluded_portfolios(self):
-        """When requesting for one portfolio it shouldn't contain positions from other portfolios from the user."""
+        """When requesting for one portfolio it shouldn't contain positions from other portfolios of the user."""
 
         StockTransaction.objects.create(
             amount=2,
@@ -271,7 +271,7 @@ class TestGetPortfolioSnapshot(TestCase):
         )
         self.assertNotIn(self.STOCKS.BABA, (p.stock for p in result.positions.values()))
 
-    def test_doesnt_containt_other_users_portfolio(self):
+    def test_doesnt_contain_other_users_portfolio(self):
         """When requesting for a user's portfolios it shouldn't contain positions from other user's portfolios."""
 
         StockTransaction.objects.create(
@@ -417,7 +417,7 @@ class TestGetPortfolioSnapshot(TestCase):
         )
 
     def test_at_parameter_works_properly(self):
-        """Transactions executed later that the snapshot date should not be considered."""
+        """Transactions executed later than the snapshot date should not be considered."""
 
         StockTransaction.objects.create(
             amount=2,

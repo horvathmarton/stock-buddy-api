@@ -16,7 +16,6 @@ LOGGER = getLogger(__name__)
 
 
 class StocksService:
-    # pylint: disable=too-few-public-methods
     """Portfolio snapshot generator."""
 
     @classmethod
@@ -30,6 +29,33 @@ class StocksService:
         positions = cls.__get_postions_for_portfolio(portfolios, snapshot_date)
 
         return StockPortfolioSnapshot(positions=positions, owner=portfolios[0].owner)
+
+    @classmethod
+    def get_all_stocks_since_inceptions(
+        cls, portfolios: list[StockPortfolio], snapshot_date: date = date.today()
+    ):
+        """
+        Returns a list of all stocks that has been transacted by the provided list of portfolios
+        up until the snapshot date.
+        """
+
+        return (
+            StockTransaction.objects.filter(
+                portfolio__in=portfolios, date__lte=snapshot_date
+            )
+            .values("ticker")
+            .distinct()
+        )
+
+    @classmethod
+    def get_first_transaction(cls, portfolios: list[StockPortfolio]):
+        """Returns the first stock transaction of the list of portfolio if there is any, otherwise it returns None."""
+
+        return (
+            StockTransaction.objects.filter(portfolio__in=portfolios)
+            .order_by("-date")
+            .first()
+        )
 
     @classmethod
     def __get_postions_for_portfolio(
