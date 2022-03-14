@@ -41,14 +41,14 @@ class StrategyView(ModelViewSet):
 
         if not strategies:
             LOGGER.warning("%s sees no strategies.", self.request.user)
-            return Response("Not found")
+            return Response("Not found", status=404)
 
         LOGGER.debug(
             "Selecting the target strategy %s for %s.",
-            strategies[0].id,
+            strategies[0].strategy_id,
             self.request.user,
         )
-        strategy = Strategy.objects.get(pk=strategies[0].id)
+        strategy = Strategy.objects.get(pk=strategies[0].strategy_id)
         serializer = self.get_serializer(strategy)
 
         return Response(
@@ -187,5 +187,6 @@ class PortfolioIndicatorView(APIView):
                 "totalFloatingPnl": pnl,
                 "roicSinceInception": roic,
                 "annualizedRoic": annualized_roic,
+                "annualDividendIncome": summary.dividend,
             }
         )
