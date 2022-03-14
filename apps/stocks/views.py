@@ -12,7 +12,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from lib.permissions import IsOwnerOrAdmin
-from lib.services.finance import FinanceService
+from lib.services.stocks import StocksService
 
 from .models import Stock, StockPortfolio, StockWatchlist
 from .serializers import (
@@ -42,7 +42,7 @@ class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.finance_service = FinanceService()
+        self.stocks_service = StocksService()
 
     def retrieve(self, request: Request, *args, pk: int = None, **kwargs) -> Response:
         # pylint: disable=arguments-differ, disable=invalid-name
@@ -69,7 +69,7 @@ class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
         LOGGER.debug("Looking for %s portfolio.", pk)
         portfolio = get_object_or_404(StockPortfolio, pk=pk)
 
-        snapshot = self.finance_service.get_portfolio_snapshot(
+        snapshot = self.stocks_service.get_portfolio_snapshot(
             [portfolio], snapshot_date=parsed_as_of or date.today()
         )
         if not snapshot.number_of_positions:
@@ -109,7 +109,7 @@ class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
 
         LOGGER.debug("Looking up portfolios belonging to %s.", request.user)
         portfolios = get_list_or_404(StockPortfolio, owner=request.user)
-        portfolio = self.finance_service.get_portfolio_snapshot(
+        portfolio = self.stocks_service.get_portfolio_snapshot(
             portfolios, snapshot_date=parsed_as_of or date.today()
         )
 

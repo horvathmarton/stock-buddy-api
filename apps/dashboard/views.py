@@ -12,12 +12,12 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from lib.enums import Visibility
-from lib.services.finance import FinanceService
 
 from apps.dashboard.models import Strategy, UserStrategy
 from apps.dashboard.serializers import StrategySerializer
 from apps.stocks.models import StockPortfolio
+from lib.enums import Visibility
+from lib.services.stocks import StocksService
 
 
 LOGGER = getLogger(__name__)
@@ -135,7 +135,7 @@ class PortfolioIndicatorView(APIView):
     """Business logic for the portfolio indicators API."""
 
     def __init__(self, *args, **kwargs):
-        self.finance_service = FinanceService()
+        self.stocks_service = StocksService()
         super().__init__(*args, **kwargs)
 
     def get(self, request: Request):
@@ -159,9 +159,7 @@ class PortfolioIndicatorView(APIView):
             len(user_portfolios),
             self.request.user,
         )
-        summary = self.finance_service.get_portfolio_snapshot(
-            portfolios=user_portfolios
-        )
+        summary = self.stocks_service.get_portfolio_snapshot(portfolios=user_portfolios)
 
         LOGGER.debug("Calculating portfolio indicators for %s.", self.request.user)
         aum = summary.assets_under_management
