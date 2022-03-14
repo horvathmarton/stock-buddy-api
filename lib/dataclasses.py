@@ -8,6 +8,7 @@ from typing import Dict
 
 from django.contrib.auth.models import User
 from apps.stocks.models import Stock
+from apps.transactions.enums import Currency
 
 
 @dataclass
@@ -187,3 +188,49 @@ class StockPortfolioSnapshot:
             for position in self.positions.values()
             if position.dividend_income > 0
         }
+
+
+@dataclass
+class CashBalanceSnapshot:
+    # pylint: disable=invalid-name
+
+    """Represents the cash balance in a portfolio at a given time in different currencies."""
+
+    USD: float = 0
+    EUR: float = 0
+    HUF: float = 0
+
+    def __eq__(self, o: object) -> bool:
+        if not isinstance(o, CashBalanceSnapshot):
+            return NotImplemented
+
+        return self.USD == o.USD and self.EUR == o.EUR and self.HUF == o.HUF
+
+    def __getitem__(self, item) -> float:
+        """Index properties dynamically."""
+
+        if item == Currency.EURO:
+            return self.EUR
+
+        if item == Currency.HUNGARIAN_FORINT:
+            return self.HUF
+
+        if item == Currency.US_DOLLAR:
+            return self.USD
+
+        raise Exception("Not a valid currency.")
+
+    def __setitem__(self, item, value) -> None:
+        """Assign to properties dynamically."""
+
+        if not isinstance(value, float):
+            raise Exception("Only float could be assigned.")
+
+        if item == Currency.EURO:
+            self.EUR = value
+        elif item == Currency.HUNGARIAN_FORINT:
+            self.HUF = value
+        elif item == Currency.US_DOLLAR:
+            self.USD = value
+        else:
+            raise Exception("Not a valid currency.")
