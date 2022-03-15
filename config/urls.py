@@ -28,6 +28,7 @@ urlpatterns = [
     path("stocks/", include("apps.stocks.urls")),
     path("transactions/", include("apps.transactions.urls")),
     path("dashboard/", include("apps.dashboard.urls")),
+    path("cash/", include("apps.cash.urls")),
 ]
 
 if os.getenv("DEBUG_MODE") == "true":
