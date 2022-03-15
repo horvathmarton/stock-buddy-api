@@ -1,0 +1,37 @@
+# DO NOT USE IN PROD
+version: '3.8'
+services:
+  db:
+    image: postgres:alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    expose:
+      - '5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
+  api:
+    container_name: stock-buddy-api
+    build:
+      context: ./
+    image: stock-buddy-api
+    depends_on:
+      - db
+    ports:
+      - target: 8000
+        published: 8000
+        mode: host
+    environment:
+      - SECRET_KEY=some_random_value
+      - DATABASE_USER=postgres 
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=stock_buddy
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - LANGUAGE=en-us
+    links:
+      - db
+volumes:
+  db:
+    driver: local

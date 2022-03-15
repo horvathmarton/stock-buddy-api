@@ -34,4 +34,7 @@ RUN chown -R app:app /home/app/web
 
 USER app
 
+ENTRYPOINT ["/usr/local/bin/python", "manage.py"]
+
+CMD ["runserver"]
 
