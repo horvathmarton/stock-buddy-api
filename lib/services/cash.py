@@ -6,7 +6,7 @@ from logging import getLogger
 from apps.raw_data.models import StockDividend
 
 from apps.stocks.models import StockPortfolio
-from apps.transactions.models import CashTransaction, ForexTransaction, StockTransaction
+from apps.transactions.models import CashTransaction
 from lib.dataclasses import CashBalanceSnapshot
 from lib.queries import sum_cash_transactions
 from lib.services.stocks import StocksService

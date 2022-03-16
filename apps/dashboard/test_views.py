@@ -9,7 +9,8 @@ from core.test.seed import generate_test_data
 from lib.enums import Visibility
 
 from apps.dashboard.models import Strategy, UserStrategy
-from apps.transactions.models import StockTransaction
+from apps.raw_data.models import StockPrice
+from apps.transactions.models import CashTransaction, ForexTransaction, StockTransaction
 
 
 class TestStrategyList(TestCase):
@@ -460,14 +461,15 @@ class TestPortfolioIndicators(TestCase):
         cls.USERS = data.USERS
         cls.STOCKS = data.STOCKS
         cls.PORTFOLIOS = data.PORTFOLIOS
+        cls.SYNCS = data.STOCK_PRICE_SYNCS
 
         StockTransaction.objects.create(
-            amount=2,
-            date=date(2021, 1, 1),
+            amount=3,
+            date=date(2020, 1, 1),
             ticker=cls.STOCKS.MSFT,
             owner=cls.USERS.owner,
             portfolio=cls.PORTFOLIOS.main,
-            price=100.01,
+            price=100.0,
         )
 
         cls.url = "/dashboard/portfolio-indicators"
@@ -485,3 +487,94 @@ class TestPortfolioIndicators(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
+
+    def test_roic_should_only_consider_invested_capital(self):
+        self.client.login(  # nosec - Password hardcoded intentionally in test.
+            username="owner", password="password"
+        )
+
+        CashTransaction.objects.create(
+            currency="HUF",
+            amount=90_000,
+            date=date(2020, 1, 1),
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+        )
+
+        ForexTransaction.objects.create(
+            source_currency="HUF",
+            target_currency="USD",
+            amount=90_000,
+            ratio=1 / 300,
+            date=date(2020, 1, 1),
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+        )
+
+        StockTransaction.objects.create(
+            amount=-2,
+            date=date(2022, 1, 1),
+            ticker=self.STOCKS.MSFT,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=150.0,
+        )
+        StockTransaction.objects.create(
+            amount=1,
+            date=date(2021, 1, 1),
+            ticker=self.STOCKS.BABA,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=100.0,
+        )
+
+        StockPrice.objects.create(
+            ticker=self.STOCKS.MSFT,
+            date=date(2022, 1, 1),
+            value=200,
+            sync=self.SYNCS.main,
+        )
+        StockPrice.objects.create(
+            ticker=self.STOCKS.MSFT,
+            date=date(2022, 1, 1),
+            value=150,
+            sync=self.SYNCS.main,
+        )
+
+        ForexTransaction.objects.create(
+            source_currency="USD",
+            target_currency="HUF",
+            amount=100,
+            ratio=300 / 1,
+            date=date(2022, 1, 1),
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+        )
+
+        CashTransaction.objects.create(
+            currency="HUF",
+            amount=-15_000,
+            date=date(2022, 1, 1),
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+        )
+
+        # Bad
+        # Invested capital: MSFT 100 USD + BABA 100 USD = 200 USD
+        # Portfolio value: MSFT 200 USD + BABA 150 USD = 350 USD
+        # Cash: MSFT (200 - 100) * 2 = 200 USD
+        # Total ROIC: (550 / 200) - 1 = 175%
+        # Annualized ROIC: 66%
+
+        # Good
+        # Invested capital: 90_000 - 15_000 = 75_000
+        # Portfolio value: 100 USD
+        # Cash: 45_000 HUF -> 150 USD
+        # Total ROIC: (250 / 150) - 1 = 48% in 2 years
+        # Annualized ROIC: 21.65%
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertAlmostEqual(round(response.data["roicSinceInception"], 4), 0.48)
+        self.assertAlmostEqual(round(response.data["annualizedRoic"], 4), 0.2166)
