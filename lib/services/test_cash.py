@@ -380,7 +380,7 @@ class TestGetCashBalanceSnapshot(TestCase):
         ForexTransaction.objects.create(
             date=date(2021, 1, 1),
             amount=90_000,
-            ratio=1 / 300,  # Exchange 45000 HUF to 150 USD.
+            ratio=1 / 300,  # Exchange 90000 HUF to 300 USD.
             source_currency=Currency.HUNGARIAN_FORINT,
             target_currency=Currency.US_DOLLAR,
             owner=self.USERS.owner,
