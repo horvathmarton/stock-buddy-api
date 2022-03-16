@@ -2,7 +2,7 @@
 
 ## dev notes
 getting started:
-- start postgresql eihter as a service or container (docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=mysecretpassword  postgres)
+- start postgresql either as a service or container (docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=mysecretpassword  postgres)
 - install recent 3.9=< version python and pip
 - install postgresql-dev for the binary dependencies 
 - pip install -r requirements.txt
