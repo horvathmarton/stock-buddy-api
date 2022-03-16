@@ -40,6 +40,15 @@ class TestCashBalanceDetail(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    def test_cannot_access_other_users_portfolio(self):
+        self.client.login(  # nosec - Password hardcoded intentionally in test.
+            username="owner", password="password"
+        )
+
+        response = self.client.get(f"/cash/{self.PORTFOLIOS.other_users.id}/")
+
+        self.assertEqual(response.status_code, 404)
+
 
 class TestCashBalanceSummary(TestCase):
     def setUp(self):
