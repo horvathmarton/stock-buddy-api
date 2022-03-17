@@ -22,6 +22,8 @@ services:
       - target: 8000
         published: 8000
         mode: host
+    env_file:
+      - environments/example.env
     environment:
       - SECRET_KEY=some_random_value
       - DATABASE_USER=postgres 

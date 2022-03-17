@@ -6,6 +6,7 @@ getting started:
 - install recent 3.9=< version python and pip
 - install postgresql-dev for the binary dependencies 
 - pip install -r requirements.txt
+- prepare your env file based on environments/example.env and load it
 - (destructive) python manage.py recreate_db
 - (destructive) python manage.py migrate
 - start it with: python manage.py runserver 
