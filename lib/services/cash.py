@@ -3,14 +3,14 @@
 
 from datetime import date
 from logging import getLogger
-from apps.raw_data.models import StockDividend
+from os import getenv
 
+from apps.raw_data.models import StockDividend
 from apps.stocks.models import StockPortfolio
 from apps.transactions.models import CashTransaction
 from lib.dataclasses import CashBalanceSnapshot
 from lib.queries import sum_cash_transactions
 from lib.services.stocks import StocksService
-
 
 LOGGER = getLogger(__name__)
 
@@ -83,3 +83,10 @@ class CashService:
             balance[transaction.currency] += transaction.amount
 
         return balance
+
+    @staticmethod
+    def balance_to_usd(balance: CashBalanceSnapshot) -> float:
+        huf_usd_fx = 1 / float(getenv("USD_HUF_FX_RATE"))
+        eur_usd_fx = float(getenv("EUR_USD_FX_RATE"))
+
+        return balance.USD + balance.EUR * eur_usd_fx + balance.HUF * huf_usd_fx

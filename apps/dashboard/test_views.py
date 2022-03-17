@@ -1,6 +1,7 @@
 """Integration tests for the dashboard API."""
 
 from datetime import date
+from os import environ
 
 from django.db.models import Q
 from django.test import TestCase
@@ -493,6 +494,8 @@ class TestPortfolioIndicators(TestCase):
             username="owner", password="password"
         )
 
+        environ["USD_HUF_FX_RATE"] = "300.00"
+
         CashTransaction.objects.create(
             currency="HUF",
             amount=90_000,
@@ -569,12 +572,19 @@ class TestPortfolioIndicators(TestCase):
         # Good
         # Invested capital: 90_000 - 15_000 = 75_000
         # Portfolio value: 100 USD
-        # Cash: 45_000 HUF -> 150 USD
-        # Total ROIC: (250 / 150) - 1 = 48% in 2 years
+        # Cash: 75_000 HUF -> 250 USD
+        # Total ROIC: (350 / 250) - 1 = 48% in 2 years
         # Annualized ROIC: 21.65%
 
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertAlmostEqual(round(response.data["roicSinceInception"], 4), 0.48)
-        self.assertAlmostEqual(round(response.data["annualizedRoic"], 4), 0.2166)
+        self.assertAlmostEqual(response.data["totalInvestedCapital"], 250)
+        self.assertAlmostEqual(response.data["totalAum"], 370)
+        self.assertAlmostEqual(response.data["totalFloatingPnl"], 120)
+        self.assertEqual(round(response.data["grossCapitalDeployed"], 4), 0.3640)
+        self.assertEqual(round(response.data["roicSinceInception"], 4), 0.48)
+        self.assertEqual(round(response.data["annualizedRoic"], 4), 0.2166)
+
+        self.assertEqual(round(response.data["largetsSectorExposure"], 4), 0.5405)
+        self.assertEqual(round(response.data["largestPositionExposure"], 4), 0.5405)

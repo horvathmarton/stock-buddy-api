@@ -162,13 +162,17 @@ class PortfolioIndicatorView(APIView):
             self.request.user,
         )
         summary = self.stocks_service.get_portfolio_snapshot(portfolios=user_portfolios)
-        balance = self.cash_service.get_invested_capital(portfolios=user_portfolios)
+        balance = self.cash_service.get_portfolio_cash_balance(
+            portfolios=user_portfolios
+        )
+        balance_in_usd = self.cash_service.balance_to_usd(balance)
+        invested_capital = self.cash_service.get_invested_capital(
+            portfolios=user_portfolios
+        )
+        capital = self.cash_service.balance_to_usd(invested_capital)
 
         LOGGER.debug("Calculating portfolio indicators for %s.", self.request.user)
         aum = summary.assets_under_management
-        # pylint: disable=fixme
-        # TODO: Replace me when adding raw forex data.
-        capital = balance.HUF / 300
         pnl = aum - capital
         roic = pnl / capital if capital else 0
 
@@ -187,10 +191,16 @@ class PortfolioIndicatorView(APIView):
 
         return Response(
             {
-                "largestPositionExposure": 5,
-                "largetsSectorExposure": 4,
+                "largestPositionExposure": max(
+                    position for position in summary.size_distribution.values()
+                ),
+                "largetsSectorExposure": max(
+                    sector for sector in summary.sector_distribution.values()
+                ),
                 "totalAum": aum,
-                "grossCapitalDeployed": 1,
+                "grossCapitalDeployed": 1 - (balance_in_usd / capital)
+                if capital
+                else 0,
                 "totalInvestedCapital": capital,
                 "totalFloatingPnl": pnl,
                 "roicSinceInception": roic,
