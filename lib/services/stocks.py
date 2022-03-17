@@ -53,7 +53,7 @@ class StocksService:
 
         return (
             StockTransaction.objects.filter(portfolio__in=portfolios)
-            .order_by("-date")
+            .order_by("date")
             .first()
         )
 

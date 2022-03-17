@@ -1,11 +1,19 @@
+"""Complex and/or shared queries."""
+
 from datetime import date
-from apps.stocks.models import StockPortfolio
 from django.db import connection
+from apps.stocks.models import StockPortfolio
 
 
 def sum_cash_transactions(portfolios: list[StockPortfolio], snapshot_date: date):
+    """
+    Calculate the cash balance of the given protfolios by summarizing the cash transactions as inflows,
+    forex transactions as exchanges and stock transactions as outflows.
+    """
     params = {
-        "portfolio_ids": tuple([portfolio.id for portfolio in portfolios]),
+        "portfolio_ids": tuple(
+            portfolio.id for portfolio in portfolios  # type: ignore
+        ),
         "as_of": snapshot_date,
     }
 
@@ -47,7 +55,7 @@ def sum_cash_transactions(portfolios: list[StockPortfolio], snapshot_date: date)
             portfolio_id IN %(portfolio_ids)s
             AND date <= %(as_of)s) AS partials;
         """,
-        params=params,
+        params=params,  # type: ignore
     )
 
     return cursor.fetchone()
