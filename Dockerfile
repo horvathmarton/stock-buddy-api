@@ -14,7 +14,7 @@ RUN apk update \
 RUN pip install --upgrade pip
 COPY requirements.txt .
 RUN pip install -r requirements.txt
-
+RUN mkdir -p /var/logs/stock-buddy/
 COPY . . 
 # create db if needed,  migrate than runserver
 ENTRYPOINT ["/bin/sh", "docker-entrypoint.sh"]
