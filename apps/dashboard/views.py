@@ -1,6 +1,6 @@
 """Business logic for the dashboard module."""
 
-from datetime import datetime
+from datetime import date, datetime
 from logging import getLogger
 
 from django.shortcuts import get_object_or_404
@@ -17,6 +17,7 @@ from apps.dashboard.models import Strategy, UserStrategy
 from apps.dashboard.serializers import StrategySerializer
 from apps.stocks.models import StockPortfolio
 from lib.enums import Visibility
+from lib.services.cash import CashService
 from lib.services.stocks import StocksService
 
 
@@ -136,6 +137,7 @@ class PortfolioIndicatorView(APIView):
 
     def __init__(self, *args, **kwargs):
         self.stocks_service = StocksService()
+        self.cash_service = CashService()
         super().__init__(*args, **kwargs)
 
     def get(self, request: Request):
@@ -160,27 +162,45 @@ class PortfolioIndicatorView(APIView):
             self.request.user,
         )
         summary = self.stocks_service.get_portfolio_snapshot(portfolios=user_portfolios)
+        balance = self.cash_service.get_portfolio_cash_balance(
+            portfolios=user_portfolios
+        )
+        balance_in_usd = self.cash_service.balance_to_usd(balance)
+        invested_capital = self.cash_service.get_invested_capital(
+            portfolios=user_portfolios
+        )
+        capital = self.cash_service.balance_to_usd(invested_capital)
 
         LOGGER.debug("Calculating portfolio indicators for %s.", self.request.user)
         aum = summary.assets_under_management
-        capital = summary.capital_invested
         pnl = aum - capital
-        roic = pnl / capital
+        roic = pnl / capital if capital else 0
 
         # This is not perfectly correct
-        inception_year = min(
-            position.first_purchase_date for position in summary.positions.values()
-        ).year
+        first_transaction = self.stocks_service.get_first_transaction(user_portfolios)
+        inception_year = (
+            first_transaction.date.year if first_transaction else date.today().year
+        )
         current_year = datetime.now().year
-        annualized_roic = abs(roic) ** (1 / (current_year - inception_year))
-        annualized_roic = annualized_roic if roic >= 0 else -1 * annualized_roic
+
+        if current_year - inception_year:
+            annualized_roic = abs(roic + 1) ** (1 / (current_year - inception_year)) - 1
+            annualized_roic = annualized_roic if roic >= 0 else -1 * annualized_roic
+        else:
+            annualized_roic = roic
 
         return Response(
             {
-                "largestPositionExposure": 5,
-                "largetsSectorExposure": 4,
+                "largestPositionExposure": max(
+                    position for position in summary.size_distribution.values()
+                ),
+                "largetsSectorExposure": max(
+                    sector for sector in summary.sector_distribution.values()
+                ),
                 "totalAum": aum,
-                "grossCapitalDeployed": 1,
+                "grossCapitalDeployed": 1 - (balance_in_usd / capital)
+                if capital
+                else 0,
                 "totalInvestedCapital": capital,
                 "totalFloatingPnl": pnl,
                 "roicSinceInception": roic,
