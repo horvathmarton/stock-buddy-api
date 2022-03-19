@@ -86,7 +86,9 @@ class CashService:
 
     @staticmethod
     def balance_to_usd(balance: CashBalanceSnapshot) -> float:
-        huf_usd_fx = 1 / float(getenv("USD_HUF_FX_RATE"))
-        eur_usd_fx = float(getenv("EUR_USD_FX_RATE"))
+        """Converts each item in the cash balance to USD."""
+
+        huf_usd_fx = 1 / float(getenv("USD_HUF_FX_RATE"))  # type: ignore
+        eur_usd_fx = float(getenv("EUR_USD_FX_RATE"))  # type: ignore
 
         return balance.USD + balance.EUR * eur_usd_fx + balance.HUF * huf_usd_fx
