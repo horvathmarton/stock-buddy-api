@@ -33,7 +33,7 @@ class StockViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = StockSerializer
 
 
-class StockPortfolioViewSet(viewsets.ReadOnlyModelViewSet):
+class StockPortfolioViewSet(viewsets.ModelViewSet):
     """Business logic for the stock portfolio API."""
 
     queryset = StockPortfolio.objects.all()
