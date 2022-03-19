@@ -103,7 +103,7 @@ class TestCashTransactionCreate(TestCase):
 
         self.assertEqual(response.status_code, 401)
 
-    def test_fetch_cash_transaction(self):
+    def test_create_cash_transaction(self):
         self.client.login(  # nosec - Password hardcoded intentionally in test.
             username="owner", password="password"
         )

@@ -238,6 +238,128 @@ class TestStockPortfolioSummary(TestCase):
         )
 
 
+class TestStockPortfolioCreate(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+    @classmethod
+    def setUpTestData(cls):
+        generate_test_data()
+
+        cls.url = "/stocks/portfolios/"
+
+    def test_cannot_access_unauthenticated(self):
+        response = self.client.post(
+            self.url,
+            data={"name": "my-portfolio"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 401)
+
+    def test_cannot_post_malformed_payload(self):
+        self.client.login(  # nosec - Password hardcoded intentionally in test.
+            username="owner", password="password"
+        )
+
+        response = self.client.post(
+            self.url,
+            data={"hello": "my-portfolio"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_create_stock_portfolio(self):
+        self.client.login(  # nosec - Password hardcoded intentionally in test.
+            username="owner", password="password"
+        )
+
+        response = self.client.post(
+            self.url,
+            data={"name": "my-portfolio"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+
+class TestStockPortfolioUpdate(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+    @classmethod
+    def setUpTestData(cls):
+        data = generate_test_data()
+        cls.PORTFOLIOS = data.PORTFOLIOS
+
+        cls.url = f"/stocks/portfolios/{cls.PORTFOLIOS.main.id}/"
+
+    def test_cannot_access_unauthenticated(self):
+        response = self.client.patch(self.url)
+
+        self.assertEqual(response.status_code, 401)
+
+    def test_update_stock_portfolio_name(self):
+        self.client.login(  # nosec - Password hardcoded intentionally in test.
+            username="owner", password="password"
+        )
+
+        response = self.client.patch(
+            self.url,
+            data={"name": "my-portfolio-2"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+
+class TestStockPortfolioDelete(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+    @classmethod
+    def setUpTestData(cls):
+        data = generate_test_data()
+        cls.PORTFOLIOS = data.PORTFOLIOS
+
+        cls.url = f"/stocks/portfolios/{cls.PORTFOLIOS.main.id}/"
+
+    def test_cannot_access_unauthenticated(self):
+        response = self.client.delete(self.url)
+
+        self.assertEqual(response.status_code, 401)
+
+    def test_cannot_delete_non_existent(self):
+        self.client.login(  # nosec - Password hardcoded intentionally in test.
+            username="owner", password="password"
+        )
+
+        response = self.client.delete("/stocks/portfolios/100/")
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_cannot_delete_other_users_portfolio(self):
+        self.client.login(  # nosec - Password hardcoded intentionally in test.
+            username="owner", password="password"
+        )
+
+        response = self.client.delete(
+            f"/stocks/portfolios/{self.PORTFOLIOS.other_users.id}/"
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_update_stock_portfolio_name(self):
+        self.client.login(  # nosec - Password hardcoded intentionally in test.
+            username="owner", password="password"
+        )
+
+        response = self.client.delete(self.url)
+
+        self.assertEqual(response.status_code, 204)
+
+
 class TestStockWatchlistList(TestCase):
     def setUp(self):
         self.client = APIClient()
