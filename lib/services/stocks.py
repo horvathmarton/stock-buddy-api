@@ -4,7 +4,6 @@ A service to generate snapshots from a stock portfolio.
 
 from datetime import date
 from logging import getLogger
-from typing import Dict, List
 
 from apps.raw_data.models import StockDividend, StockPrice, StockSplit
 from apps.stocks.models import Stock, StockPortfolio
@@ -20,15 +19,76 @@ class StocksService:
 
     @classmethod
     def get_portfolio_snapshot(
-        cls, portfolios: List[StockPortfolio], snapshot_date: date = date.today()
+        cls, portfolios: list[StockPortfolio], snapshot_date: date = date.today()
     ) -> StockPortfolioSnapshot:
-        """Returns the snapshot of the portfolio at a given time."""
+        """Summarizes the positions by ticker for the portfolio."""
+        return cls.get_portfolio_snapshot_series(portfolios, [snapshot_date])[
+            snapshot_date
+        ]
 
-        LOGGER.debug("Generating snapshot for %s portfolio.", len(portfolios))
+    @classmethod
+    def get_portfolio_snapshot_series(
+        cls, portfolios: list[StockPortfolio], snapshot_dates: list[date]
+    ) -> dict[date, StockPortfolioSnapshot]:
+        LOGGER.debug(
+            "Generating snapshot for %s portfolio(s) at %s snapshot date(s).",
+            len(portfolios),
+            len(snapshot_dates),
+        )
 
-        positions = cls.__get_postions_for_portfolio(portfolios, snapshot_date)
+        if not snapshot_dates:
+            return {}
 
-        return StockPortfolioSnapshot(positions=positions, owner=portfolios[0].owner)
+        snapshot_dates = sorted(snapshot_dates)
+        last_snapshot_date = snapshot_dates[-1]
+
+        transactions = StockTransaction.objects.filter(
+            portfolio__in=portfolios, date__lte=last_snapshot_date
+        )
+        splits = StockSplit.objects.filter(date__lte=last_snapshot_date)
+        actions = sorted([*transactions, *splits], key=lambda x: x.date)
+
+        positions = {}
+        snapshots = {}
+        for action in actions:
+            # Take a snapshot if the next action would not affect the next snapshot date.
+            while action.date > snapshot_dates[0]:
+                snapshots[snapshot_dates[0]] = StockPortfolioSnapshot(
+                    positions=positions, owner=portfolios[0].owner
+                )
+                snapshot_dates = snapshot_dates[1:]
+
+            ticker = action.ticker.ticker
+
+            if isinstance(action, StockTransaction) and ticker not in positions:
+                latest_price = cls.__get_latest_stock_price(ticker, last_snapshot_date)
+                latest_dividend = cls.__get_latest_dividend(ticker, last_snapshot_date)
+
+                # In this situation we consider a negative or zero value a spinoff sellout.
+                if action.amount > 0:
+                    positions[ticker] = cls.__create_position(
+                        action, latest_price, latest_dividend
+                    )
+            elif isinstance(action, StockTransaction) and ticker in positions:
+                updated_position = cls.__update_position(positions[ticker], action)
+                positions[ticker] = updated_position
+
+                if updated_position.shares == 0:
+                    del positions[ticker]
+                elif updated_position.shares < 0:
+                    raise Exception("Negative position size is not allowed.")
+            elif isinstance(action, StockSplit) and ticker in positions:
+                split_position = cls.__split_position(positions[ticker], action)
+                positions[ticker] = split_position
+
+        # When we are done with the replay we take all the snapshots after the last action.
+        while snapshot_dates:
+            snapshots[snapshot_dates[0]] = StockPortfolioSnapshot(
+                positions=positions, owner=portfolios[0].owner
+            )
+            snapshot_dates = snapshot_dates[1:]
+
+        return snapshots
 
     @classmethod
     def get_all_stocks_since_inceptions(
@@ -56,45 +116,6 @@ class StocksService:
             .order_by("date")
             .first()
         )
-
-    @classmethod
-    def __get_postions_for_portfolio(
-        cls, portfolios: List[StockPortfolio], snapshot_date: date
-    ) -> Dict[str, StockPositionSnapshot]:
-        """Summarizes the positions by ticker for the portfolio."""
-
-        transactions = StockTransaction.objects.filter(
-            portfolio__in=portfolios, date__lte=snapshot_date
-        )
-        splits = StockSplit.objects.filter(date__lte=snapshot_date)
-        actions = sorted([*transactions, *splits], key=lambda x: x.date)
-
-        positions = {}
-        for action in actions:
-            ticker = action.ticker.ticker
-
-            if isinstance(action, StockTransaction) and ticker not in positions:
-                latest_price = cls.__get_latest_stock_price(ticker, snapshot_date)
-                latest_dividend = cls.__get_latest_dividend(ticker, snapshot_date)
-
-                # In this situation we consider a negative or zero value a spinoff sellout.
-                if action.amount > 0:
-                    positions[ticker] = cls.__create_position(
-                        action, latest_price, latest_dividend
-                    )
-            elif isinstance(action, StockTransaction) and ticker in positions:
-                updated_position = cls.__update_position(positions[ticker], action)
-                positions[ticker] = updated_position
-
-                if updated_position.shares == 0:
-                    del positions[ticker]
-                elif updated_position.shares < 0:
-                    raise Exception("Negative position size is not allowed.")
-            elif isinstance(action, StockSplit) and ticker in positions:
-                split_position = cls.__split_position(positions[ticker], action)
-                positions[ticker] = split_position
-
-        return positions
 
     @staticmethod
     def __get_latest_stock_price(ticker: Stock, snapshot_date: date) -> float:
