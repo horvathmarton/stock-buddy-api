@@ -49,18 +49,18 @@ class CashService:
             else []
         )
 
-        for transaction in dividend_payouts:
-            # pylint: disable=fixme
-            # TODO: This will be painfully slow for large dataset.
-            # TODO: We need to find a better way to calculate.
-            portfolio_snapshot = self.stocks_service.get_portfolio_snapshot(
-                portfolios, snapshot_date=transaction.payout_date
-            )
+        snapshot_dates = list({dividend.payout_date for dividend in dividend_payouts})
+        portfolio_snapshots = self.stocks_service.get_portfolio_snapshot_series(
+            portfolios, snapshot_dates
+        )
 
-            position = portfolio_snapshot.positions.get(transaction.ticker.ticker, None)
+        for dividend in dividend_payouts:
+            portfolio_snapshot = portfolio_snapshots[dividend.payout_date]
+
+            position = portfolio_snapshot.positions.get(dividend.ticker.ticker, None)
 
             if position:
-                balance.USD += transaction.amount * position.shares
+                balance.USD += dividend.amount * position.shares
 
         return balance
 
