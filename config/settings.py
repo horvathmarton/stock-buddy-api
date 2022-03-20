@@ -137,49 +137,51 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
 ]
 
-# Logging config
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "simple": {
-            "format": f"[%(asctime)s{time.strftime('%z')}] %(levelname)s - %(message)s",
-        },
-        "verbose": {
-            "format": f"""
-                %(asctime)s{
-                    time.strftime('%z (%Z)')
-                } | %(levelname)s | %(message)s | %(module)s | %(process)d | %(thread)d
-            """,
-        },
-    },
-    "handlers": {
-        "console": {
-            "level": getenv("LOG_LEVEL"),
-            "class": "logging.StreamHandler",
-            "formatter": "simple",
-        },
-        "info_file": {
-            "level": "INFO",
-            "class": "logging.FileHandler",
-            "filename": getenv("LOG_INFO_PATH"),
-            "formatter": "verbose",
-        },
-        "error_file": {
-            "level": "ERROR",
-            "class": "logging.FileHandler",
-            "filename": getenv("LOG_ERROR_PATH"),
-            "formatter": "verbose",
-        },
-    },
-    "loggers": {
-        "": {"level": "DEBUG", "handlers": ["console", "info_file", "error_file"]},
-    },
-}
-
-
-# We only want to report in non-development environments.
+# We only want to report and configure logging in non-development environments.
 environment = getenv("PYTHON_ENV")
+
+# Logging config
+if environment != "ci":
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "simple": {
+                "format": f"[%(asctime)s{time.strftime('%z')}] %(levelname)s - %(message)s",
+            },
+            "verbose": {
+                "format": f"""
+                    %(asctime)s{
+                        time.strftime('%z (%Z)')
+                    } | %(levelname)s | %(message)s | %(module)s | %(process)d | %(thread)d
+                """,
+            },
+        },
+        "handlers": {
+            "console": {
+                "level": getenv("LOG_LEVEL"),
+                "class": "logging.StreamHandler",
+                "formatter": "simple",
+            },
+            "info_file": {
+                "level": "INFO",
+                "class": "logging.FileHandler",
+                "filename": getenv("LOG_INFO_PATH"),
+                "formatter": "verbose",
+            },
+            "error_file": {
+                "level": "ERROR",
+                "class": "logging.FileHandler",
+                "filename": getenv("LOG_ERROR_PATH"),
+                "formatter": "verbose",
+            },
+        },
+        "loggers": {
+            "": {"level": "DEBUG", "handlers": ["console", "info_file", "error_file"]},
+        },
+    }
+
+
 if environment in ("staging", "production"):
     # pylint: disable=abstract-class-instantiated
     sentry_sdk.init(
