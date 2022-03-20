@@ -16,7 +16,7 @@ LOGGER = getLogger(__name__)
 
 
 class StocksService:
-    """Portfolio snapshot generator."""
+    """Portfolio snapshot generator"""
 
     @classmethod
     def get_portfolio_snapshot(
