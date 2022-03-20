@@ -27,6 +27,8 @@ RUN apk update && apk add libpq
 COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
 RUN pip install --no-cache /wheels/*
+RUN mkdir -p /var/logs/stock-buddy/
+RUN chown app /var/logs/stock-buddy/
 
 COPY . . 
 
