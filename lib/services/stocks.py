@@ -2,6 +2,7 @@
 A service to generate snapshots from a stock portfolio.
 """
 
+from copy import deepcopy
 from datetime import date
 from logging import getLogger
 
@@ -30,6 +31,8 @@ class StocksService:
     def get_portfolio_snapshot_series(
         cls, portfolios: list[StockPortfolio], snapshot_dates: list[date]
     ) -> dict[date, StockPortfolioSnapshot]:
+        """Summarizes the positions by ticker for each snapshot date."""
+
         LOGGER.debug(
             "Generating snapshot for %s portfolio(s) at %s snapshot date(s).",
             len(portfolios),
@@ -48,13 +51,13 @@ class StocksService:
         splits = StockSplit.objects.filter(date__lte=last_snapshot_date)
         actions = sorted([*transactions, *splits], key=lambda x: x.date)
 
-        positions = {}
+        positions: dict[str, StockPositionSnapshot] = {}
         snapshots = {}
         for action in actions:
             # Take a snapshot if the next action would not affect the next snapshot date.
             while action.date > snapshot_dates[0]:
                 snapshots[snapshot_dates[0]] = StockPortfolioSnapshot(
-                    positions=positions, owner=portfolios[0].owner
+                    positions=deepcopy(positions), owner=portfolios[0].owner
                 )
                 snapshot_dates = snapshot_dates[1:]
 

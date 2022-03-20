@@ -577,3 +577,296 @@ class TestGetPortfolioSnapshot(TestCase):
 
         self.assertEqual(result.dividend, 42.0)
         self.assertEqual(result.dividend_distribution, {"MSFT": 0.5714, "PM": 0.4286})
+
+
+class TestGetPortfolioSnapshotSeries(TestCase):
+    """Returns a series of snapshots of the portfolio."""
+
+    def setUp(self):
+        self.service = StocksService()
+
+    @classmethod
+    def setUpTestData(cls):
+        data = generate_test_data()
+        cls.USERS = data.USERS
+        cls.STOCKS = data.STOCKS
+        cls.PORTFOLIOS = data.PORTFOLIOS
+
+    def test_empty_snapshot_dates(self):
+        self.assertEqual(
+            self.service.get_portfolio_snapshot_series([self.PORTFOLIOS.main], []),
+            {},
+        )
+
+    def test_empty_portfolios(self):
+        self.assertEqual(
+            self.service.get_portfolio_snapshot_series(
+                [self.PORTFOLIOS.main], [date(2021, 1, 3)]
+            ),
+            {
+                date(2021, 1, 3): StockPortfolioSnapshot(
+                    positions={}, owner=self.USERS.owner
+                ),
+            },
+        )
+
+    def test_single_snapshot_date(self):
+        StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 1),
+            ticker=self.STOCKS.MSFT,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=100.01,
+        )
+
+        result = self.service.get_portfolio_snapshot_series(
+            [self.PORTFOLIOS.main], [date(2021, 1, 3)]
+        )
+
+        self.assertIn(date(2021, 1, 3), result)
+
+    def test_multiple_snapshots(self):
+        StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 1),
+            ticker=self.STOCKS.MSFT,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=100.01,
+        )
+
+        result = self.service.get_portfolio_snapshot_series(
+            [self.PORTFOLIOS.main], [date(2021, 1, 1), date(2021, 1, 3)]
+        )
+
+        self.assertIn(date(2021, 1, 1), result)
+        self.assertIn(date(2021, 1, 3), result)
+
+    def test_multiple_snapshots_between_actions(self):
+        """Take multiple snapshots between two events. They all should represent the same state."""
+
+        StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 1),
+            ticker=self.STOCKS.MSFT,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=100.01,
+        )
+
+        StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 5),
+            ticker=self.STOCKS.MSFT,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=100.01,
+        )
+
+        result = self.service.get_portfolio_snapshot_series(
+            [self.PORTFOLIOS.main],
+            [date(2021, 1, 2), date(2021, 1, 3), date(2021, 1, 5)],
+        )
+
+        self.assertIn(date(2021, 1, 2), result)
+        self.assertIn(date(2021, 1, 3), result)
+        self.assertEqual(
+            result[date(2021, 1, 2)].positions[self.STOCKS.MSFT.ticker].shares, 2
+        )
+        self.assertEqual(
+            result[date(2021, 1, 3)].positions[self.STOCKS.MSFT.ticker].shares, 2
+        )
+
+        self.assertIn(date(2021, 1, 5), result)
+        self.assertEqual(
+            result[date(2021, 1, 5)].positions[self.STOCKS.MSFT.ticker].shares, 4
+        )
+
+    def test_multiple_snapshots_after_last_actions(self):
+        """Take multiple snapshots after the last event. They all should represent the same state."""
+
+        StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 1),
+            ticker=self.STOCKS.MSFT,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=100.01,
+        )
+        StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 3),
+            ticker=self.STOCKS.MSFT,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=100.01,
+        )
+
+        result = self.service.get_portfolio_snapshot_series(
+            [self.PORTFOLIOS.main],
+            [date(2021, 1, 2), date(2021, 1, 4), date(2021, 1, 5)],
+        )
+
+        self.assertIn(date(2021, 1, 2), result)
+        self.assertEqual(
+            result[date(2021, 1, 2)].positions[self.STOCKS.MSFT.ticker].shares, 2
+        )
+
+        self.assertIn(date(2021, 1, 4), result)
+        self.assertIn(date(2021, 1, 5), result)
+        self.assertEqual(
+            result[date(2021, 1, 4)].positions[self.STOCKS.MSFT.ticker].shares, 4
+        )
+        self.assertEqual(
+            result[date(2021, 1, 5)].positions[self.STOCKS.MSFT.ticker].shares, 4
+        )
+
+
+class TestGetAllStocksSinceInception(TestCase):
+    def setUp(self):
+        self.service = StocksService()
+
+    @classmethod
+    def setUpTestData(cls):
+        data = generate_test_data()
+        cls.USERS = data.USERS
+        cls.STOCKS = data.STOCKS
+        cls.PORTFOLIOS = data.PORTFOLIOS
+
+    def test_empty_portfolios(self):
+        result = self.service.get_all_stocks_since_inceptions(
+            [self.PORTFOLIOS.main], date(2021, 1, 1)
+        )
+
+        self.assertEqual(len(result), 0)
+
+    def test_single_transaction(self):
+        StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 1),
+            ticker=self.STOCKS.MSFT,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=100.01,
+        )
+
+        result = self.service.get_all_stocks_since_inceptions(
+            [self.PORTFOLIOS.main], date(2021, 1, 1)
+        )
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual([stock["ticker"] for stock in result], ["MSFT"])
+
+    def test_multiple_transactions(self):
+        StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 1),
+            ticker=self.STOCKS.MSFT,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=100.01,
+        )
+        StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 1),
+            ticker=self.STOCKS.PM,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=100.01,
+        )
+
+        result = self.service.get_all_stocks_since_inceptions(
+            [self.PORTFOLIOS.main], date(2021, 1, 1)
+        )
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual([stock["ticker"] for stock in result], ["MSFT", "PM"])
+
+    def test_sold_stock(self):
+        """The stock should remain in this list after sold."""
+
+        StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 1),
+            ticker=self.STOCKS.MSFT,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=100.01,
+        )
+        StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 1),
+            ticker=self.STOCKS.PM,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=100.01,
+        )
+        StockTransaction.objects.create(
+            amount=-2,
+            date=date(2021, 1, 1),
+            ticker=self.STOCKS.MSFT,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=100.01,
+        )
+
+        result = self.service.get_all_stocks_since_inceptions(
+            [self.PORTFOLIOS.main], date(2021, 1, 1)
+        )
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual([stock["ticker"] for stock in result], ["MSFT", "PM"])
+
+
+class TestGetFirstTransaction(TestCase):
+    def setUp(self):
+        self.service = StocksService()
+
+    @classmethod
+    def setUpTestData(cls):
+        data = generate_test_data()
+        cls.USERS = data.USERS
+        cls.STOCKS = data.STOCKS
+        cls.PORTFOLIOS = data.PORTFOLIOS
+
+    def test_no_transactions(self):
+        self.assertEqual(
+            self.service.get_first_transaction([self.PORTFOLIOS.main]), None
+        )
+
+    def test_single_transaction(self):
+        transaction = StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 1),
+            ticker=self.STOCKS.MSFT,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=100.01,
+        )
+
+        self.assertEqual(
+            self.service.get_first_transaction([self.PORTFOLIOS.main]), transaction
+        )
+
+    def test_multiple_transactions(self):
+        transaction = StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 1),
+            ticker=self.STOCKS.MSFT,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=100.01,
+        )
+        StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 2),
+            ticker=self.STOCKS.MSFT,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=100.01,
+        )
+
+        self.assertEqual(
+            self.service.get_first_transaction([self.PORTFOLIOS.main]), transaction
+        )
