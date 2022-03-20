@@ -133,9 +133,7 @@ REST_FRAMEWORK = {
 
 TEST_RUNNER = "core.test.runner.PostgresSchemaTestRunner"
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:4200",
-]
+CORS_ALLOWED_ORIGINS = ["http://localhost:4200"]
 
 # We only want to report and configure logging in non-development environments.
 environment = getenv("PYTHON_ENV")
@@ -191,3 +189,8 @@ if environment in ("staging", "production"):
         send_default_pii=True,
         environment=environment,
     )
+
+    REST_FRAMEWORK = {
+        **REST_FRAMEWORK,
+        "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),  # type: ignore
+    }
