@@ -485,6 +485,9 @@ class TestPortfolioIndicators(TestCase):
             username="owner", password="password"
         )
 
+        environ["EUR_USD_FX_RATE"] = "1.10"
+        environ["USD_HUF_FX_RATE"] = "300.00"
+
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
