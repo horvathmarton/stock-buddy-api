@@ -18,7 +18,7 @@ jobs:
       - uses: docker/build-push-action@v2
         with:
           push: true
-          tags: horvathmarton/stock-buddy-api:latest
+          tags: horvathmarton/stock-buddy-api:staging
           file: Dockerfile.prod
 
   deploy:
@@ -31,4 +31,4 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
       - run: ssh -i ~/.ssh/id_rsa ${{ secrets.STAGING_SERVER_USER }}@${{ secrets.STAGING_SERVER_IP }} -t "docker rm -f stock-buddy-staging-api 2> /dev/null || true"
-      - run: ssh -i ~/.ssh/id_rsa ${{ secrets.STAGING_SERVER_USER }}@${{ secrets.STAGING_SERVER_IP }} -t "docker run --pull always --net host -it --env-file ./env --name=stock-buddy-staging-api -d horvathmarton/stock-buddy-api"
+      - run: ssh -i ~/.ssh/id_rsa ${{ secrets.STAGING_SERVER_USER }}@${{ secrets.STAGING_SERVER_IP }} -t "docker run --pull always --net host -it --env-file ./env --name=stock-buddy-staging-api -d horvathmarton/stock-buddy-api:staging"
