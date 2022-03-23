@@ -18,7 +18,7 @@ jobs:
       - uses: docker/build-push-action@v2
         with:
           push: true
-          tags: horvathmarton/stock-buddy-api:latest
+          tags: horvathmarton/stock-buddy-api:staging
           file: Dockerfile.prod
 
   deploy:
@@ -30,5 +30,5 @@ jobs:
           install -m 600 -D /dev/null ~/.ssh/id_rsa
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
-      - run: ssh -i ~/.ssh/id_rsa ${{ secrets.STAGING_SERVER_USER }}@${{ secrets.STAGING_SERVER_IP }} -t "docker rm -f stock-buddy-staging-api 2> /dev/null || true"
-      - run: ssh -i ~/.ssh/id_rsa ${{ secrets.STAGING_SERVER_USER }}@${{ secrets.STAGING_SERVER_IP }} -t "docker run --pull always --publish 8080:8000 -it --env-file ./staging.env --name=stock-buddy-api-staging -d horvathmarton/stock-buddy-api"
+      - run: ssh -i ~/.ssh/id_rsa ${{ secrets.STAGING_SERVER_USER }}@${{ secrets.STAGING_SERVER_IP }} -t "docker rm -f stock-buddy-api-staging 2> /dev/null || true"
+      - run: ssh -i ~/.ssh/id_rsa ${{ secrets.STAGING_SERVER_USER }}@${{ secrets.STAGING_SERVER_IP }} -t "docker run --pull always --publish 127.0.0.1:8080:8000 -it --env-file ./staging.env --add-host host.docker.internal:host-gateway --name=stock-buddy-api-staging -d horvathmarton/stock-buddy-api:staging"

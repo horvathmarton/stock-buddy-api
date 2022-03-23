@@ -38,5 +38,5 @@ USER app
 
 ENTRYPOINT ["/usr/local/bin/python", "manage.py"]
 
-CMD ["runserver"]
+CMD ["runserver", "0.0.0.0:8000"]
 
