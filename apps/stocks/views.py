@@ -52,7 +52,7 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
 
         if as_of:
             try:
-                parsed_as_of = dateutil.parser.parse(as_of)
+                parsed_as_of = dateutil.parser.parse(as_of).date()
             except dateutil.parser.ParserError:
                 return Response(
                     {"error": "Invalid date in asOf query param"},
