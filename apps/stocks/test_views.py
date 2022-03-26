@@ -177,6 +177,24 @@ class TestStockPortfolioDetail(TestCase):
             "The portfolio has no transaction data before the selected date.",
         )
 
+    def test_as_of_parameter(self):
+        StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 2),
+            ticker=self.STOCKS.MSFT,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=100.01,
+        )
+
+        self.client.login(  # nosec - Password hardcoded intentionally in test.
+            username="owner",
+            password="password",
+        )
+        response = self.client.get(f"{self.url}?asOf=2021-01-01")
+
+        self.assertEqual(response.status_code, 200)
+
 
 class TestStockPortfolioSummary(TestCase):
     def setUp(self):
