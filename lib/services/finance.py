@@ -46,6 +46,16 @@ class FinanceService:
 
         LOGGER.debug("Calculating rate of investment return.")
 
+        # We can't interpret zero period count.
+        # In this case the return is 0.
+        if not periods:
+            return 0.0
+
+        # We can't interpret zero starting capital.
+        # In this case the return is 0.
+        if not present_value:
+            return 0.0
+
         return round((future_value / present_value) ** (1 / periods) - 1, 4)
 
     def internal_rate_of_return(self) -> str:

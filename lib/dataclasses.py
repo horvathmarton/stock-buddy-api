@@ -9,6 +9,7 @@ from typing import Dict
 from django.contrib.auth.models import User
 from apps.stocks.models import Stock
 from apps.transactions.enums import Currency
+from lib.services.finance import FinanceService
 
 
 @dataclass
@@ -102,13 +103,18 @@ class StockPortfolioSnapshot:
 
     # List of the summarized position in the current portfolio.
     positions: Dict[str, StockPositionSnapshot]
+    snapshot_date: date
     owner: User
 
     def __eq__(self, o: object) -> bool:
         if not isinstance(o, StockPortfolioSnapshot):
             return NotImplemented
 
-        return self.positions == o.positions and self.owner == o.owner
+        return (
+            self.positions == o.positions
+            and self.owner == o.owner
+            and self.snapshot_date == o.snapshot_date
+        )
 
     @property
     def assets_under_management(self) -> float:
@@ -188,6 +194,22 @@ class StockPortfolioSnapshot:
             for position in self.positions.values()
             if position.dividend_income > 0
         }
+
+    @property
+    def annualized_pnls(self) -> Dict[str, float]:
+        """
+        Maps each ticker in the portfolio to its annualized return in percentage on a daily base
+        (e.g.: 0.12 means 12%).
+        """
+
+        mapping = {}
+        for position in self.positions.values():
+            periods = (self.snapshot_date - position.first_purchase_date).days / 365
+            mapping[position.stock.ticker] = FinanceService.rri(
+                periods, position.size_at_cost, position.size
+            )
+
+        return mapping
 
 
 @dataclass
