@@ -3,6 +3,7 @@
 from datetime import date
 
 from django.test import TestCase
+from apps.raw_data.models import StockPrice
 from apps.transactions.models import StockTransaction
 from core.test.seed import generate_test_data
 
@@ -22,13 +23,16 @@ class TestGetPortfolioSnapshot(TestCase):
         cls.USERS = data.USERS
         cls.STOCKS = data.STOCKS
         cls.PORTFOLIOS = data.PORTFOLIOS
+        cls.SYNCS = data.STOCK_PRICE_SYNCS
 
     def test_empty_portfolio(self):
         self.assertEqual(
             self.service.get_portfolio_snapshot(
                 [self.PORTFOLIOS.main], date(2021, 1, 3)
             ),
-            StockPortfolioSnapshot(positions={}, owner=self.USERS.owner),
+            StockPortfolioSnapshot(
+                positions={}, owner=self.USERS.owner, snapshot_date=date(2021, 1, 3)
+            ),
         )
 
     def test_summarize_distinct_buys(self):
@@ -201,7 +205,10 @@ class TestGetPortfolioSnapshot(TestCase):
         )
 
         self.assertEqual(
-            result, StockPortfolioSnapshot(positions={}, owner=self.USERS.owner)
+            result,
+            StockPortfolioSnapshot(
+                positions={}, owner=self.USERS.owner, snapshot_date=date(2021, 1, 3)
+            ),
         )
 
     def test_doesnt_contain_excluded_portfolios(self):
@@ -578,6 +585,45 @@ class TestGetPortfolioSnapshot(TestCase):
         self.assertEqual(result.dividend, 42.0)
         self.assertEqual(result.dividend_distribution, {"MSFT": 0.5714, "PM": 0.4286})
 
+    def test_annualized_pnl_calculation(self):
+        """A snapshot contains annualized return calculation for each position."""
+
+        StockTransaction.objects.create(
+            amount=2,
+            date=date(2010, 1, 1),
+            ticker=self.STOCKS.MSFT,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=28.18,
+        )
+        StockTransaction.objects.create(
+            amount=3,
+            date=date(2010, 1, 1),
+            ticker=self.STOCKS.PM,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=45.51,
+        )
+
+        StockPrice.objects.create(
+            ticker=self.STOCKS.MSFT,
+            date=date(2020, 1, 1),
+            value=170.23,
+            sync=self.SYNCS.main,
+        )
+        StockPrice.objects.create(
+            ticker=self.STOCKS.PM,
+            date=date(2020, 1, 1),
+            value=82.70,
+            sync=self.SYNCS.main,
+        )
+
+        result = self.service.get_portfolio_snapshot(
+            [self.PORTFOLIOS.main], date(2020, 1, 1)
+        )
+
+        self.assertEqual(result.annualized_pnls, {"MSFT": 0.1969, "PM": 0.0615})
+
 
 class TestGetPortfolioSnapshotSeries(TestCase):
     """Returns a series of snapshots of the portfolio."""
@@ -605,7 +651,7 @@ class TestGetPortfolioSnapshotSeries(TestCase):
             ),
             {
                 date(2021, 1, 3): StockPortfolioSnapshot(
-                    positions={}, owner=self.USERS.owner
+                    positions={}, owner=self.USERS.owner, snapshot_date=date(2021, 1, 3)
                 ),
             },
         )

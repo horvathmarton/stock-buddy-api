@@ -67,6 +67,7 @@ class StockPortfolioSnapshotSerializer(serializers.Serializer):
     size_distribution = serializers.DictField(child=serializers.FloatField())
     size_at_cost_distribution = serializers.DictField(child=serializers.FloatField())
     dividend_distribution = serializers.DictField(child=serializers.FloatField())
+    annualized_pnls = serializers.DictField(child=serializers.FloatField())
 
     assets_under_management = serializers.FloatField()
     capital_invested = serializers.FloatField()

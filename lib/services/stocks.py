@@ -57,7 +57,9 @@ class StocksService:
             # Take a snapshot if the next action would not affect the next snapshot date.
             while action.date > snapshot_dates[0]:
                 snapshots[snapshot_dates[0]] = StockPortfolioSnapshot(
-                    positions=deepcopy(positions), owner=portfolios[0].owner
+                    positions=deepcopy(positions),
+                    owner=portfolios[0].owner,
+                    snapshot_date=snapshot_dates[0],
                 )
                 snapshot_dates = snapshot_dates[1:]
 
@@ -87,7 +89,9 @@ class StocksService:
         # When we are done with the replay we take all the snapshots after the last action.
         while snapshot_dates:
             snapshots[snapshot_dates[0]] = StockPortfolioSnapshot(
-                positions=positions, owner=portfolios[0].owner
+                positions=positions,
+                owner=portfolios[0].owner,
+                snapshot_date=snapshot_dates[0],
             )
             snapshot_dates = snapshot_dates[1:]
 
@@ -156,7 +160,9 @@ class StocksService:
 
     @staticmethod
     def __create_position(
-        transaction: StockTransaction, latest_price: float, latest_dividend: float
+        transaction: StockTransaction,
+        latest_price: float,
+        latest_dividend: float,
     ) -> StockPositionSnapshot:
         """Helper function to generate a new position entity."""
 
