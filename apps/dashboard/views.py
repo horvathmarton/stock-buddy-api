@@ -3,8 +3,8 @@
 from datetime import date, datetime
 from logging import getLogger
 
-from django.shortcuts import get_object_or_404
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed, NotFound, ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -12,14 +12,13 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-
-from apps.dashboard.models import Strategy, UserStrategy
-from apps.dashboard.serializers import StrategySerializer
-from apps.stocks.models import StockPortfolio
 from lib.enums import Visibility
 from lib.services.cash import CashService
 from lib.services.stocks import StocksService
 
+from apps.dashboard.models import Strategy, UserStrategy
+from apps.dashboard.serializers import StrategySerializer
+from apps.stocks.models import StockPortfolio
 
 LOGGER = getLogger(__name__)
 
@@ -58,38 +57,6 @@ class StrategyView(ModelViewSet):
                 "target": serializer.data,
             }
         )
-
-    @action(detail=False, methods=["post"])
-    def select_strategy(self, request: Request) -> Response:
-        """Sets a target strategy for the authenticated user."""
-
-        strategy_id = request.data.get("strategy")
-        LOGGER.info(
-            "%s is trying to select %s as target strategy.",
-            self.request.user,
-            strategy_id,
-        )
-        if not isinstance(strategy_id, int):
-            raise ValidationError(
-                "Strategy property is required and must be an integer."
-            )
-
-        LOGGER.debug("Looking up %s.", strategy_id)
-        strategy = get_object_or_404(Strategy, pk=strategy_id)
-        if (
-            strategy.visibility != Visibility.PUBLIC
-            and strategy.owner != self.request.user
-        ):
-            raise NotFound()
-
-        LOGGER.debug(
-            "Updating target strategy for %s to %s.", self.request.user, strategy_id
-        )
-        UserStrategy.objects.update_or_create(
-            user=self.request.user, defaults={"strategy": strategy}
-        )
-
-        return Response(status=201)
 
     def partial_update(self, request: Request, *args, **kwargs) -> Response:
         """Update the name of the given strategy."""
@@ -208,3 +175,38 @@ class PortfolioIndicatorView(APIView):
                 "annualDividendIncome": summary.dividend,
             }
         )
+
+
+class SelectStrategyView(APIView):
+    """Business logic for the target strategy selection API."""
+
+    def post(self, request: Request) -> Response:
+        """Sets a target strategy for the authenticated user."""
+
+        strategy_id = self.request.data.get("strategy")
+        LOGGER.info(
+            "%s is trying to select %s as target strategy.",
+            self.request.user,
+            strategy_id,
+        )
+        if not isinstance(strategy_id, int):
+            raise ValidationError(
+                "Strategy property is required and must be an integer."
+            )
+
+        LOGGER.debug("Looking up %s.", strategy_id)
+        strategy = get_object_or_404(Strategy, pk=strategy_id)
+        if (
+            strategy.visibility != Visibility.PUBLIC
+            and strategy.owner != self.request.user
+        ):
+            raise NotFound()
+
+        LOGGER.debug(
+            "Updating target strategy for %s to %s.", self.request.user, strategy_id
+        )
+        UserStrategy.objects.update_or_create(
+            user=self.request.user, defaults={"strategy": strategy}
+        )
+
+        return Response(status=201)

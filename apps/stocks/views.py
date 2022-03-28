@@ -47,7 +47,7 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
     def retrieve(self, request: Request, *args, pk: int = None, **kwargs) -> Response:
         # pylint: disable=arguments-differ, disable=invalid-name
         LOGGER.debug("Parsing as_of parameter from the request.")
-        as_of = request.query_params.get("asOf")
+        as_of = request.query_params.get("as_of")
         parsed_as_of = None
 
         if as_of:
@@ -55,7 +55,7 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
                 parsed_as_of = dateutil.parser.parse(as_of).date()
             except dateutil.parser.ParserError:
                 return Response(
-                    {"error": "Invalid date in asOf query param"},
+                    {"error": "Invalid date in as_of query param"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
@@ -89,7 +89,7 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
         """
 
         LOGGER.debug("Parsing as_of parameter from the request.")
-        as_of = request.query_params.get("asOf")
+        as_of = request.query_params.get("as_of")
         parsed_as_of = None
 
         if as_of:
@@ -97,7 +97,7 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
                 parsed_as_of = dateutil.parser.parse(as_of).date()
             except dateutil.parser.ParserError:
                 return Response(
-                    {"error": "Invalid date in asOf query param"},
+                    {"error": "Invalid date in as_of query param"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 

@@ -169,7 +169,7 @@ class TestStockPortfolioDetail(TestCase):
             username="owner",
             password="password",
         )
-        response = self.client.get(f"{self.url}?asOf=2020-12-31")
+        response = self.client.get(f"{self.url}?as_of=2020-12-31")
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(
@@ -247,7 +247,7 @@ class TestStockPortfolioSummary(TestCase):
             username="owner",
             password="password",
         )
-        response = self.client.get(f"{self.url}?asOf=2020-12-30")
+        response = self.client.get(f"{self.url}?as_of=2020-12-30")
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(
