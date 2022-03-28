@@ -134,7 +134,7 @@ class TestStrategySelection(TestCase):
         cls.USERS = data.USERS
         cls.STRATEGIES = data.STRATEGIES
 
-        cls.url = "/dashboard/strategies/select_strategy/"
+        cls.url = "/dashboard/strategies/select-strategy"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.post(

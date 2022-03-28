@@ -37,7 +37,7 @@ class CashBalanceViewSet(viewsets.GenericViewSet):
         # pylint: disable=arguments-differ, disable=invalid-name
 
         LOGGER.debug("Parsing as_of parameter from the request.")
-        as_of = request.query_params.get("asOf")
+        as_of = request.query_params.get("as_of")
         parsed_as_of = None
 
         if as_of:
@@ -45,7 +45,7 @@ class CashBalanceViewSet(viewsets.GenericViewSet):
                 parsed_as_of = dateutil.parser.parse(as_of)
             except dateutil.parser.ParserError:
                 return Response(
-                    {"error": "Invalid date in asOf query param"},
+                    {"error": "Invalid date in as_of query param"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
@@ -75,7 +75,7 @@ class CashBalanceViewSet(viewsets.GenericViewSet):
         """
 
         LOGGER.debug("Parsing as_of parameter from the request.")
-        as_of = request.query_params.get("asOf")
+        as_of = request.query_params.get("as_of")
         parsed_as_of = None
 
         if as_of:
@@ -83,7 +83,7 @@ class CashBalanceViewSet(viewsets.GenericViewSet):
                 parsed_as_of = dateutil.parser.parse(as_of)
             except dateutil.parser.ParserError:
                 return Response(
-                    {"error": "Invalid date in asOf query param"},
+                    {"error": "Invalid date in as_of query param"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
