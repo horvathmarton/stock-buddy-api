@@ -158,21 +158,21 @@ class PortfolioIndicatorView(APIView):
 
         return Response(
             {
-                "largestPositionExposure": max(
+                "largest_position_exposure": max(
                     position for position in summary.size_distribution.values()
                 ),
-                "largetsSectorExposure": max(
+                "largest_sector_exposure": max(
                     sector for sector in summary.sector_distribution.values()
                 ),
-                "totalAum": aum,
-                "grossCapitalDeployed": 1 - (balance_in_usd / capital)
+                "total_aum": aum,
+                "gross_capital_deployed": 1 - (balance_in_usd / capital)
                 if capital
                 else 0,
-                "totalInvestedCapital": capital,
-                "totalFloatingPnl": pnl,
-                "roicSinceInception": roic,
-                "annualizedRoic": annualized_roic,
-                "annualDividendIncome": summary.dividend,
+                "total_invested_capital": capital,
+                "total_floating_pnl": pnl,
+                "roic_since_inception": roic,
+                "annualized_roic": annualized_roic,
+                "annual_dividend_income": summary.dividend,
             }
         )
 
