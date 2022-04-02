@@ -135,13 +135,13 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "<replace me>/cash/1",
+									"raw": "{{url}}/cash/{{portfolio_id}}",
 									"host": [
-										"<replace me>"
+										"{{url}}"
 									],
 									"path": [
 										"cash",
-										"1"
+										"{{portfolio_id}}"
 									]
 								}
 							},
@@ -390,14 +390,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/dashboard/strategies/",
+							"raw": "{{url}}/dashboard/strategies",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
 								"dashboard",
-								"strategies",
-								""
+								"strategies"
 							]
 						}
 					},
@@ -418,15 +417,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/dashboard/strategies/{{strategy_id}}/",
+							"raw": "{{url}}/dashboard/strategies/{{strategy_id}}",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
 								"dashboard",
 								"strategies",
-								"{{strategy_id}}",
-								""
+								"{{strategy_id}}"
 							]
 						}
 					},
@@ -447,15 +445,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/dashboard/strategies/{{strategy_id}}/",
+							"raw": "{{url}}/dashboard/strategies/{{strategy_id}}",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
 								"dashboard",
 								"strategies",
-								"{{strategy_id}}",
-								""
+								"{{strategy_id}}"
 							]
 						}
 					},
@@ -764,14 +761,13 @@
 									}
 								},
 								"url": {
-									"raw": "{{url}}/stocks/portfolios/",
+									"raw": "{{url}}/stocks/portfolios",
 									"host": [
 										"{{url}}"
 									],
 									"path": [
 										"stocks",
-										"portfolios",
-										""
+										"portfolios"
 									]
 								}
 							},
@@ -792,15 +788,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{url}}/stocks/portfolios/{{portfolio_id}}/",
+									"raw": "{{url}}/stocks/portfolios/{{portfolio_id}}",
 									"host": [
 										"{{url}}"
 									],
 									"path": [
 										"stocks",
 										"portfolios",
-										"{{portfolio_id}}",
-										""
+										"{{portfolio_id}}"
 									]
 								}
 							},
@@ -812,15 +807,14 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{url}}/stocks/portfolios/{{portfolio_id}}/",
+									"raw": "{{url}}/stocks/portfolios/{{portfolio_id}}",
 									"host": [
 										"{{url}}"
 									],
 									"path": [
 										"stocks",
 										"portfolios",
-										"{{portfolio_id}}",
-										""
+										"{{portfolio_id}}"
 									]
 								}
 							},
@@ -883,14 +877,13 @@
 									}
 								},
 								"url": {
-									"raw": "{{url}}/stocks/watchlists/",
+									"raw": "{{url}}/stocks/watchlists",
 									"host": [
 										"{{url}}"
 									],
 									"path": [
 										"stocks",
-										"watchlists",
-										""
+										"watchlists"
 									]
 								}
 							},
@@ -911,15 +904,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{url}}/stocks/watchlists/{{watchlist_id}}/",
+									"raw": "{{url}}/stocks/watchlists/{{watchlist_id}}",
 									"host": [
 										"{{url}}"
 									],
 									"path": [
 										"stocks",
 										"watchlists",
-										"{{watchlist_id}}",
-										""
+										"{{watchlist_id}}"
 									]
 								}
 							},
@@ -931,15 +923,14 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{url}}/stocks/watchlists/{{watchlist_id}}/",
+									"raw": "{{url}}/stocks/watchlists/{{watchlist_id}}",
 									"host": [
 										"{{url}}"
 									],
 									"path": [
 										"stocks",
 										"watchlists",
-										"{{watchlist_id}}",
-										""
+										"{{watchlist_id}}"
 									]
 								}
 							},
@@ -1007,14 +998,13 @@
 									}
 								},
 								"url": {
-									"raw": "{{url}}/transactions/cash/",
+									"raw": "{{url}}/transactions/cash",
 									"host": [
 										"{{url}}"
 									],
 									"path": [
 										"transactions",
-										"cash",
-										""
+										"cash"
 									]
 								}
 							},
@@ -1035,15 +1025,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{url}}/transactions/cash/{{cash_transactions_id}}/",
+									"raw": "{{url}}/transactions/cash/{{cash_transactions_id}}",
 									"host": [
 										"{{url}}"
 									],
 									"path": [
 										"transactions",
 										"cash",
-										"{{cash_transactions_id}}",
-										""
+										"{{cash_transactions_id}}"
 									]
 								}
 							},
@@ -1055,15 +1044,14 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{url}}/transactions/cash/{{cash_transactions_id}}/",
+									"raw": "{{url}}/transactions/cash/{{cash_transactions_id}}",
 									"host": [
 										"{{url}}"
 									],
 									"path": [
 										"transactions",
 										"cash",
-										"{{cash_transactions_id}}",
-										""
+										"{{cash_transactions_id}}"
 									]
 								}
 							},
@@ -1126,14 +1114,13 @@
 									}
 								},
 								"url": {
-									"raw": "{{url}}/transactions/forex/",
+									"raw": "{{url}}/transactions/forex",
 									"host": [
 										"{{url}}"
 									],
 									"path": [
 										"transactions",
-										"forex",
-										""
+										"forex"
 									]
 								}
 							},
@@ -1154,15 +1141,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{url}}/transactions/forex/{{forex_transactions_id}}/",
+									"raw": "{{url}}/transactions/forex/{{forex_transactions_id}}",
 									"host": [
 										"{{url}}"
 									],
 									"path": [
 										"transactions",
 										"forex",
-										"{{forex_transactions_id}}",
-										""
+										"{{forex_transactions_id}}"
 									]
 								}
 							},
@@ -1174,15 +1160,14 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{url}}/transactions/forex/{{forex_transactions_id}}/",
+									"raw": "{{url}}/transactions/forex/{{forex_transactions_id}}",
 									"host": [
 										"{{url}}"
 									],
 									"path": [
 										"transactions",
 										"forex",
-										"{{forex_transactions_id}}",
-										""
+										"{{forex_transactions_id}}"
 									]
 								}
 							},
@@ -1245,14 +1230,13 @@
 									}
 								},
 								"url": {
-									"raw": "{{url}}/transactions/stocks/",
+									"raw": "{{url}}/transactions/stocks",
 									"host": [
 										"{{url}}"
 									],
 									"path": [
 										"transactions",
-										"stocks",
-										""
+										"stocks"
 									]
 								}
 							},
@@ -1273,15 +1257,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{url}}/transactions/stocks/{{stock_transactions_id}}/",
+									"raw": "{{url}}/transactions/stocks/{{stock_transactions_id}}",
 									"host": [
 										"{{url}}"
 									],
 									"path": [
 										"transactions",
 										"stocks",
-										"{{stock_transactions_id}}",
-										""
+										"{{stock_transactions_id}}"
 									]
 								}
 							},
@@ -1293,15 +1276,14 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{url}}/transactions/stocks/{{stock_transactions_id}}/",
+									"raw": "{{url}}/transactions/stocks/{{stock_transactions_id}}",
 									"host": [
 										"{{url}}"
 									],
 									"path": [
 										"transactions",
 										"stocks",
-										"{{stock_transactions_id}}",
-										""
+										"{{stock_transactions_id}}"
 									]
 								}
 							},
