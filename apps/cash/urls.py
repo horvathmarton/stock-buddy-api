@@ -1,11 +1,10 @@
 """Define the URL schemes for the cash route."""
 
-from django.urls import path, include
+from django.urls import path
 
-from rest_framework.routers import DefaultRouter
-from apps.cash.views import CashBalanceViewSet
+from apps.cash.views import CashBalanceDetailsView, CashBalanceSummaryView
 
-router = DefaultRouter()
-router.register(r"", CashBalanceViewSet)
-
-urlpatterns = [path("", include(router.urls))]
+urlpatterns = [
+    path("<int:pk>", CashBalanceDetailsView.as_view()),
+    path("summary", CashBalanceSummaryView.as_view()),
+]

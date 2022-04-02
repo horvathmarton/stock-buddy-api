@@ -15,7 +15,7 @@ class TestCashBalanceDetail(TestCase):
         data = generate_test_data()
         cls.PORTFOLIOS = data.PORTFOLIOS
 
-        cls.url = f"/cash/{cls.PORTFOLIOS.main.id}/"
+        cls.url = f"/cash/{cls.PORTFOLIOS.main.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -36,7 +36,7 @@ class TestCashBalanceDetail(TestCase):
             username="owner", password="password"
         )
 
-        response = self.client.get("/cash/100/")
+        response = self.client.get("/cash/100")
 
         self.assertEqual(response.status_code, 404)
 
@@ -45,7 +45,7 @@ class TestCashBalanceDetail(TestCase):
             username="owner", password="password"
         )
 
-        response = self.client.get(f"/cash/{self.PORTFOLIOS.other_users.id}/")
+        response = self.client.get(f"/cash/{self.PORTFOLIOS.other_users.id}")
 
         self.assertEqual(response.status_code, 404)
 
@@ -59,7 +59,7 @@ class TestCashBalanceSummary(TestCase):
         data = generate_test_data()
         cls.PORTFOLIOS = data.PORTFOLIOS
 
-        cls.url = "/cash/summary/"
+        cls.url = "/cash/summary"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)

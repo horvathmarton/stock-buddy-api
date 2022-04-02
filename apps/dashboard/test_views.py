@@ -23,7 +23,7 @@ class TestStrategyList(TestCase):
         data = generate_test_data()
         cls.USERS = data.USERS
 
-        cls.url = "/dashboard/strategies/"
+        cls.url = "/dashboard/strategies"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -57,7 +57,7 @@ class TestStrategyDetail(TestCase):
         cls.USERS = data.USERS
         cls.STRATEGIES = data.STRATEGIES
 
-        cls.url = f"/dashboard/strategies/{cls.STRATEGIES.main.id}/"
+        cls.url = f"/dashboard/strategies/{cls.STRATEGIES.main.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -79,7 +79,7 @@ class TestStrategyDetail(TestCase):
             username="owner", password="password"
         )
 
-        response = self.client.get("/dashboard/strategies/100/")
+        response = self.client.get("/dashboard/strategies/100")
 
         self.assertEqual(response.status_code, 404)
 
@@ -89,7 +89,7 @@ class TestStrategyDetail(TestCase):
         )
 
         response = self.client.get(
-            f"/dashboard/strategies/{self.STRATEGIES.other_users.id}/"
+            f"/dashboard/strategies/{self.STRATEGIES.other_users.id}"
         )
 
         self.assertEqual(response.status_code, 404)
@@ -105,7 +105,7 @@ class TestCurrentStrategy(TestCase):
         cls.USERS = data.USERS
         cls.STRATEGIES = data.STRATEGIES
 
-        cls.url = "/dashboard/strategies/me/"
+        cls.url = "/dashboard/strategies/me"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -170,7 +170,7 @@ class TestStrategyCreate(TestCase):
         data = generate_test_data()
         cls.USERS = data.USERS
 
-        cls.url = "/dashboard/strategies/"
+        cls.url = "/dashboard/strategies"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.post(
@@ -294,7 +294,7 @@ class TestStrategyUpdate(TestCase):
         cls.USERS = data.USERS
         cls.STRATEGIES = data.STRATEGIES
 
-        cls.url = f"/dashboard/strategies/{cls.STRATEGIES.main.id}/"
+        cls.url = f"/dashboard/strategies/{cls.STRATEGIES.main.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.put(
@@ -348,7 +348,7 @@ class TestStrategyUpdate(TestCase):
         )
 
         response = self.client.put(
-            "/dashboard/strategies/100/",
+            "/dashboard/strategies/100",
             data={
                 "items": [
                     {"name": "stock", "size": 0.4},
@@ -434,7 +434,7 @@ class TestStrategyDelete(TestCase):
         cls.USERS = data.USERS
         cls.STRATEGIES = data.STRATEGIES
 
-        cls.url = f"/dashboard/strategies/{cls.STRATEGIES.main.id}/"
+        cls.url = f"/dashboard/strategies/{cls.STRATEGIES.main.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.delete(self.url)

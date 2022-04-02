@@ -3,14 +3,14 @@
 from logging import getLogger
 from datetime import date
 
-import dateutil
 from django.shortcuts import get_list_or_404, get_object_or_404
-from rest_framework import status, viewsets
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
+from lib.helpers import parse_date_query_param
 from lib.permissions import IsOwnerOrAdmin
 from lib.services.stocks import StocksService
 
@@ -38,39 +38,32 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
 
     queryset = StockPortfolio.objects.all()
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
+    serializer_class = StockPortfolioSerializer
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.stocks_service = StocksService()
 
-    def retrieve(self, request: Request, *args, pk: int = None, **kwargs) -> Response:
-        # pylint: disable=arguments-differ, disable=invalid-name
-        LOGGER.debug("Parsing as_of parameter from the request.")
-        as_of = request.query_params.get("as_of")
-        parsed_as_of = None
+    def retrieve(self, request: Request, *args, **kwargs) -> Response:
+        # pylint: disable=invalid-name
 
-        if as_of:
-            try:
-                parsed_as_of = dateutil.parser.parse(as_of).date()
-            except dateutil.parser.ParserError:
-                return Response(
-                    {"error": "Invalid date in as_of query param"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+        LOGGER.debug("Parsing as_of parameter from the request.")
+        as_of = parse_date_query_param(request, "as_of")
+        pk = kwargs["pk"]
 
         LOGGER.info(
             "The user %s has requested %s portfolio as of %s.",
             request.user,
             pk,
-            parsed_as_of,
+            as_of,
         )
 
         LOGGER.debug("Looking for %s portfolio.", pk)
         portfolio = get_object_or_404(StockPortfolio, pk=pk)
 
         snapshot = self.stocks_service.get_portfolio_snapshot(
-            [portfolio], snapshot_date=parsed_as_of or date.today()
+            [portfolio], snapshot_date=as_of or date.today()
         )
         if not snapshot.number_of_positions:
             raise NotFound(
@@ -89,35 +82,25 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
         """
 
         LOGGER.debug("Parsing as_of parameter from the request.")
-        as_of = request.query_params.get("as_of")
-        parsed_as_of = None
-
-        if as_of:
-            try:
-                parsed_as_of = dateutil.parser.parse(as_of).date()
-            except dateutil.parser.ParserError:
-                return Response(
-                    {"error": "Invalid date in as_of query param"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+        as_of = parse_date_query_param(request, "as_of")
 
         LOGGER.info(
             "The user %s has requested a portfolio summary as of %s.",
             self.request.user,
-            parsed_as_of,
+            as_of,
         )
 
         LOGGER.debug("Looking up portfolios belonging to %s.", request.user)
         portfolios = get_list_or_404(StockPortfolio, owner=request.user)
         portfolio = self.stocks_service.get_portfolio_snapshot(
-            portfolios, snapshot_date=parsed_as_of or date.today()
+            portfolios, snapshot_date=as_of or date.today()
         )
 
         if not portfolio.number_of_positions:
             LOGGER.warning(
                 "%s has no active postion to summarize as of %s.",
                 request.user,
-                parsed_as_of,
+                as_of,
             )
 
             raise NotFound(
@@ -142,11 +125,6 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
             return queryset
 
         return queryset.filter(owner=self.request.user)
-
-    def get_serializer_class(self):
-        if self.action in ("retrieve", "summary"):
-            return StockPortfolioSnapshotSerializer
-        return StockPortfolioSerializer
 
 
 class StockWatchlistViewSet(viewsets.ModelViewSet):

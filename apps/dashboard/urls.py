@@ -9,7 +9,7 @@ from apps.dashboard.views import (
     StrategyView,
 )
 
-router = DefaultRouter()
+router = DefaultRouter(trailing_slash=False)
 router.register(r"strategies", StrategyView)
 
 urlpatterns = [

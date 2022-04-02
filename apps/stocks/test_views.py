@@ -19,10 +19,10 @@ class TestStockList(TestCase):
         data = generate_test_data()
         cls.STOCKS = data.STOCKS
 
-        cls.url = "/stocks/"
+        cls.url = "/stocks"
 
     def test_cannot_access_unauthenticated(self):
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, follow=True)
 
         self.assertEqual(response.status_code, 401)
 
@@ -31,7 +31,7 @@ class TestStockList(TestCase):
             username="owner", password="password"
         )
 
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, follow=True)
 
         stocks_count = len(Stock.objects.filter(active=True))
 
@@ -48,7 +48,7 @@ class TestStockDetail(TestCase):
         data = generate_test_data()
         cls.STOCKS = data.STOCKS
 
-        cls.url = "/stocks/MSFT/"
+        cls.url = "/stocks/MSFT"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -72,7 +72,7 @@ class TestStockDetail(TestCase):
             username="owner", password="password"
         )
 
-        response = self.client.get("/stocks/KO/")
+        response = self.client.get("/stocks/KO")
 
         self.assertEqual(response.status_code, 404)
 
@@ -87,7 +87,7 @@ class TestStockPortfolioList(TestCase):
         cls.USERS = data.USERS
         cls.PORTFOLIOS = data.PORTFOLIOS
 
-        cls.url = "/stocks/portfolios/"
+        cls.url = "/stocks/portfolios"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -137,7 +137,7 @@ class TestStockPortfolioDetail(TestCase):
             price=100.01,
         )
 
-        cls.url = f"/stocks/portfolios/{cls.PORTFOLIOS.main.id}/"
+        cls.url = f"/stocks/portfolios/{cls.PORTFOLIOS.main.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -160,7 +160,7 @@ class TestStockPortfolioDetail(TestCase):
             username="owner", password="password"
         )
 
-        response = self.client.get("/stocks/portfolios/100/")
+        response = self.client.get("/stocks/portfolios/100")
 
         self.assertEqual(response.status_code, 404)
 
@@ -224,7 +224,7 @@ class TestStockPortfolioSummary(TestCase):
             price=100.01,
         )
 
-        cls.url = "/stocks/portfolios/summary/"
+        cls.url = "/stocks/portfolios/summary"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -264,7 +264,7 @@ class TestStockPortfolioCreate(TestCase):
     def setUpTestData(cls):
         generate_test_data()
 
-        cls.url = "/stocks/portfolios/"
+        cls.url = "/stocks/portfolios"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.post(
@@ -311,7 +311,7 @@ class TestStockPortfolioUpdate(TestCase):
         data = generate_test_data()
         cls.PORTFOLIOS = data.PORTFOLIOS
 
-        cls.url = f"/stocks/portfolios/{cls.PORTFOLIOS.main.id}/"
+        cls.url = f"/stocks/portfolios/{cls.PORTFOLIOS.main.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.patch(self.url)
@@ -341,7 +341,7 @@ class TestStockPortfolioDelete(TestCase):
         data = generate_test_data()
         cls.PORTFOLIOS = data.PORTFOLIOS
 
-        cls.url = f"/stocks/portfolios/{cls.PORTFOLIOS.main.id}/"
+        cls.url = f"/stocks/portfolios/{cls.PORTFOLIOS.main.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.delete(self.url)
@@ -353,7 +353,7 @@ class TestStockPortfolioDelete(TestCase):
             username="owner", password="password"
         )
 
-        response = self.client.delete("/stocks/portfolios/100/")
+        response = self.client.delete("/stocks/portfolios/100")
 
         self.assertEqual(response.status_code, 404)
 
@@ -363,7 +363,7 @@ class TestStockPortfolioDelete(TestCase):
         )
 
         response = self.client.delete(
-            f"/stocks/portfolios/{self.PORTFOLIOS.other_users.id}/"
+            f"/stocks/portfolios/{self.PORTFOLIOS.other_users.id}"
         )
 
         self.assertEqual(response.status_code, 404)
@@ -388,7 +388,7 @@ class TestStockWatchlistList(TestCase):
         cls.USERS = data.USERS
         cls.WATCHLISTS = data.WATCHLISTS
 
-        cls.url = "/stocks/watchlists/"
+        cls.url = "/stocks/watchlists"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -426,7 +426,7 @@ class TestStockWatchlistDetail(TestCase):
         cls.USERS = data.USERS
         cls.WATCHLISTS = data.WATCHLISTS
 
-        cls.url = f"/stocks/watchlists/{cls.WATCHLISTS.main.id}/"
+        cls.url = f"/stocks/watchlists/{cls.WATCHLISTS.main.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -449,7 +449,7 @@ class TestStockWatchlistDetail(TestCase):
             username="owner", password="password"
         )
 
-        response = self.client.get("/stocks/watchlists/100/")
+        response = self.client.get("/stocks/watchlists/100")
 
         self.assertEqual(response.status_code, 404)
 
@@ -464,7 +464,7 @@ class TestStockWatchlistCreate(TestCase):
         cls.USERS = data.USERS
         cls.WATCHLISTS = data.WATCHLISTS
 
-        cls.url = "/stocks/watchlists/"
+        cls.url = "/stocks/watchlists"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.post(
@@ -537,7 +537,7 @@ class TestStockWatchlistUpdate(TestCase):
         cls.USERS = data.USERS
         cls.WATCHLISTS = data.WATCHLISTS
 
-        cls.url = f"/stocks/watchlists/{cls.WATCHLISTS.main.id}/"
+        cls.url = f"/stocks/watchlists/{cls.WATCHLISTS.main.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.put(
@@ -570,7 +570,7 @@ class TestStockWatchlistUpdate(TestCase):
         )
 
         response = self.client.put(
-            f"/stocks/watchlist/{other_users_watchlist.id}/", data={"name": "Hello"}
+            f"/stocks/watchlist/{other_users_watchlist.id}", data={"name": "Hello"}
         )
 
         self.assertEqual(response.status_code, 404)
@@ -603,7 +603,7 @@ class TestStockWatchlistDelete(TestCase):
         cls.USERS = data.USERS
         cls.WATCHLISTS = data.WATCHLISTS
 
-        cls.url = f"/stocks/watchlists/{cls.WATCHLISTS.main.id}/"
+        cls.url = f"/stocks/watchlists/{cls.WATCHLISTS.main.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.delete(self.url)
@@ -635,7 +635,7 @@ class TestStockWatchlistDelete(TestCase):
             username="owner", password="password"
         )
 
-        response = self.client.delete("/stocks/watchlists/100/")
+        response = self.client.delete("/stocks/watchlists/100")
 
         self.assertEqual(response.status_code, 404)
 
@@ -651,7 +651,7 @@ class TestStockWatchlistDelete(TestCase):
             pk=self.WATCHLISTS.other_users.id
         )
 
-        response = self.client.delete(f"/stocks/watchlist/{other_users_watchlist.id}/")
+        response = self.client.delete(f"/stocks/watchlist/{other_users_watchlist.id}")
 
         updated_watchlists_count = len(
             StockWatchlist.objects.filter(owner=self.USERS.owner)

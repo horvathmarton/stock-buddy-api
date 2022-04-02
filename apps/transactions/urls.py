@@ -9,7 +9,7 @@ from .views import (
     StockTransactionViewSet,
 )
 
-router = DefaultRouter()
+router = DefaultRouter(trailing_slash=False)
 router.register(r"cash", CashTransactionViewSet)
 router.register(r"forex", ForexTransactionViewSet)
 router.register(r"stocks", StockTransactionViewSet)

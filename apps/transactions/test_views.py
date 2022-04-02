@@ -28,7 +28,7 @@ class TestCashTransactionList(TestCase):
             portfolio=data.PORTFOLIOS.main,
         )
 
-        cls.url = "/transactions/cash/"
+        cls.url = "/transactions/cash"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -61,7 +61,7 @@ class TestCashTransactionDetail(TestCase):
             portfolio=data.PORTFOLIOS.main,
         )
 
-        cls.url = f"/transactions/cash/{transaction.id}/"
+        cls.url = f"/transactions/cash/{transaction.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -87,7 +87,7 @@ class TestCashTransactionCreate(TestCase):
         data = generate_test_data()
         cls.PORTFOLIOS = data.PORTFOLIOS
 
-        cls.url = "/transactions/cash/"
+        cls.url = "/transactions/cash"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.post(
@@ -139,7 +139,7 @@ class TestCashTransactionUpdate(TestCase):
             portfolio=data.PORTFOLIOS.main,
         )
 
-        cls.url = f"/transactions/cash/{transaction.id}/"
+        cls.url = f"/transactions/cash/{transaction.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.put(
@@ -191,7 +191,7 @@ class TestCashTransactionDelete(TestCase):
             portfolio=data.PORTFOLIOS.main,
         )
 
-        cls.url = f"/transactions/cash/{transaction.id}/"
+        cls.url = f"/transactions/cash/{transaction.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.delete(self.url)
@@ -226,7 +226,7 @@ class TestForexTransactionList(TestCase):
             portfolio=data.PORTFOLIOS.main,
         )
 
-        cls.url = "/transactions/forex/"
+        cls.url = "/transactions/forex"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -261,7 +261,7 @@ class TestForexTransactionDetail(TestCase):
             portfolio=data.PORTFOLIOS.main,
         )
 
-        cls.url = f"/transactions/forex/{transaction.id}/"
+        cls.url = f"/transactions/forex/{transaction.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -287,7 +287,7 @@ class TestForexTransactionCreate(TestCase):
         data = generate_test_data()
         cls.PORTFOLIOS = data.PORTFOLIOS
 
-        cls.url = "/transactions/forex/"
+        cls.url = "/transactions/forex"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.post(
@@ -345,7 +345,7 @@ class TestForexTransactionUpdate(TestCase):
             portfolio=data.PORTFOLIOS.main,
         )
 
-        cls.url = f"/transactions/forex/{transaction.id}/"
+        cls.url = f"/transactions/forex/{transaction.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.put(
@@ -403,7 +403,7 @@ class TestForexTransactionDelete(TestCase):
             portfolio=data.PORTFOLIOS.main,
         )
 
-        cls.url = f"/transactions/forex/{transaction.id}/"
+        cls.url = f"/transactions/forex/{transaction.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.delete(self.url)
@@ -437,7 +437,7 @@ class TestStocksTransactionList(TestCase):
             portfolio=data.PORTFOLIOS.main,
         )
 
-        cls.url = "/transactions/stocks/"
+        cls.url = "/transactions/stocks"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -471,7 +471,7 @@ class TestStocksTransactionDetail(TestCase):
             portfolio=data.PORTFOLIOS.main,
         )
 
-        cls.url = f"/transactions/stocks/{transaction.id}/"
+        cls.url = f"/transactions/stocks/{transaction.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -497,7 +497,7 @@ class TestStocksTransactionCreate(TestCase):
         data = generate_test_data()
         cls.PORTFOLIOS = data.PORTFOLIOS
 
-        cls.url = "/transactions/stocks/"
+        cls.url = "/transactions/stocks"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.post(
@@ -552,7 +552,7 @@ class TestStocksTransactionUpdate(TestCase):
             portfolio=data.PORTFOLIOS.main,
         )
 
-        cls.url = f"/transactions/stocks/{transaction.id}/"
+        cls.url = f"/transactions/stocks/{transaction.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.put(
@@ -607,7 +607,7 @@ class TestStocksTransactionDelete(TestCase):
             portfolio=data.PORTFOLIOS.main,
         )
 
-        cls.url = f"/transactions/stocks/{transaction.id}/"
+        cls.url = f"/transactions/stocks/{transaction.id}"
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.delete(self.url)

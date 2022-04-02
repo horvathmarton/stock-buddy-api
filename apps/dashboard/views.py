@@ -5,25 +5,29 @@ from logging import getLogger
 
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
-from rest_framework.exceptions import MethodNotAllowed, NotFound, ValidationError
+from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
 from lib.enums import Visibility
 from lib.services.cash import CashService
 from lib.services.stocks import StocksService
 
-from apps.dashboard.models import Strategy, UserStrategy
+from apps.dashboard.models import Strategy, StrategyItem, UserStrategy
 from apps.dashboard.serializers import StrategySerializer
 from apps.stocks.models import StockPortfolio
 
 LOGGER = getLogger(__name__)
 
 
-class StrategyView(ModelViewSet):
+class StrategyView(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
     """Business logic for the strategy API."""
 
     queryset = Strategy.objects.all()
@@ -58,6 +62,43 @@ class StrategyView(ModelViewSet):
             }
         )
 
+    def create(self, request: Request, *args, **kwargs) -> Response:
+        """Create a new user strategy."""
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        items = request.data["items"]
+        owner = request.user
+
+        LOGGER.debug(
+            "Inserting a new strategy named %s for %s.", serializer.data["name"], owner
+        )
+        # We only allow for the user to create private strategies for now to avoid spamming each other.
+        # Public strategies will be added by administrators.
+        strategy = Strategy.objects.create(
+            name=serializer.data["name"],
+            owner=owner,
+            visibility=Visibility.PRIVATE,
+        )
+
+        LOGGER.debug(
+            "Inserting %s strategy items for %s strategy.",
+            len(items),
+            strategy.name,
+        )
+        StrategyItem.objects.bulk_create(
+            [StrategyItem(strategy=strategy, **item) for item in items]
+        )
+
+        inserted_strategy = Strategy.objects.get(pk=strategy.id)
+        serializer = self.get_serializer(inserted_strategy)
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+        )
+
     def partial_update(self, request: Request, *args, **kwargs) -> Response:
         """Update the name of the given strategy."""
 
@@ -82,11 +123,31 @@ class StrategyView(ModelViewSet):
 
         return Response(serializer.data)
 
-    def destroy(self, request: Request, *args, **kwargs) -> Response:
-        LOGGER.warning("%s is trying to delete a strategy.", self.request.user)
-        raise MethodNotAllowed(
-            detail="Strategies cannot be deleted via API.", method="DELETE"
+    def update(self, request: Request, *args, **kwargs) -> Response:
+        """Update a user strategy."""
+
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # Remove the old strategy items.
+        LOGGER.debug("Remove existing strategy items from %s.", instance.name)
+        StrategyItem.objects.filter(strategy=instance).delete()
+
+        items = request.data["items"]
+        LOGGER.debug(
+            "Inserting %s new strategy items for %s strategy.",
+            len(items),
+            instance.name,
         )
+        StrategyItem.objects.bulk_create(
+            [StrategyItem(strategy=instance, **item) for item in items]
+        )
+
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+
+        return Response(serializer.data)
 
     def filter_queryset(self, queryset):
         is_admin = self.request.user.groups.filter(name="Admins").exists()
