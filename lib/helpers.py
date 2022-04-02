@@ -24,6 +24,6 @@ def parse_date_query_param(
         return None
 
     try:
-        return datetime.strptime(query_param, "%Y-%m-%d")
+        return datetime.strptime(query_param, "%Y-%m-%d").date()
     except ValueError as error:
         raise ParseError(f"Invalid date in {param_name} query param") from error
