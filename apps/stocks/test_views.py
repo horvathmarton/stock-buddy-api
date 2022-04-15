@@ -195,6 +195,26 @@ class TestStockPortfolioDetail(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_cant_fetch_other_users_portfolio(self):
+        StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 1),
+            ticker=self.STOCKS.PM,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.other_users,
+            price=100.01,
+        )
+
+        self.client.login(  # nosec - Password hardcoded intentionally in test.
+            username="owner",
+            password="password",
+        )
+        response = self.client.get(
+            f"/stocks/portfolios/{self.PORTFOLIOS.other_users.id}"
+        )
+
+        self.assertEqual(response.status_code, 404)
+
 
 class TestStockPortfolioSummary(TestCase):
     def setUp(self):
@@ -254,6 +274,36 @@ class TestStockPortfolioSummary(TestCase):
             response.data["detail"],
             "The portfolio has no transaction data before the selected date.",
         )
+
+    def test_not_containing_other_users_portfolio(self):
+        StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 1),
+            ticker=self.STOCKS.MSFT,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+            price=100.01,
+        )
+
+        StockTransaction.objects.create(
+            amount=2,
+            date=date(2021, 1, 1),
+            ticker=self.STOCKS.PM,
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.other_users,
+            price=100.01,
+        )
+
+        self.client.login(  # nosec - Password hardcoded intentionally in test.
+            username="owner", password="password"
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["number_of_positions"], 1)
+        self.assertIn("MSFT", response.data["positions"])
+        self.assertNotIn("PM", response.data["positions"])
 
 
 class TestStockPortfolioCreate(TestCase):

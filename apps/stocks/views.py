@@ -62,6 +62,9 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
         LOGGER.debug("Looking for %s portfolio.", pk)
         portfolio = get_object_or_404(StockPortfolio, pk=pk)
 
+        if not IsOwnerOrAdmin().has_object_permission(request, self, portfolio):
+            raise NotFound()
+
         snapshot = self.stocks_service.get_portfolio_snapshot(
             [portfolio], snapshot_date=as_of or date.today()
         )
