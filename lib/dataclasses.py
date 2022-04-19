@@ -204,7 +204,9 @@ class StockPortfolioSnapshot:
 
         mapping = {}
         for position in self.positions.values():
-            periods = (self.snapshot_date - position.first_purchase_date).days / 365
+            periods = round(
+                (self.snapshot_date - position.first_purchase_date).days / 365, 1
+            )
             mapping[position.stock.ticker] = FinanceService.rri(
                 periods, position.size_at_cost, position.size
             )
