@@ -622,7 +622,7 @@ class TestGetPortfolioSnapshot(TestCase):
             [self.PORTFOLIOS.main], date(2020, 1, 1)
         )
 
-        self.assertEqual(result.annualized_pnls, {"MSFT": 0.1969, "PM": 0.0615})
+        self.assertEqual(result.annualized_pnls, {"MSFT": 0.1970, "PM": 0.0615})
 
 
 class TestGetPortfolioSnapshotSeries(TestCase):
