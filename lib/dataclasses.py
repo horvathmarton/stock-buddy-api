@@ -32,22 +32,26 @@ class StockPositionSnapshot:
     # dividend_declaration_date: date
 
     def __repr__(self) -> str:
+        # pylint: disable=missing-function-docstring
+
         return f"""{self.stock.ticker} (p={self.price}, s={self.shares}, pp={
             self.purchase_price
         }, d={self.dividend}, fp={self.first_purchase_date}, lp={self.latest_purchase_date})"""
 
-    def __eq__(self, o: object) -> bool:
-        if not isinstance(o, StockPositionSnapshot):
+    def __eq__(self, other: object) -> bool:
+        # pylint: disable=missing-function-docstring
+
+        if not isinstance(other, StockPositionSnapshot):
             return NotImplemented
 
         return (
-            self.stock == o.stock
-            and self.shares == o.shares
-            and self.price == o.price
-            and self.dividend == o.dividend
-            and self.purchase_price == o.purchase_price
-            and self.first_purchase_date == o.first_purchase_date
-            and self.latest_purchase_date == o.latest_purchase_date
+            self.stock == other.stock
+            and self.shares == other.shares
+            and self.price == other.price
+            and self.dividend == other.dividend
+            and self.purchase_price == other.purchase_price
+            and self.first_purchase_date == other.first_purchase_date
+            and self.latest_purchase_date == other.latest_purchase_date
         )
 
     @property
@@ -106,14 +110,16 @@ class StockPortfolioSnapshot:
     snapshot_date: date
     owner: User
 
-    def __eq__(self, o: object) -> bool:
-        if not isinstance(o, StockPortfolioSnapshot):
+    def __eq__(self, other: object) -> bool:
+        # pylint: disable=missing-function-docstring
+
+        if not isinstance(other, StockPortfolioSnapshot):
             return NotImplemented
 
         return (
-            self.positions == o.positions
-            and self.owner == o.owner
-            and self.snapshot_date == o.snapshot_date
+            self.positions == other.positions
+            and self.owner == other.owner
+            and self.snapshot_date == other.snapshot_date
         )
 
     @property
@@ -225,6 +231,8 @@ class CashBalanceSnapshot:
     HUF: float = 0
 
     def __eq__(self, o: object) -> bool:
+        # pylint: disable=missing-function-docstring
+
         if not isinstance(o, CashBalanceSnapshot):
             return NotImplemented
 

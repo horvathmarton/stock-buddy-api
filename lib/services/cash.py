@@ -19,6 +19,8 @@ class CashService:
     """Cash balance snapshot generator."""
 
     def __init__(self):
+        # pylint: disable=missing-function-docstring
+
         self.stocks_service = StocksService()
 
     def get_portfolio_cash_balance(

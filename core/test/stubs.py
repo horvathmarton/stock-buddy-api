@@ -10,5 +10,7 @@ class RequestStub:
     # pylint: disable=too-few-public-methods
 
     def __init__(self, user: User = None, content_type: str = "application/json"):
+        # pylint: disable=missing-function-docstring
+
         self.user = user
         self.content_type = content_type
