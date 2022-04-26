@@ -26,6 +26,8 @@ class _UsersSeed:  # pylint: disable=too-few-public-methods
     """
 
     def __init__(self):
+        # pylint: disable=missing-function-docstring
+
         self.admin = User.objects.create_user(
             "admin",
             "admin@stockbuddy.com",
@@ -49,6 +51,8 @@ class _GroupsSeed:  # pylint: disable=too-few-public-methods
     """
 
     def __init__(self):
+        # pylint: disable=missing-function-docstring
+
         self.admins = Group.objects.create(name="Admins")
         self.bots = Group.objects.create(name="Bots")
 
@@ -63,7 +67,7 @@ class _StocksSeed:  # pylint: disable=too-few-public-methods
     """
 
     def __init__(self):
-        # pylint: disable=invalid-name
+        # pylint: disable=invalid-name, missing-function-docstring
 
         self.MSFT = Stock.objects.create(
             active=True,
@@ -98,15 +102,17 @@ class _PortfolioSeed:  # pylint: disable=too-few-public-methods
     other_users - A portfolio owned by the other user.
     """
 
-    def __init__(self, USERS):
+    def __init__(self, users):
+        # pylint: disable=missing-function-docstring
+
         self.main = StockPortfolio.objects.create(
-            name="Example portfolio", owner=USERS.owner
+            name="Example portfolio", owner=users.owner
         )
         self.other = StockPortfolio.objects.create(
-            name="Other portfolio", owner=USERS.owner
+            name="Other portfolio", owner=users.owner
         )
         self.other_users = StockPortfolio.objects.create(
-            name="Other user's portfolio", owner=USERS.other
+            name="Other user's portfolio", owner=users.other
         )
 
 
@@ -116,12 +122,14 @@ class _StockWatchlistSeed:  # pylint: disable=too-few-public-methods
     other_users - A watchlist owned by the other user.
     """
 
-    def __init__(self, USERS):
+    def __init__(self, users):
+        # pylint: disable=missing-function-docstring
+
         self.main = StockWatchlist.objects.create(
-            name="Example portfolio", owner=USERS.owner
+            name="Example portfolio", owner=users.owner
         )
         self.other_users = StockWatchlist.objects.create(
-            name="Other user's portfolio", owner=USERS.other
+            name="Other user's portfolio", owner=users.other
         )
 
 
@@ -130,9 +138,11 @@ class _StockPriceSyncsSeed:  # pylint: disable=too-few-public-methods
     main - Main sync to associate price info with.
     """
 
-    def __init__(self, USERS):
+    def __init__(self, users):
+        # pylint: disable=missing-function-docstring
+
         self.main = StockPriceSync.objects.create(
-            owner=USERS.owner, status=SyncStatus.FINISHED
+            owner=users.owner, status=SyncStatus.FINISHED
         )
 
 
@@ -142,30 +152,32 @@ class _StockPricesSeed:  # pylint: disable=too-few-public-methods
     - MSFT - 2020-12-13 - 2021-01-02
     """
 
-    def __init__(self, STOCKS, SYNCS):
+    def __init__(self, stocks, syncs):
+        # pylint: disable=missing-function-docstring
+
         StockPrice.objects.create(
-            ticker=STOCKS.MSFT,
+            ticker=stocks.MSFT,
             date=date(2020, 12, 31),
             value=89,
-            sync=SYNCS.main,
+            sync=syncs.main,
         )
         StockPrice.objects.create(
-            ticker=STOCKS.MSFT, date=date(2021, 1, 1), value=89, sync=SYNCS.main
+            ticker=stocks.MSFT, date=date(2021, 1, 1), value=89, sync=syncs.main
         )
         StockPrice.objects.create(
-            ticker=STOCKS.MSFT, date=date(2021, 1, 2), value=90, sync=SYNCS.main
+            ticker=stocks.MSFT, date=date(2021, 1, 2), value=90, sync=syncs.main
         )
         StockPrice.objects.create(
-            ticker=STOCKS.PM, date=date(2021, 1, 1), value=46, sync=SYNCS.main
+            ticker=stocks.PM, date=date(2021, 1, 1), value=46, sync=syncs.main
         )
         StockPrice.objects.create(
-            ticker=STOCKS.PM, date=date(2021, 1, 2), value=45, sync=SYNCS.main
+            ticker=stocks.PM, date=date(2021, 1, 2), value=45, sync=syncs.main
         )
         StockPrice.objects.create(
-            ticker=STOCKS.BABA, date=date(2021, 1, 1), value=150, sync=SYNCS.main
+            ticker=stocks.BABA, date=date(2021, 1, 1), value=150, sync=syncs.main
         )
         StockPrice.objects.create(
-            ticker=STOCKS.BABA, date=date(2021, 1, 2), value=170, sync=SYNCS.main
+            ticker=stocks.BABA, date=date(2021, 1, 2), value=170, sync=syncs.main
         )
 
 
@@ -174,9 +186,11 @@ class _StockDividendSyncsSeed:  # pylint: disable=too-few-public-methods
     main - Main sync to associate dividend info with.
     """
 
-    def __init__(self, USERS):
+    def __init__(self, users):
+        # pylint: disable=missing-function-docstring
+
         self.main = StockDividendSync.objects.create(
-            owner=USERS.owner, status=SyncStatus.FINISHED
+            owner=users.owner, status=SyncStatus.FINISHED
         )
 
 
@@ -186,18 +200,20 @@ class _StockDividendsSeed:  # pylint: disable=too-few-public-methods
     - MSFT
     """
 
-    def __init__(self, STOCKS, SYNCS):
+    def __init__(self, stocks, syncs):
+        # pylint: disable=missing-function-docstring
+
         StockDividend.objects.create(
-            ticker=STOCKS.PM,
+            ticker=stocks.PM,
             amount=1.5,
             payout_date=date(2021, 1, 1),
-            sync=SYNCS.main,
+            sync=syncs.main,
         )
         StockDividend.objects.create(
-            ticker=STOCKS.MSFT,
+            ticker=stocks.MSFT,
             amount=3,
             payout_date=date(2021, 1, 1),
-            sync=SYNCS.main,
+            sync=syncs.main,
         )
 
 
@@ -206,9 +222,11 @@ class _StockSplitSyncsSeed:  # pylint: disable=too-few-public-methods
     main - Main sync to associate split info with.
     """
 
-    def __init__(self, USERS):
+    def __init__(self, users):
+        # pylint: disable=missing-function-docstring
+
         self.main = StockSplitSync.objects.create(
-            owner=USERS.owner, status=SyncStatus.FINISHED
+            owner=users.owner, status=SyncStatus.FINISHED
         )
 
 
@@ -218,12 +236,14 @@ class _StockSplitsSeed:  # pylint: disable=too-few-public-methods
     - PM
     """
 
-    def __init__(self, STOCKS, SYNCS):
+    def __init__(self, stocks, syncs):
+        # pylint: disable=missing-function-docstring
+
         StockSplit.objects.create(
-            ticker=STOCKS.PM,
+            ticker=stocks.PM,
             date=date(2021, 1, 9),
             ratio=2,
-            sync=SYNCS.main,
+            sync=syncs.main,
         )
 
 
@@ -234,21 +254,23 @@ class _StrategySeed:  # pylint: disable=too-few-public-methods
     other_users - A strategy owned by the other user.
     """
 
-    def __init__(self, USERS):
+    def __init__(self, users):
+        # pylint: disable=missing-function-docstring
+
         self.main = Strategy.objects.create(
             name="Main strategy",
             visibility=Visibility.PRIVATE,
-            owner=USERS.owner,
+            owner=users.owner,
         )
         self.public = Strategy.objects.create(
             name="Public strategy",
             visibility=Visibility.PUBLIC,
-            owner=USERS.other,
+            owner=users.other,
         )
         self.other_users = Strategy.objects.create(
             name="Other user's strategy",
             visibility=Visibility.PRIVATE,
-            owner=USERS.other,
+            owner=users.other,
         )
 
         # Main strategy items.
@@ -289,6 +311,8 @@ class _Seed:  # pylint: disable=too-few-public-methods, disable=invalid-name, to
         WATCHLISTS,
         STRATEGIES,
     ):
+        # pylint: disable=missing-function-docstring
+
         self.USERS = USERS
         self.GROUPS = GROUPS
         self.STOCKS = STOCKS
