@@ -9,6 +9,7 @@ from rest_framework.test import APIClient
 from core.test.seed import generate_test_data
 from lib.enums import Visibility
 
+from apps.auth.helpers import generate_token
 from apps.dashboard.models import Strategy, UserStrategy
 from apps.raw_data.models import StockPrice
 from apps.transactions.models import CashTransaction, ForexTransaction, StockTransaction
@@ -24,6 +25,7 @@ class TestStrategyList(TestCase):
         cls.USERS = data.USERS
 
         cls.url = "/dashboard/strategies"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -31,9 +33,7 @@ class TestStrategyList(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_list_owned_strategies(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get(self.url)
 
@@ -58,6 +58,7 @@ class TestStrategyDetail(TestCase):
         cls.STRATEGIES = data.STRATEGIES
 
         cls.url = f"/dashboard/strategies/{cls.STRATEGIES.main.id}"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -65,9 +66,7 @@ class TestStrategyDetail(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_fetch_existing_strategy(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get(self.url)
 
@@ -75,18 +74,14 @@ class TestStrategyDetail(TestCase):
         self.assertEqual(response.data["name"], "Main strategy")
 
     def test_fetch_non_existent_strategy(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get("/dashboard/strategies/100")
 
         self.assertEqual(response.status_code, 404)
 
     def test_fetch_other_users_strategy(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get(
             f"/dashboard/strategies/{self.STRATEGIES.other_users.id}"
@@ -106,6 +101,7 @@ class TestCurrentStrategy(TestCase):
         cls.STRATEGIES = data.STRATEGIES
 
         cls.url = "/dashboard/strategies/me"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -113,9 +109,7 @@ class TestCurrentStrategy(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_fetch_current_strategy(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get(self.url)
 
@@ -135,6 +129,7 @@ class TestStrategySelection(TestCase):
         cls.STRATEGIES = data.STRATEGIES
 
         cls.url = "/dashboard/strategies/select-strategy"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.post(
@@ -146,9 +141,7 @@ class TestStrategySelection(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_select_target_strategy(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.post(
             self.url,
@@ -171,6 +164,7 @@ class TestStrategyCreate(TestCase):
         cls.USERS = data.USERS
 
         cls.url = "/dashboard/strategies"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.post(
@@ -187,9 +181,7 @@ class TestStrategyCreate(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_create_new_strategy(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         current_strategy_count = len(
             Strategy.objects.filter(
@@ -221,9 +213,7 @@ class TestStrategyCreate(TestCase):
         self.assertEqual(created_strategy.owner, self.USERS.owner)
 
     def test_malformed_payload(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         current_strategy_count = len(
             Strategy.objects.filter(
@@ -252,9 +242,7 @@ class TestStrategyCreate(TestCase):
         self.assertEqual(updated_strategy_count, current_strategy_count)
 
     def test_create_incomplete_strategy(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         current_strategy_count = len(
             Strategy.objects.filter(
@@ -295,6 +283,7 @@ class TestStrategyUpdate(TestCase):
         cls.STRATEGIES = data.STRATEGIES
 
         cls.url = f"/dashboard/strategies/{cls.STRATEGIES.main.id}"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.put(
@@ -311,9 +300,7 @@ class TestStrategyUpdate(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_update_strategy(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.put(
             self.url,
@@ -332,9 +319,7 @@ class TestStrategyUpdate(TestCase):
         self.assertEqual(strategy.name, "Main strategy")
 
     def test_rename_strategy(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.patch(self.url, data={"name": "New name"}, format="json")
 
@@ -343,9 +328,7 @@ class TestStrategyUpdate(TestCase):
         self.assertEqual(strategy.name, "New name")
 
     def test_update_non_existing_strategy(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.put(
             "/dashboard/strategies/100",
@@ -361,9 +344,7 @@ class TestStrategyUpdate(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_malformed_payload(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         current_strategy_count = len(
             Strategy.objects.filter(
@@ -392,9 +373,7 @@ class TestStrategyUpdate(TestCase):
         self.assertEqual(updated_strategy_count, current_strategy_count)
 
     def test_update_with_incomplete_strategy(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         current_strategy_count = len(
             Strategy.objects.filter(
@@ -435,6 +414,7 @@ class TestStrategyDelete(TestCase):
         cls.STRATEGIES = data.STRATEGIES
 
         cls.url = f"/dashboard/strategies/{cls.STRATEGIES.main.id}"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.delete(self.url)
@@ -442,9 +422,7 @@ class TestStrategyDelete(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_delete_is_disallowed(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.delete(self.url)
 
@@ -474,6 +452,7 @@ class TestPortfolioIndicators(TestCase):
         )
 
         cls.url = "/dashboard/portfolio-indicators"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -481,9 +460,7 @@ class TestPortfolioIndicators(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_fetch_portfolio_indicators(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         environ["EUR_USD_FX_RATE"] = "1.10"
         environ["USD_HUF_FX_RATE"] = "300.00"
@@ -493,9 +470,7 @@ class TestPortfolioIndicators(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_roic_should_only_consider_invested_capital(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         environ["USD_HUF_FX_RATE"] = "300.00"
 

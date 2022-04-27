@@ -16,8 +16,6 @@ class Command(BaseCommand):
         self.stdout.write(ending="\n")
 
         self.stdout.write("-------- Running coverage report. --------", ending="\n\n")
-        system(  # nosec - Target folders are fixed.
-            f"coverage run manage.py test {TARGET_FOLDERS}"
-        )
-        system("coverage report")  # nosec - Fixed command.
+        system(f"coverage run manage.py test {TARGET_FOLDERS}")  # nosec
+        system("coverage report")  # nosec
         self.stdout.write(ending="\n\n")

@@ -11,7 +11,7 @@ class Command(BaseCommand):
     help = "Create a backup from the database."
 
     def handle(self, *args, **kwargs):
-        system(  # nosec - These env variables are controlled by the deployer.
+        system(  # nosec
             f"""pg_dump --no-owner postgres://{getenv('DATABASE_USER')}:{getenv('DATABASE_PASSWORD')}@{getenv(
                 'DATABASE_HOST'
             )}:{getenv('DATABASE_PORT')}/{getenv('DATABASE_NAME')} > dump.sql"""
