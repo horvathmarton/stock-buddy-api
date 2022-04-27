@@ -7,6 +7,7 @@ For now we only add authentication and smoke tests.
 from datetime import date
 from django.test import TestCase
 from rest_framework.test import APIClient
+from apps.auth.helpers import generate_token
 from apps.transactions.models import CashTransaction, ForexTransaction, StockTransaction
 
 from core.test.seed import generate_test_data
@@ -29,6 +30,7 @@ class TestCashTransactionList(TestCase):
         )
 
         cls.url = "/transactions/cash"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -36,9 +38,7 @@ class TestCashTransactionList(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_list_cash_transactions(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get(self.url)
 
@@ -62,6 +62,7 @@ class TestCashTransactionDetail(TestCase):
         )
 
         cls.url = f"/transactions/cash/{transaction.id}"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -69,9 +70,7 @@ class TestCashTransactionDetail(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_fetch_cash_transaction(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get(self.url)
 
@@ -88,6 +87,7 @@ class TestCashTransactionCreate(TestCase):
         cls.PORTFOLIOS = data.PORTFOLIOS
 
         cls.url = "/transactions/cash"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.post(
@@ -104,9 +104,7 @@ class TestCashTransactionCreate(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_create_cash_transaction(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.post(
             self.url,
@@ -140,6 +138,7 @@ class TestCashTransactionUpdate(TestCase):
         )
 
         cls.url = f"/transactions/cash/{transaction.id}"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.put(
@@ -156,9 +155,7 @@ class TestCashTransactionUpdate(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_update_cash_transaction(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.put(
             self.url,
@@ -192,6 +189,7 @@ class TestCashTransactionDelete(TestCase):
         )
 
         cls.url = f"/transactions/cash/{transaction.id}"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.delete(self.url)
@@ -199,9 +197,7 @@ class TestCashTransactionDelete(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_delete_cash_transactions(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.delete(self.url)
 
@@ -227,6 +223,7 @@ class TestForexTransactionList(TestCase):
         )
 
         cls.url = "/transactions/forex"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -234,9 +231,7 @@ class TestForexTransactionList(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_list_forex_transactions(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get(self.url)
 
@@ -262,6 +257,7 @@ class TestForexTransactionDetail(TestCase):
         )
 
         cls.url = f"/transactions/forex/{transaction.id}"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -269,9 +265,7 @@ class TestForexTransactionDetail(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_fetch_forex_transaction(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get(self.url)
 
@@ -288,6 +282,7 @@ class TestForexTransactionCreate(TestCase):
         cls.PORTFOLIOS = data.PORTFOLIOS
 
         cls.url = "/transactions/forex"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.post(
@@ -306,9 +301,7 @@ class TestForexTransactionCreate(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_fetch_forex_transaction(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.post(
             self.url,
@@ -346,6 +339,7 @@ class TestForexTransactionUpdate(TestCase):
         )
 
         cls.url = f"/transactions/forex/{transaction.id}"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.put(
@@ -364,9 +358,7 @@ class TestForexTransactionUpdate(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_update_forex_transaction(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.put(
             self.url,
@@ -404,6 +396,7 @@ class TestForexTransactionDelete(TestCase):
         )
 
         cls.url = f"/transactions/forex/{transaction.id}"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.delete(self.url)
@@ -411,9 +404,7 @@ class TestForexTransactionDelete(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_delete_forex_transactions(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.delete(self.url)
 
@@ -438,6 +429,7 @@ class TestStocksTransactionList(TestCase):
         )
 
         cls.url = "/transactions/stocks"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -445,9 +437,7 @@ class TestStocksTransactionList(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_list_stock_transactions(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get(self.url)
 
@@ -472,6 +462,7 @@ class TestStocksTransactionDetail(TestCase):
         )
 
         cls.url = f"/transactions/stocks/{transaction.id}"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -479,9 +470,7 @@ class TestStocksTransactionDetail(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_fetch_stock_transaction(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get(self.url)
 
@@ -498,6 +487,7 @@ class TestStocksTransactionCreate(TestCase):
         cls.PORTFOLIOS = data.PORTFOLIOS
 
         cls.url = "/transactions/stocks"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.post(
@@ -515,9 +505,7 @@ class TestStocksTransactionCreate(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_fetch_stock_transaction(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.post(
             self.url,
@@ -553,6 +541,7 @@ class TestStocksTransactionUpdate(TestCase):
         )
 
         cls.url = f"/transactions/stocks/{transaction.id}"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.put(
@@ -570,9 +559,7 @@ class TestStocksTransactionUpdate(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_update_stock_transaction(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.put(
             self.url,
@@ -608,6 +595,7 @@ class TestStocksTransactionDelete(TestCase):
         )
 
         cls.url = f"/transactions/stocks/{transaction.id}"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.delete(self.url)
@@ -615,9 +603,7 @@ class TestStocksTransactionDelete(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_delete_stock_transactions(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.delete(self.url)
 

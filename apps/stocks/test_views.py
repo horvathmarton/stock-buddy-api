@@ -6,6 +6,7 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 from core.test.seed import generate_test_data
 
+from apps.auth.helpers import generate_token
 from apps.stocks.models import Stock, StockPortfolio, StockWatchlist
 from apps.transactions.models import StockTransaction
 
@@ -20,6 +21,7 @@ class TestStockList(TestCase):
         cls.STOCKS = data.STOCKS
 
         cls.url = "/stocks"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url, follow=True)
@@ -27,9 +29,7 @@ class TestStockList(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_list_active_stocks(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get(self.url, follow=True)
 
@@ -49,6 +49,7 @@ class TestStockDetail(TestCase):
         cls.STOCKS = data.STOCKS
 
         cls.url = "/stocks/MSFT"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -56,9 +57,7 @@ class TestStockDetail(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_fetch_existing_stock(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get(self.url)
 
@@ -68,9 +67,7 @@ class TestStockDetail(TestCase):
         self.assertEqual(response.data["sector"], "Software")
 
     def test_fetch_non_existent_stock(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get("/stocks/KO")
 
@@ -88,6 +85,7 @@ class TestStockPortfolioList(TestCase):
         cls.PORTFOLIOS = data.PORTFOLIOS
 
         cls.url = "/stocks/portfolios"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -95,9 +93,7 @@ class TestStockPortfolioList(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_list_only_owned_portfolios(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get(self.url)
 
@@ -138,6 +134,7 @@ class TestStockPortfolioDetail(TestCase):
         )
 
         cls.url = f"/stocks/portfolios/{cls.PORTFOLIOS.main.id}"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -145,9 +142,7 @@ class TestStockPortfolioDetail(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_fetch_portfolio_detail(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get(self.url)
 
@@ -156,19 +151,15 @@ class TestStockPortfolioDetail(TestCase):
         self.assertGreater(response.data["number_of_positions"], 0)
 
     def test_fetch_non_existent_portfolio(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get("/stocks/portfolios/100")
 
         self.assertEqual(response.status_code, 404)
 
     def test_fetch_before_first_transaction(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner",
-            password="password",
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
+
         response = self.client.get(f"{self.url}?as_of=2020-12-31")
 
         self.assertEqual(response.status_code, 404)
@@ -187,10 +178,8 @@ class TestStockPortfolioDetail(TestCase):
             price=100.01,
         )
 
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner",
-            password="password",
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
+
         response = self.client.get(f"{self.url}?asOf=2021-01-01")
 
         self.assertEqual(response.status_code, 200)
@@ -205,10 +194,8 @@ class TestStockPortfolioDetail(TestCase):
             price=100.01,
         )
 
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner",
-            password="password",
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
+
         response = self.client.get(
             f"/stocks/portfolios/{self.PORTFOLIOS.other_users.id}"
         )
@@ -245,6 +232,7 @@ class TestStockPortfolioSummary(TestCase):
         )
 
         cls.url = "/stocks/portfolios/summary"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -252,9 +240,7 @@ class TestStockPortfolioSummary(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_fetch_summary(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get(self.url)
 
@@ -263,10 +249,8 @@ class TestStockPortfolioSummary(TestCase):
         self.assertGreater(response.data["number_of_positions"], 0)
 
     def test_fetch_before_first_transaction_for_all_empty_portfolio(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner",
-            password="password",
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
+
         response = self.client.get(f"{self.url}?as_of=2020-12-30")
 
         self.assertEqual(response.status_code, 404)
@@ -294,9 +278,7 @@ class TestStockPortfolioSummary(TestCase):
             price=100.01,
         )
 
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get(self.url)
 
@@ -312,9 +294,10 @@ class TestStockPortfolioCreate(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        generate_test_data()
+        data = generate_test_data()
 
         cls.url = "/stocks/portfolios"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.post(
@@ -326,9 +309,7 @@ class TestStockPortfolioCreate(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_cannot_post_malformed_payload(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.post(
             self.url,
@@ -339,9 +320,7 @@ class TestStockPortfolioCreate(TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_create_stock_portfolio(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.post(
             self.url,
@@ -362,6 +341,7 @@ class TestStockPortfolioUpdate(TestCase):
         cls.PORTFOLIOS = data.PORTFOLIOS
 
         cls.url = f"/stocks/portfolios/{cls.PORTFOLIOS.main.id}"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.patch(self.url)
@@ -369,9 +349,7 @@ class TestStockPortfolioUpdate(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_update_stock_portfolio_name(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.patch(
             self.url,
@@ -392,6 +370,7 @@ class TestStockPortfolioDelete(TestCase):
         cls.PORTFOLIOS = data.PORTFOLIOS
 
         cls.url = f"/stocks/portfolios/{cls.PORTFOLIOS.main.id}"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.delete(self.url)
@@ -399,18 +378,14 @@ class TestStockPortfolioDelete(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_cannot_delete_non_existent(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.delete("/stocks/portfolios/100")
 
         self.assertEqual(response.status_code, 404)
 
     def test_cannot_delete_other_users_portfolio(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.delete(
             f"/stocks/portfolios/{self.PORTFOLIOS.other_users.id}"
@@ -419,9 +394,7 @@ class TestStockPortfolioDelete(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_update_stock_portfolio_name(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.delete(self.url)
 
@@ -439,6 +412,7 @@ class TestStockWatchlistList(TestCase):
         cls.WATCHLISTS = data.WATCHLISTS
 
         cls.url = "/stocks/watchlists"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -446,9 +420,7 @@ class TestStockWatchlistList(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_list_owned_watchlists(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get(self.url)
 
@@ -477,6 +449,7 @@ class TestStockWatchlistDetail(TestCase):
         cls.WATCHLISTS = data.WATCHLISTS
 
         cls.url = f"/stocks/watchlists/{cls.WATCHLISTS.main.id}"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
@@ -484,9 +457,7 @@ class TestStockWatchlistDetail(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_fetch_watchlist_detail(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get(self.url)
 
@@ -495,9 +466,7 @@ class TestStockWatchlistDetail(TestCase):
         self.assertEqual(response.data["name"], "Example portfolio")
 
     def test_fetch_non_existent_portfolio(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get("/stocks/watchlists/100")
 
@@ -515,6 +484,7 @@ class TestStockWatchlistCreate(TestCase):
         cls.WATCHLISTS = data.WATCHLISTS
 
         cls.url = "/stocks/watchlists"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.post(
@@ -528,9 +498,7 @@ class TestStockWatchlistCreate(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_create_new_watchlist(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         current_watchlists_count = len(
             StockWatchlist.objects.filter(owner=self.USERS.owner)
@@ -554,9 +522,7 @@ class TestStockWatchlistCreate(TestCase):
         self.assertEqual(created_watchlist.owner, self.USERS.owner)
 
     def test_malformed_payload(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         current_watchlists_count = len(
             StockWatchlist.objects.filter(owner=self.USERS.owner)
@@ -588,6 +554,7 @@ class TestStockWatchlistUpdate(TestCase):
         cls.WATCHLISTS = data.WATCHLISTS
 
         cls.url = f"/stocks/watchlists/{cls.WATCHLISTS.main.id}"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.put(
@@ -600,9 +567,7 @@ class TestStockWatchlistUpdate(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_update_watchlist(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.put(self.url, data={"name": "Hello"})
 
@@ -611,9 +576,7 @@ class TestStockWatchlistUpdate(TestCase):
         self.assertEqual(updated_watchlist.name, "Hello")
 
     def test_cannot_update_other_users_watchlist(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         other_users_watchlist = StockWatchlist.objects.get(
             pk=self.WATCHLISTS.other_users.id
@@ -630,9 +593,7 @@ class TestStockWatchlistUpdate(TestCase):
         self.assertEqual(other_users_updated_watchlist.name, other_users_watchlist.name)
 
     def test_malformed_payload(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         watchlist = StockWatchlist.objects.get(pk=self.WATCHLISTS.main.id)
 
@@ -654,6 +615,7 @@ class TestStockWatchlistDelete(TestCase):
         cls.WATCHLISTS = data.WATCHLISTS
 
         cls.url = f"/stocks/watchlists/{cls.WATCHLISTS.main.id}"
+        cls.token = generate_token(data.USERS.owner)
 
     def test_cannot_access_unauthenticated(self):
         response = self.client.delete(self.url)
@@ -661,9 +623,7 @@ class TestStockWatchlistDelete(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_delete_watchlist(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         current_watchlists_count = len(
             StockWatchlist.objects.filter(owner=self.USERS.owner)
@@ -681,18 +641,14 @@ class TestStockWatchlistDelete(TestCase):
             StockWatchlist.objects.get(pk=self.WATCHLISTS.main.id)
 
     def test_delete_non_existent_watchlist(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.delete("/stocks/watchlists/100")
 
         self.assertEqual(response.status_code, 404)
 
     def test_cannot_delete_other_users_watchlist(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         current_watchlists_count = len(
             StockWatchlist.objects.filter(owner=self.USERS.owner)

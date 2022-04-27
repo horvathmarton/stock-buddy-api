@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Password change endpoint.
+
+### Changed
+
+- Change authentication method from token auth to JWT auth.
+
 ## [1.1.0] - 2022-04-19
 
 ### Added

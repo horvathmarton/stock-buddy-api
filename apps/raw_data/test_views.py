@@ -5,6 +5,7 @@ from rest_framework.test import APIClient
 from core.test.seed import generate_test_data
 from lib.enums import SyncStatus
 
+from apps.auth.helpers import generate_token
 from apps.raw_data.models import (
     StockDividend,
     StockDividendSync,
@@ -25,6 +26,10 @@ class TestStockPriceSync(TestCase):
         cls.STOCKS = data.STOCKS
 
         cls.url = "/raw-data/stocks/MSFT/stock-prices"
+        cls.token = generate_token(data.USERS.owner)
+        cls.admin_token = generate_token(data.USERS.admin)
+        cls.bot_token = generate_token(data.USERS.bot)
+
         cls.payload = {
             "data": [
                 {"date": "2021-01-03", "value": 91},
@@ -40,27 +45,21 @@ class TestStockPriceSync(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_investor_cannot_upload(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.post(self.url, self.payload, format="json")
 
         self.assertEqual(response.status_code, 403)
 
     def test_admin_cannot_upload(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="admin", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.admin_token}")
 
         response = self.client.post(self.url, self.payload, format="json")
 
         self.assertEqual(response.status_code, 403)
 
     def test_cannot_upload_to_non_existent(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="bot", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.bot_token}")
 
         response = self.client.post(
             "/raw-data/stocks/AB/stock-prices", self.payload, format="json"
@@ -69,18 +68,14 @@ class TestStockPriceSync(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_cannot_upload_non_json(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="bot", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.bot_token}")
 
         response = self.client.post(self.url, self.payload, format="multipart")
 
         self.assertEqual(response.status_code, 400)
 
     def test_upload(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="bot", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.bot_token}")
 
         current_syncs_count = len(StockPriceSync.objects.all())
         current_prices_count = len(StockPrice.objects.filter(ticker="MSFT"))
@@ -107,6 +102,10 @@ class TestStockDividendSync(TestCase):
         cls.STOCKS = data.STOCKS
 
         cls.url = "/raw-data/stocks/MSFT/stock-dividends"
+        cls.token = generate_token(data.USERS.owner)
+        cls.admin_token = generate_token(data.USERS.admin)
+        cls.bot_token = generate_token(data.USERS.bot)
+
         cls.payload = {
             "data": [
                 {"payout_date": "2021-01-03", "amount": 2},
@@ -120,27 +119,21 @@ class TestStockDividendSync(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_investor_cannot_upload(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.post(self.url, self.payload, format="json")
 
         self.assertEqual(response.status_code, 403)
 
     def test_admin_cannot_upload(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="admin", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.admin_token}")
 
         response = self.client.post(self.url, self.payload, format="json")
 
         self.assertEqual(response.status_code, 403)
 
     def test_cannot_upload_to_non_existent(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="bot", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.bot_token}")
 
         response = self.client.post(
             "/raw-data/stocks/AB/stock-dividends", self.payload, format="json"
@@ -149,18 +142,14 @@ class TestStockDividendSync(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_cannot_upload_non_json(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="bot", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.bot_token}")
 
         response = self.client.post(self.url, self.payload, format="multipart")
 
         self.assertEqual(response.status_code, 400)
 
     def test_upload(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="bot", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.bot_token}")
 
         current_syncs_count = len(StockDividendSync.objects.all())
         current_dividends_count = len(StockDividend.objects.filter(ticker="MSFT"))
@@ -187,6 +176,10 @@ class TestStockSplitSync(TestCase):
         cls.STOCKS = data.STOCKS
 
         cls.url = "/raw-data/stocks/MSFT/stock-splits"
+        cls.token = generate_token(data.USERS.owner)
+        cls.admin_token = generate_token(data.USERS.admin)
+        cls.bot_token = generate_token(data.USERS.bot)
+
         cls.payload = {
             "data": [
                 {"date": "2021-01-10", "ratio": "1:2"},
@@ -200,27 +193,21 @@ class TestStockSplitSync(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_investor_cannot_upload(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.post(self.url, self.payload, format="json")
 
         self.assertEqual(response.status_code, 403)
 
     def test_admin_cannot_upload(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="admin", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.admin_token}")
 
         response = self.client.post(self.url, self.payload, format="json")
 
         self.assertEqual(response.status_code, 403)
 
     def test_cannot_upload_to_non_existent(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="bot", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.bot_token}")
 
         response = self.client.post(
             "/raw-data/stocks/AB/stock-splits", self.payload, format="json"
@@ -229,18 +216,14 @@ class TestStockSplitSync(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_cannot_upload_non_json(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="bot", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.bot_token}")
 
         response = self.client.post(self.url, self.payload, format="multipart")
 
         self.assertEqual(response.status_code, 400)
 
     def test_upload(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="bot", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.bot_token}")
 
         current_syncs_count = len(StockSplitSync.objects.all())
         current_splits_count = len(StockSplit.objects.filter(ticker="MSFT"))
@@ -263,12 +246,12 @@ class TestStockPriceStats(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        generate_test_data()
+        data = generate_test_data()
+
+        cls.token = generate_token(data.USERS.owner)
 
     def test_fetch_price_stats(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get("/raw-data/stocks/stock-prices")
 
@@ -281,12 +264,12 @@ class TestStockDividendStats(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        generate_test_data()
+        data = generate_test_data()
+
+        cls.token = generate_token(data.USERS.owner)
 
     def test_fetch_dividend_stats(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get("/raw-data/stocks/stock-dividends")
 
@@ -299,12 +282,12 @@ class TestStockSplitStats(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        generate_test_data()
+        data = generate_test_data()
+
+        cls.token = generate_token(data.USERS.owner)
 
     def test_fetch_split_stats(self):
-        self.client.login(  # nosec - Password hardcoded intentionally in test.
-            username="owner", password="password"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.get("/raw-data/stocks/stock-splits")
 

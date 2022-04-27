@@ -18,11 +18,12 @@ import os
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework.authtoken import views
-from core.views import RootView
+from core.views import root_handler
 
 urlpatterns = [
-    path("", RootView.as_view()),
+    path("", root_handler),
     path("auth/", views.obtain_auth_token),
+    path("auth/", include("apps.auth.urls")),
     path("admin/", admin.site.urls),
     path("raw-data/", include("apps.raw_data.urls")),
     path("stocks/", include("apps.stocks.urls")),
