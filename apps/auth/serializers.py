@@ -17,7 +17,7 @@ class RefreshTokenSerializer(Serializer):
 
     # pylint: disable=abstract-method
 
-    token = CharField(max_length=150)
+    token = CharField(max_length=200)
 
 
 class ChangePasswordSerializer(Serializer):
