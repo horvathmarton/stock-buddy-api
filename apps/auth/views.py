@@ -1,11 +1,11 @@
 """Business logic for the auth module."""
 
-from datetime import datetime
 from os import getenv
 from typing import cast
 
 import jwt
 from django.contrib.auth.models import User
+from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.request import Request
@@ -35,7 +35,7 @@ def sing_in_handler(request: Request) -> Response:
     if not user.check_password(serializer.validated_data["password"]):
         raise AuthenticationFailed("Invalid username or password.")
 
-    user.last_login = datetime.now()
+    user.last_login = timezone.now()
     user.save()
 
     return Response(
@@ -57,7 +57,7 @@ def refresh_token_handler(request: Request) -> Response:
         refresh_token = jwt.decode(
             serializer.validated_data["token"],
             algorithms=["HS256"],
-            key=cast(str, getenv("JWT_TOKEN")),
+            key=cast(str, getenv("JWT_SECRET")),
         )
     except jwt.ExpiredSignatureError as error:
         raise AuthenticationFailed("The token has been expired.") from error
@@ -89,5 +89,6 @@ def change_password_handler(request: Request) -> Response:
     user = cast(User, request.user)
 
     user.set_password(serializer.validated_data["password"])
+    user.save()
 
     return Response(status=204)
