@@ -28,14 +28,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    "rest_framework.authtoken",
     "corsheaders",
-    "core",
-    "apps.raw_data",
-    "apps.stocks",
-    "apps.transactions",
-    "apps.dashboard",
-    "apps.cash",
+    "src.core",
+    "src.raw_data",
+    "src.stocks",
+    "src.transactions",
+    "src.dashboard",
+    "src.cash",
 ]
 
 MIDDLEWARE = [
@@ -49,7 +48,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "config.urls"
+ROOT_URLCONF = "src.urls"
 
 TEMPLATES = [
     {
@@ -122,14 +121,14 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "apps.auth.authentication.JwtAuthentication",
+        "src.auth.authentication.JwtAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
 }
 
-TEST_RUNNER = "core.test.runner.PostgresSchemaTestRunner"
+TEST_RUNNER = "tests.runner.PostgresSchemaTestRunner"
 
 CORS_ALLOWED_ORIGINS = ["http://localhost:4200"]
 
