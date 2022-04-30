@@ -26,6 +26,8 @@ jobs:
           push: true
           tags: horvathmarton/stock-buddy-api:production
           file: docker/Dockerfile.prod
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
 
   deploy:
     name: Deploy production

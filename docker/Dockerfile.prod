@@ -4,6 +4,9 @@ FROM python:3.10.2-alpine as builder
 # set work directory
 WORKDIR /usr/src/app
 
+# set build arguments
+ARG GIT_COMMIT=unknown
+
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
@@ -13,6 +16,7 @@ RUN apk update \
     && apk add postgresql-dev gcc python3-dev musl-dev
 
 RUN pip install --upgrade pip
+RUN echo ${GIT_COMMIT} > ./current_commit.txt
 COPY ./requirements.txt .
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
 
@@ -26,6 +30,7 @@ WORKDIR /home/app
 RUN apk update && apk add libpq
 COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
+COPY --from=builder /usr/src/app/current_commit.txt .
 RUN pip install --no-cache /wheels/*
 RUN mkdir -p /var/logs/stock-buddy/
 RUN chown app /var/logs/stock-buddy/
