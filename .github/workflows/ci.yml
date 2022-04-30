@@ -26,7 +26,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
       - run: pip install -r requirements.txt
-      - run: mypy apps config core lib
+      - run: mypy src tests config
 
   lint:
     name: Lint
@@ -43,10 +43,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
       - run: pip install -r requirements.txt
-      - run: black --check apps config core lib
-      - run: bandit -r apps config core lib
-      - run: flake8 apps config core lib
-      - run: pylint apps config core lib --load-plugins=pylint_django --django-settings-module=config.settings
+      - run: black --check src tests config
+      - run: bandit -r src tests config
+      - run: flake8 src tests config
+      - run: pylint src tests config --load-plugins=pylint_django --django-settings-module=config.settings
 
   test:
     name: Test

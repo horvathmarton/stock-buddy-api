@@ -20,12 +20,12 @@ jobs:
         with:
           push: true
           tags: horvathmarton/stock-buddy-api:${{ env.RELEASE_VERSION }}
-          file: Dockerfile.prod
+          file: docker/Dockerfile.prod
       - uses: docker/build-push-action@v2
         with:
           push: true
           tags: horvathmarton/stock-buddy-api:production
-          file: Dockerfile.prod
+          file: docker/Dockerfile.prod
 
   deploy:
     name: Deploy production
