@@ -18,10 +18,11 @@ import os
 from django.contrib import admin
 from django.urls import include, path
 
-from .views import root_handler
+from .views import root_handler, version_handler
 
 urlpatterns = [
     path("", root_handler),
+    path("version", version_handler),
     path("auth/", include("src.auth.urls")),
     path("admin/", admin.site.urls),
     path("raw-data/", include("src.raw_data.urls")),

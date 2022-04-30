@@ -112,7 +112,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"password\": \"new password\"\n}\n",
+              "raw": "{\n    \"password\": \"password\"\n}\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -186,177 +186,7 @@
               ]
             }
           },
-          "response": [
-            {
-              "name": "Successful",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/cash/{{portfolio_id}}",
-                  "host": ["{{url}}"],
-                  "path": ["cash", "{{portfolio_id}}"]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Date",
-                  "value": "Tue, 29 Mar 2022 11:34:50 GMT"
-                },
-                {
-                  "key": "Server",
-                  "value": "WSGIServer/0.2 CPython/3.9.4"
-                },
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                },
-                {
-                  "key": "Vary",
-                  "value": "Accept, Origin, Cookie"
-                },
-                {
-                  "key": "Allow",
-                  "value": "GET, HEAD, OPTIONS"
-                },
-                {
-                  "key": "X-Frame-Options",
-                  "value": "DENY"
-                },
-                {
-                  "key": "Content-Length",
-                  "value": "36"
-                },
-                {
-                  "key": "X-Content-Type-Options",
-                  "value": "nosniff"
-                },
-                {
-                  "key": "Referrer-Policy",
-                  "value": "same-origin"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n    \"usd\": -34034,\n    \"huf\": 0,\n    \"eur\": 0\n}"
-            },
-            {
-              "name": "Unauthenticated",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/cash/{{portfolio_id}}",
-                  "host": ["{{url}}"],
-                  "path": ["cash", "{{portfolio_id}}"]
-                }
-              },
-              "status": "Unauthorized",
-              "code": 401,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Date",
-                  "value": "Tue, 29 Mar 2022 11:36:55 GMT"
-                },
-                {
-                  "key": "Server",
-                  "value": "WSGIServer/0.2 CPython/3.9.4"
-                },
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                },
-                {
-                  "key": "WWW-Authenticate",
-                  "value": "Basic realm=\"api\""
-                },
-                {
-                  "key": "Vary",
-                  "value": "Accept, Origin, Cookie"
-                },
-                {
-                  "key": "Allow",
-                  "value": "GET, HEAD, OPTIONS"
-                },
-                {
-                  "key": "X-Frame-Options",
-                  "value": "DENY"
-                },
-                {
-                  "key": "Content-Length",
-                  "value": "27"
-                },
-                {
-                  "key": "X-Content-Type-Options",
-                  "value": "nosniff"
-                },
-                {
-                  "key": "Referrer-Policy",
-                  "value": "same-origin"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n    \"detail\": \"Invalid token.\"\n}"
-            },
-            {
-              "name": "Not found",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/cash/{{portfolio_id}}",
-                  "host": ["{{url}}"],
-                  "path": ["cash", "{{portfolio_id}}"]
-                }
-              },
-              "status": "Not Found",
-              "code": 404,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Date",
-                  "value": "Tue, 29 Mar 2022 11:37:29 GMT"
-                },
-                {
-                  "key": "Server",
-                  "value": "WSGIServer/0.2 CPython/3.9.4"
-                },
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                },
-                {
-                  "key": "Vary",
-                  "value": "Accept, Origin, Cookie"
-                },
-                {
-                  "key": "Allow",
-                  "value": "GET, HEAD, OPTIONS"
-                },
-                {
-                  "key": "X-Frame-Options",
-                  "value": "DENY"
-                },
-                {
-                  "key": "Content-Length",
-                  "value": "23"
-                },
-                {
-                  "key": "X-Content-Type-Options",
-                  "value": "nosniff"
-                },
-                {
-                  "key": "Referrer-Policy",
-                  "value": "same-origin"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n    \"detail\": \"Not found.\"\n}"
-            }
-          ]
+          "response": []
         }
       ]
     },
@@ -1117,6 +947,42 @@
               "response": []
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "Core",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}",
+              "host": ["{{url}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Version info",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/version",
+              "host": ["{{url}}"],
+              "path": ["version"]
+            }
+          },
+          "response": []
         }
       ]
     }
