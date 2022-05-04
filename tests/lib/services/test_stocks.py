@@ -4,7 +4,11 @@ from datetime import date
 
 from django.test import TestCase
 from src.lib.dataclasses import StockPortfolioSnapshot, StockPositionSnapshot
-from src.lib.services.stocks import StocksService
+from src.lib.services.stocks import (
+    get_all_stocks_since_inceptions,
+    get_first_transaction,
+    get_portfolio_snapshot,
+)
 from src.raw_data.models import StockPrice
 from src.transactions.models import StockTransaction
 
@@ -13,9 +17,6 @@ from ...seed import generate_test_data
 
 class TestGetPortfolioSnapshot(TestCase):
     """Returns the snapshot of the portfolio at a given time."""
-
-    def setUp(self):
-        self.service = StocksService()
 
     @classmethod
     def setUpTestData(cls):
@@ -27,9 +28,27 @@ class TestGetPortfolioSnapshot(TestCase):
 
     def test_empty_portfolio(self):
         self.assertEqual(
-            self.service.get_portfolio_snapshot(
-                [self.PORTFOLIOS.main], date(2021, 1, 3)
+            get_portfolio_snapshot([self.PORTFOLIOS.main], date(2021, 1, 3)),
+            StockPortfolioSnapshot(
+                positions={}, owner=self.USERS.owner, snapshot_date=date(2021, 1, 3)
             ),
+        )
+
+
+class TestGetPortfolioSnapshotSeries(TestCase):
+    """Returns a series of snapshots of the portfolio."""
+
+    @classmethod
+    def setUpTestData(cls):
+        data = generate_test_data()
+        cls.USERS = data.USERS
+        cls.STOCKS = data.STOCKS
+        cls.PORTFOLIOS = data.PORTFOLIOS
+        cls.SYNCS = data.STOCK_PRICE_SYNCS
+
+    def test_empty_portfolios(self):
+        self.assertEqual(
+            get_portfolio_snapshot([self.PORTFOLIOS.main], date(2021, 1, 3)),
             StockPortfolioSnapshot(
                 positions={}, owner=self.USERS.owner, snapshot_date=date(2021, 1, 3)
             ),
@@ -57,9 +76,7 @@ class TestGetPortfolioSnapshot(TestCase):
             price=50.02,
         )
 
-        result = self.service.get_portfolio_snapshot(
-            [self.PORTFOLIOS.main], date(2021, 1, 3)
-        )
+        result = get_portfolio_snapshot([self.PORTFOLIOS.main], date(2021, 1, 3))
 
         self.assertEqual(result.number_of_positions, 2)
         self.assertEqual(
@@ -110,9 +127,7 @@ class TestGetPortfolioSnapshot(TestCase):
             price=80.00,
         )
 
-        result = self.service.get_portfolio_snapshot(
-            [self.PORTFOLIOS.main], date(2021, 1, 3)
-        )
+        result = get_portfolio_snapshot([self.PORTFOLIOS.main], date(2021, 1, 3))
 
         self.assertEqual(result.number_of_positions, 1)
         self.assertEqual(
@@ -151,9 +166,7 @@ class TestGetPortfolioSnapshot(TestCase):
             price=80.00,
         )
 
-        result = self.service.get_portfolio_snapshot(
-            [self.PORTFOLIOS.main], date(2021, 1, 3)
-        )
+        result = get_portfolio_snapshot([self.PORTFOLIOS.main], date(2021, 1, 3))
 
         self.assertEqual(result.number_of_positions, 1)
         self.assertEqual(
@@ -200,9 +213,7 @@ class TestGetPortfolioSnapshot(TestCase):
             price=80.00,
         )
 
-        result = self.service.get_portfolio_snapshot(
-            [self.PORTFOLIOS.main], date(2021, 1, 3)
-        )
+        result = get_portfolio_snapshot([self.PORTFOLIOS.main], date(2021, 1, 3))
 
         self.assertEqual(
             result,
@@ -247,9 +258,7 @@ class TestGetPortfolioSnapshot(TestCase):
             price=133,
         )
 
-        result = self.service.get_portfolio_snapshot(
-            [self.PORTFOLIOS.main], date(2021, 1, 3)
-        )
+        result = get_portfolio_snapshot([self.PORTFOLIOS.main], date(2021, 1, 3))
 
         self.assertEqual(result.number_of_positions, 2)
         self.assertEqual(
@@ -314,9 +323,7 @@ class TestGetPortfolioSnapshot(TestCase):
             price=133,
         )
 
-        result = self.service.get_portfolio_snapshot(
-            [self.PORTFOLIOS.main], date(2021, 1, 3)
-        )
+        result = get_portfolio_snapshot([self.PORTFOLIOS.main], date(2021, 1, 3))
 
         self.assertEqual(result.number_of_positions, 2)
         self.assertEqual(
@@ -381,7 +388,7 @@ class TestGetPortfolioSnapshot(TestCase):
             price=133,
         )
 
-        result = self.service.get_portfolio_snapshot(
+        result = get_portfolio_snapshot(
             [self.PORTFOLIOS.main, self.PORTFOLIOS.other], date(2021, 1, 3)
         )
 
@@ -459,9 +466,7 @@ class TestGetPortfolioSnapshot(TestCase):
             price=133,
         )
 
-        result = self.service.get_portfolio_snapshot(
-            [self.PORTFOLIOS.main], date(2021, 1, 3)
-        )
+        result = get_portfolio_snapshot([self.PORTFOLIOS.main], date(2021, 1, 3))
 
         self.assertEqual(result.number_of_positions, 2)
         self.assertEqual(
@@ -515,9 +520,7 @@ class TestGetPortfolioSnapshot(TestCase):
             price=50.00,
         )
 
-        result = self.service.get_portfolio_snapshot(
-            [self.PORTFOLIOS.main], date(2021, 1, 10)
-        )
+        result = get_portfolio_snapshot([self.PORTFOLIOS.main], date(2021, 1, 10))
 
         self.assertEqual(result.number_of_positions, 1)
         self.assertEqual(
@@ -550,9 +553,7 @@ class TestGetPortfolioSnapshot(TestCase):
             price=90.0,
         )
 
-        result = self.service.get_portfolio_snapshot(
-            [self.PORTFOLIOS.main], date(2021, 1, 2)
-        )
+        result = get_portfolio_snapshot([self.PORTFOLIOS.main], date(2021, 1, 2))
 
         self.assertEqual(result.number_of_positions, 0)
 
@@ -578,9 +579,7 @@ class TestGetPortfolioSnapshot(TestCase):
             price=50.02,
         )
 
-        result = self.service.get_portfolio_snapshot(
-            [self.PORTFOLIOS.main], date(2021, 1, 3)
-        )
+        result = get_portfolio_snapshot([self.PORTFOLIOS.main], date(2021, 1, 3))
 
         self.assertEqual(result.dividend, 42.0)
         self.assertEqual(result.dividend_distribution, {"MSFT": 0.5714, "PM": 0.4286})
@@ -618,43 +617,9 @@ class TestGetPortfolioSnapshot(TestCase):
             sync=self.SYNCS.main,
         )
 
-        result = self.service.get_portfolio_snapshot(
-            [self.PORTFOLIOS.main], date(2020, 1, 1)
-        )
+        result = get_portfolio_snapshot([self.PORTFOLIOS.main], date(2020, 1, 1))
 
         self.assertEqual(result.annualized_pnls, {"MSFT": 0.1970, "PM": 0.0615})
-
-
-class TestGetPortfolioSnapshotSeries(TestCase):
-    """Returns a series of snapshots of the portfolio."""
-
-    def setUp(self):
-        self.service = StocksService()
-
-    @classmethod
-    def setUpTestData(cls):
-        data = generate_test_data()
-        cls.USERS = data.USERS
-        cls.STOCKS = data.STOCKS
-        cls.PORTFOLIOS = data.PORTFOLIOS
-
-    def test_empty_snapshot_dates(self):
-        self.assertEqual(
-            self.service.get_portfolio_snapshot_series([self.PORTFOLIOS.main], []),
-            {},
-        )
-
-    def test_empty_portfolios(self):
-        self.assertEqual(
-            self.service.get_portfolio_snapshot_series(
-                [self.PORTFOLIOS.main], [date(2021, 1, 3)]
-            ),
-            {
-                date(2021, 1, 3): StockPortfolioSnapshot(
-                    positions={}, owner=self.USERS.owner, snapshot_date=date(2021, 1, 3)
-                ),
-            },
-        )
 
     def test_single_snapshot_date(self):
         StockTransaction.objects.create(
@@ -666,113 +631,12 @@ class TestGetPortfolioSnapshotSeries(TestCase):
             price=100.01,
         )
 
-        result = self.service.get_portfolio_snapshot_series(
-            [self.PORTFOLIOS.main], [date(2021, 1, 3)]
-        )
+        result = get_portfolio_snapshot([self.PORTFOLIOS.main], date(2021, 1, 3))
 
-        self.assertIn(date(2021, 1, 3), result)
-
-    def test_multiple_snapshots(self):
-        StockTransaction.objects.create(
-            amount=2,
-            date=date(2021, 1, 1),
-            ticker=self.STOCKS.MSFT,
-            owner=self.USERS.owner,
-            portfolio=self.PORTFOLIOS.main,
-            price=100.01,
-        )
-
-        result = self.service.get_portfolio_snapshot_series(
-            [self.PORTFOLIOS.main], [date(2021, 1, 1), date(2021, 1, 3)]
-        )
-
-        self.assertIn(date(2021, 1, 1), result)
-        self.assertIn(date(2021, 1, 3), result)
-
-    def test_multiple_snapshots_between_actions(self):
-        """Take multiple snapshots between two events. They all should represent the same state."""
-
-        StockTransaction.objects.create(
-            amount=2,
-            date=date(2021, 1, 1),
-            ticker=self.STOCKS.MSFT,
-            owner=self.USERS.owner,
-            portfolio=self.PORTFOLIOS.main,
-            price=100.01,
-        )
-
-        StockTransaction.objects.create(
-            amount=2,
-            date=date(2021, 1, 5),
-            ticker=self.STOCKS.MSFT,
-            owner=self.USERS.owner,
-            portfolio=self.PORTFOLIOS.main,
-            price=100.01,
-        )
-
-        result = self.service.get_portfolio_snapshot_series(
-            [self.PORTFOLIOS.main],
-            [date(2021, 1, 2), date(2021, 1, 3), date(2021, 1, 5)],
-        )
-
-        self.assertIn(date(2021, 1, 2), result)
-        self.assertIn(date(2021, 1, 3), result)
-        self.assertEqual(
-            result[date(2021, 1, 2)].positions[self.STOCKS.MSFT.ticker].shares, 2
-        )
-        self.assertEqual(
-            result[date(2021, 1, 3)].positions[self.STOCKS.MSFT.ticker].shares, 2
-        )
-
-        self.assertIn(date(2021, 1, 5), result)
-        self.assertEqual(
-            result[date(2021, 1, 5)].positions[self.STOCKS.MSFT.ticker].shares, 4
-        )
-
-    def test_multiple_snapshots_after_last_actions(self):
-        """Take multiple snapshots after the last event. They all should represent the same state."""
-
-        StockTransaction.objects.create(
-            amount=2,
-            date=date(2021, 1, 1),
-            ticker=self.STOCKS.MSFT,
-            owner=self.USERS.owner,
-            portfolio=self.PORTFOLIOS.main,
-            price=100.01,
-        )
-        StockTransaction.objects.create(
-            amount=2,
-            date=date(2021, 1, 3),
-            ticker=self.STOCKS.MSFT,
-            owner=self.USERS.owner,
-            portfolio=self.PORTFOLIOS.main,
-            price=100.01,
-        )
-
-        result = self.service.get_portfolio_snapshot_series(
-            [self.PORTFOLIOS.main],
-            [date(2021, 1, 2), date(2021, 1, 4), date(2021, 1, 5)],
-        )
-
-        self.assertIn(date(2021, 1, 2), result)
-        self.assertEqual(
-            result[date(2021, 1, 2)].positions[self.STOCKS.MSFT.ticker].shares, 2
-        )
-
-        self.assertIn(date(2021, 1, 4), result)
-        self.assertIn(date(2021, 1, 5), result)
-        self.assertEqual(
-            result[date(2021, 1, 4)].positions[self.STOCKS.MSFT.ticker].shares, 4
-        )
-        self.assertEqual(
-            result[date(2021, 1, 5)].positions[self.STOCKS.MSFT.ticker].shares, 4
-        )
+        self.assertEqual(date(2021, 1, 3), result.snapshot_date)
 
 
 class TestGetAllStocksSinceInception(TestCase):
-    def setUp(self):
-        self.service = StocksService()
-
     @classmethod
     def setUpTestData(cls):
         data = generate_test_data()
@@ -781,7 +645,7 @@ class TestGetAllStocksSinceInception(TestCase):
         cls.PORTFOLIOS = data.PORTFOLIOS
 
     def test_empty_portfolios(self):
-        result = self.service.get_all_stocks_since_inceptions(
+        result = get_all_stocks_since_inceptions(
             [self.PORTFOLIOS.main], date(2021, 1, 1)
         )
 
@@ -797,7 +661,7 @@ class TestGetAllStocksSinceInception(TestCase):
             price=100.01,
         )
 
-        result = self.service.get_all_stocks_since_inceptions(
+        result = get_all_stocks_since_inceptions(
             [self.PORTFOLIOS.main], date(2021, 1, 1)
         )
 
@@ -822,7 +686,7 @@ class TestGetAllStocksSinceInception(TestCase):
             price=100.01,
         )
 
-        result = self.service.get_all_stocks_since_inceptions(
+        result = get_all_stocks_since_inceptions(
             [self.PORTFOLIOS.main], date(2021, 1, 1)
         )
 
@@ -857,7 +721,7 @@ class TestGetAllStocksSinceInception(TestCase):
             price=100.01,
         )
 
-        result = self.service.get_all_stocks_since_inceptions(
+        result = get_all_stocks_since_inceptions(
             [self.PORTFOLIOS.main], date(2021, 1, 1)
         )
 
@@ -866,9 +730,6 @@ class TestGetAllStocksSinceInception(TestCase):
 
 
 class TestGetFirstTransaction(TestCase):
-    def setUp(self):
-        self.service = StocksService()
-
     @classmethod
     def setUpTestData(cls):
         data = generate_test_data()
@@ -877,9 +738,7 @@ class TestGetFirstTransaction(TestCase):
         cls.PORTFOLIOS = data.PORTFOLIOS
 
     def test_no_transactions(self):
-        self.assertEqual(
-            self.service.get_first_transaction([self.PORTFOLIOS.main]), None
-        )
+        self.assertEqual(get_first_transaction([self.PORTFOLIOS.main]), None)
 
     def test_single_transaction(self):
         transaction = StockTransaction.objects.create(
@@ -891,9 +750,7 @@ class TestGetFirstTransaction(TestCase):
             price=100.01,
         )
 
-        self.assertEqual(
-            self.service.get_first_transaction([self.PORTFOLIOS.main]), transaction
-        )
+        self.assertEqual(get_first_transaction([self.PORTFOLIOS.main]), transaction)
 
     def test_multiple_transactions(self):
         transaction = StockTransaction.objects.create(
@@ -913,6 +770,4 @@ class TestGetFirstTransaction(TestCase):
             price=100.01,
         )
 
-        self.assertEqual(
-            self.service.get_first_transaction([self.PORTFOLIOS.main]), transaction
-        )
+        self.assertEqual(get_first_transaction([self.PORTFOLIOS.main]), transaction)

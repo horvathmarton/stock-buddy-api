@@ -1,96 +1,174 @@
 """A service to generate cash balance snapshots."""
 
 
+from copy import deepcopy
 from datetime import date
 from logging import getLogger
 from os import getenv
+from typing import cast
 
-from ...raw_data.models import StockDividend
+from src.lib.services.replay import generate_snapshot_series
+from src.lib.services.stocks import (
+    get_all_stocks_since_inceptions,
+    get_first_transaction,
+    get_portfolio,
+)
+
+from ...raw_data.models import StockDividend, StockSplit
 from ...stocks.models import StockPortfolio
-from ...transactions.models import CashTransaction
-from ..dataclasses import CashBalanceSnapshot
+from ...transactions.models import CashTransaction, StockTransaction
+from ..dataclasses import CashBalanceSnapshot, StockPortfolioSnapshot
 from ..queries import sum_cash_transactions
-from ..services.stocks import StocksService
 
 LOGGER = getLogger(__name__)
 
 
-class CashService:
-    """Cash balance snapshot generator."""
+def get_portfolio_cash_balance(
+    payouts: list[StockDividend],
+    series: list[date],
+    initial: CashBalanceSnapshot,
+    portfolio_snapshots: dict[date, StockPortfolioSnapshot],
+) -> dict[date, CashBalanceSnapshot]:
+    """Creates a timeseries from the portfolio cash balance at each date in the series."""
 
-    def __init__(self):
-        # pylint: disable=missing-function-docstring
+    LOGGER.debug(
+        "Generate series for %s transaction(s) at %s snapshot date(s).",
+        len(payouts),
+        len(series),
+    )
 
-        self.stocks_service = StocksService()
-
-    def get_portfolio_cash_balance(
-        self, portfolios: list[StockPortfolio], snapshot_date: date = date.today()
+    def add_dividend_payout(
+        snapshot: CashBalanceSnapshot, payout: StockDividend
     ) -> CashBalanceSnapshot:
-        """Returns the cash balance of the portfolio at a given time."""
+        portfolio_snapshot = portfolio_snapshots[payout.date]
+        position = portfolio_snapshot.positions.get(payout.ticker.ticker, None)
 
-        LOGGER.debug("Generate cash balance snapshot for %s portfolio", len(portfolios))
+        if position:
+            snapshot.USD += payout.amount * position.shares
 
-        balance = CashBalanceSnapshot()
+        return snapshot
 
-        usd, eur, huf = sum_cash_transactions(portfolios, snapshot_date)
-        balance.USD = usd or 0
-        balance.EUR = eur or 0
-        balance.HUF = huf or 0
+    def take_snapshot(
+        snapshot: CashBalanceSnapshot, snapshot_date: date
+    ) -> CashBalanceSnapshot:
+        return deepcopy(snapshot)
 
-        owned_stocks = self.stocks_service.get_all_stocks_since_inceptions(
-            portfolios, snapshot_date
-        )
-        first_transaction = self.stocks_service.get_first_transaction(portfolios)
-        dividend_payouts = (
+    return generate_snapshot_series(
+        initial=initial,
+        actions=payouts,
+        series=series,
+        operation=add_dividend_payout,
+        take_snapshot=take_snapshot,
+    )
+
+
+def get_portfolio_cash_balance_snapshot(
+    portfolios: list[StockPortfolio], snapshot_date: date = date.today()
+) -> CashBalanceSnapshot:
+    """Returns the cash balance of the portfolio at a given time."""
+
+    LOGGER.debug(
+        "Calculate cash balance for %s portfolio at %s.",
+        len(portfolios),
+        snapshot_date,
+    )
+
+    balance = CashBalanceSnapshot()
+
+    usd, eur, huf = sum_cash_transactions(portfolios, snapshot_date)
+    balance.USD = usd or 0
+    balance.EUR = eur or 0
+    balance.HUF = huf or 0
+
+    owned_stocks = get_all_stocks_since_inceptions(portfolios, snapshot_date)
+    first_transaction = get_first_transaction(portfolios)
+    dividend_payouts = cast(
+        list[StockDividend],
+        (
             StockDividend.objects.filter(
                 ticker__in=owned_stocks,
-                payout_date__lte=snapshot_date,
-                payout_date__gte=first_transaction.date,
+                date__lte=snapshot_date,
+                date__gte=first_transaction.date,
             )
             if first_transaction
             else []
-        )
+        ),
+    )
 
-        snapshot_dates = list({dividend.payout_date for dividend in dividend_payouts})
-        portfolio_snapshots = self.stocks_service.get_portfolio_snapshot_series(
-            portfolios, snapshot_dates
-        )
+    transactions = StockTransaction.objects.filter(
+        portfolio__in=portfolios, date__lte=snapshot_date
+    )
+    splits = StockSplit.objects.filter(date__lte=snapshot_date)
+    actions = sorted([*transactions, *splits], key=lambda x: x.date)
+    snapshot_dates = list({dividend.date for dividend in dividend_payouts})
+    portfolio_snapshots = get_portfolio(actions, snapshot_dates, portfolios[0].owner)
 
-        for dividend in dividend_payouts:
-            portfolio_snapshot = portfolio_snapshots[dividend.payout_date]
+    return get_portfolio_cash_balance(
+        payouts=dividend_payouts,
+        series=[snapshot_date],
+        initial=balance,
+        portfolio_snapshots=portfolio_snapshots,
+    )[snapshot_date]
 
-            position = portfolio_snapshot.positions.get(dividend.ticker.ticker, None)
 
-            if position:
-                balance.USD += dividend.amount * position.shares
+def get_invested_capital(
+    transactions: list[CashTransaction], series: list[date]
+) -> dict[date, CashBalanceSnapshot]:
+    """Creates a timeseries from the current invested capital at each date in the series."""
 
-        return balance
+    LOGGER.debug(
+        "Generate series for %s transaction(s) at %s snapshot date(s).",
+        len(transactions),
+        len(series),
+    )
 
-    @staticmethod
-    def get_invested_capital(
-        portfolios: list[StockPortfolio], snapshot_date: date = date.today()
+    def sum_cash_balance(
+        snapshot: CashBalanceSnapshot, tx: CashTransaction
     ) -> CashBalanceSnapshot:
-        """Returns the invested capital of the portfolio at a given time."""
+        snapshot[tx.currency] += tx.amount
 
-        LOGGER.debug("Calculate invested capital for %s portfolio", len(portfolios))
+        return snapshot
 
-        balance = CashBalanceSnapshot()
+    def take_snapshot(
+        snapshot: CashBalanceSnapshot, snapshot_date: date
+    ) -> CashBalanceSnapshot:
+        return deepcopy(snapshot)
 
-        cash_transactions = CashTransaction.objects.filter(
+    return generate_snapshot_series(
+        initial=CashBalanceSnapshot(),
+        actions=transactions,
+        series=series,
+        operation=sum_cash_balance,
+        take_snapshot=take_snapshot,
+    )
+
+
+def get_invested_capital_snapshot(
+    portfolios: list[StockPortfolio], snapshot_date: date = date.today()
+) -> CashBalanceSnapshot:
+    """Returns the invested capital of the portfolio at a given time."""
+
+    LOGGER.debug(
+        "Calculate invested capital for %s portfolio at %s.",
+        len(portfolios),
+        snapshot_date,
+    )
+
+    cash_transactions = cast(
+        list[CashTransaction],
+        CashTransaction.objects.filter(
             portfolio__in=portfolios,
             date__lte=snapshot_date,
-        )
+        ),
+    )
 
-        for transaction in cash_transactions:
-            balance[transaction.currency] += transaction.amount
+    return get_invested_capital(cash_transactions, [snapshot_date])[snapshot_date]
 
-        return balance
 
-    @staticmethod
-    def balance_to_usd(balance: CashBalanceSnapshot) -> float:
-        """Converts each item in the cash balance to USD."""
+def balance_to_usd(balance: CashBalanceSnapshot) -> float:
+    """Converts each item in the cash balance to USD."""
 
-        huf_usd_fx = 1 / float(getenv("USD_HUF_FX_RATE"))  # type: ignore
-        eur_usd_fx = float(getenv("EUR_USD_FX_RATE"))  # type: ignore
+    huf_usd_fx = 1 / float(cast(str, getenv("USD_HUF_FX_RATE")))
+    eur_usd_fx = float(cast(str, getenv("EUR_USD_FX_RATE")))
 
-        return balance.USD + balance.EUR * eur_usd_fx + balance.HUF * huf_usd_fx
+    return balance.USD + balance.EUR * eur_usd_fx + balance.HUF * huf_usd_fx

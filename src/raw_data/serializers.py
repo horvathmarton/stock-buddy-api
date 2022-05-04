@@ -18,7 +18,7 @@ class StockDividendSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StockDividend
-        fields = ["declaration_date", "ex_dividend_date", "payout_date", "amount"]
+        fields = ["declaration_date", "ex_dividend_date", "date", "amount"]
 
 
 class StockSplitSerializer(serializers.ModelSerializer):

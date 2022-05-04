@@ -12,10 +12,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from src.lib.services.stocks import get_first_transaction, get_portfolio_snapshot
 
 from ..lib.enums import Visibility
-from ..lib.services.cash import CashService
-from ..lib.services.stocks import StocksService
+from ..lib.services.cash import (
+    balance_to_usd,
+    get_invested_capital_snapshot,
+    get_portfolio_cash_balance_snapshot,
+)
 from ..stocks.models import StockPortfolio
 from .models import Strategy, StrategyItem, UserStrategy
 from .serializers import StrategySerializer
@@ -163,11 +167,6 @@ class StrategyView(
 class PortfolioIndicatorView(APIView):
     """Business logic for the portfolio indicators API."""
 
-    def __init__(self, *args, **kwargs):
-        self.stocks_service = StocksService()
-        self.cash_service = CashService()
-        super().__init__(*args, **kwargs)
-
     def get(self, request: Request):
         """
         Collect and return the main indicators about the performance
@@ -189,15 +188,11 @@ class PortfolioIndicatorView(APIView):
             len(user_portfolios),
             self.request.user,
         )
-        summary = self.stocks_service.get_portfolio_snapshot(portfolios=user_portfolios)
-        balance = self.cash_service.get_portfolio_cash_balance(
-            portfolios=user_portfolios
-        )
-        balance_in_usd = self.cash_service.balance_to_usd(balance)
-        invested_capital = self.cash_service.get_invested_capital(
-            portfolios=user_portfolios
-        )
-        capital = self.cash_service.balance_to_usd(invested_capital)
+        summary = get_portfolio_snapshot(user_portfolios, date.today())
+        balance = get_portfolio_cash_balance_snapshot(portfolios=user_portfolios)
+        balance_in_usd = balance_to_usd(balance)
+        invested_capital = get_invested_capital_snapshot(portfolios=user_portfolios)
+        capital = balance_to_usd(invested_capital)
 
         LOGGER.debug("Calculating portfolio indicators for %s.", self.request.user)
         aum = summary.assets_under_management
@@ -205,7 +200,7 @@ class PortfolioIndicatorView(APIView):
         roic = pnl / capital if capital else 0
 
         # This is not perfectly correct
-        first_transaction = self.stocks_service.get_first_transaction(user_portfolios)
+        first_transaction = get_first_transaction(user_portfolios)
         inception_year = (
             first_transaction.date.year if first_transaction else date.today().year
         )

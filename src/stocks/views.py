@@ -13,7 +13,7 @@ from rest_framework.response import Response
 
 from ..lib.helpers import parse_date_query_param
 from ..lib.permissions import IsOwnerOrAdmin
-from ..lib.services.stocks import StocksService
+from ..lib.services.stocks import get_portfolio_snapshot
 from .models import Stock, StockPortfolio, StockWatchlist
 from .serializers import (
     StockPortfolioSerializer,
@@ -39,11 +39,6 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
     serializer_class = StockPortfolioSerializer
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.stocks_service = StocksService()
-
     def retrieve(self, request: Request, *args, **kwargs) -> Response:
         # pylint: disable=invalid-name
 
@@ -64,9 +59,7 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
         if not IsOwnerOrAdmin().has_object_permission(request, self, portfolio):
             raise NotFound()
 
-        snapshot = self.stocks_service.get_portfolio_snapshot(
-            [portfolio], snapshot_date=as_of or date.today()
-        )
+        snapshot = get_portfolio_snapshot([portfolio], as_of or date.today())
         if not snapshot.number_of_positions:
             raise NotFound(
                 "The portfolio has no transaction data before the selected date."
@@ -94,9 +87,7 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
 
         LOGGER.debug("Looking up portfolios belonging to %s.", request.user)
         portfolios = get_list_or_404(StockPortfolio, owner=request.user)
-        portfolio = self.stocks_service.get_portfolio_snapshot(
-            portfolios, snapshot_date=as_of or date.today()
-        )
+        portfolio = get_portfolio_snapshot(portfolios, as_of or date.today())
 
         if not portfolio.number_of_positions:
             LOGGER.warning(

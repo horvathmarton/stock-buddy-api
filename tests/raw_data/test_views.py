@@ -108,8 +108,8 @@ class TestStockDividendSync(TestCase):
 
         cls.payload = {
             "data": [
-                {"payout_date": "2021-01-03", "amount": 2},
-                {"payout_date": "2021-01-05", "amount": 3},
+                {"date": "2021-01-03", "amount": 2},
+                {"date": "2021-01-05", "amount": 3},
             ]
         }
 

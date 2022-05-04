@@ -1,7 +1,7 @@
 """Test cases for finance service."""
 
 from django.test import SimpleTestCase
-from src.lib.services.finance import FinanceService
+from src.lib.services.finance import rri
 
 
 class TestPresentValue(SimpleTestCase):
@@ -18,17 +18,14 @@ class TestRateOfInvestmentReturn(SimpleTestCase):
     Reference values took from excel.
     """
 
-    def setUp(self):
-        self.service = FinanceService()
-
     def test_one_year_period(self):
-        self.assertEqual(self.service.rri(1, 100, 160), 0.6000)
+        self.assertEqual(rri(1, 100, 160), 0.6000)
 
     def test_multi_year_period(self):
-        self.assertEqual(self.service.rri(3, 100, 160), 0.1696)
+        self.assertEqual(rri(3, 100, 160), 0.1696)
 
     def test_fractional_period(self):
-        self.assertEqual(self.service.rri(0.3, 100, 160), 3.7907)
+        self.assertEqual(rri(0.3, 100, 160), 3.7907)
 
     def test_negative_return(self):
-        self.assertEqual(self.service.rri(2, 100, 60), -0.2254)
+        self.assertEqual(rri(2, 100, 60), -0.2254)
