@@ -393,7 +393,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"data\": [\n        {\n            \"payout_date\": \"2022-01-01\",\n            \"amount\": 5.5\n        },\n        {\n            \"payout_date\": \"2022-03-01\",\n            \"amount\": 5.5\n        }\n    ]\n}",
+              "raw": "{\n    \"data\": [\n        {\n            \"date\": \"2022-01-01\",\n            \"amount\": 5.5\n        },\n        {\n            \"date\": \"2022-03-01\",\n            \"amount\": 5.5\n        }\n    ]\n}",
               "options": {
                 "raw": {
                   "language": "json"

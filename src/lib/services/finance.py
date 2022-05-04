@@ -8,62 +8,24 @@ from logging import getLogger
 LOGGER = getLogger(__name__)
 
 
-class FinanceService:
-    """Implements some basic Excel finance functions and a portfolio snapshot generator."""
+def rri(periods: float, present_value: float, future_value: float) -> float:
+    """
+    Rate of investment return.
+    Calculate Compound Annual Growth Rate (CAGR).
 
-    @staticmethod
-    def present_value(
-        rate: float,
-        periods: float,
-        periodic_payment: float,
-        future_value: float = 0,
-        paid_at_period_start: bool = False,
-    ) -> float:
-        """Present value. Discounts the provided value to present."""
+    Rounding to four precision to avoid floating point math error.
+    """
 
-        raise NotImplementedError("This function has not been implemented yet.")
+    LOGGER.debug("Calculating rate of investment return.")
 
-    @staticmethod
-    def future_value(
-        rate: float,
-        periods: float,
-        periodic_payment: float,
-        present_value: float,
-        paid_at_period_start: bool = False,
-    ) -> float:
-        """Future value. Compounds the provided value to future."""
+    # We can't interpret zero period count.
+    # In this case the return is 0.
+    if not periods:
+        return 0.0
 
-        raise NotImplementedError("This function has not been implemented yet.")
+    # We can't interpret zero starting capital.
+    # In this case the return is 0.
+    if not present_value:
+        return 0.0
 
-    @staticmethod
-    def rri(periods: float, present_value: float, future_value: float) -> float:
-        """
-        Rate of investment return.
-        Calculate Compound Annual Growth Rate (CAGR).
-
-        Rounding to four precision to avoid floating point math error.
-        """
-
-        LOGGER.debug("Calculating rate of investment return.")
-
-        # We can't interpret zero period count.
-        # In this case the return is 0.
-        if not periods:
-            return 0.0
-
-        # We can't interpret zero starting capital.
-        # In this case the return is 0.
-        if not present_value:
-            return 0.0
-
-        return round((future_value / present_value) ** (1 / periods) - 1, 4)
-
-    def internal_rate_of_return(self) -> str:
-        """Calculates the internal rate of return (IRR) from a list of cash flows."""
-
-        raise NotImplementedError("This function has not been implemented yet.")
-
-    def net_present_value(self):
-        """Discounts the net present value form a list of cash flows at the discount rate."""
-
-        raise NotImplementedError("This function has not been implemented yet.")
+    return round((future_value / present_value) ** (1 / periods) - 1, 4)

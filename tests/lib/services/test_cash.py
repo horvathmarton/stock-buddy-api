@@ -4,7 +4,10 @@ from datetime import date
 
 from django.test import TestCase
 from src.lib.dataclasses import CashBalanceSnapshot
-from src.lib.services.cash import CashService
+from src.lib.services.cash import (
+    get_invested_capital_snapshot,
+    get_portfolio_cash_balance_snapshot,
+)
 from src.transactions.enums import Currency
 from src.transactions.models import CashTransaction, ForexTransaction, StockTransaction
 
@@ -13,9 +16,6 @@ from ...seed import generate_test_data
 
 class TestGetCashBalanceSnapshot(TestCase):
     """Returns the cash balance of the portfolio at a given time."""
-
-    def setUp(self):
-        self.service = CashService()
 
     @classmethod
     def setUpTestData(cls):
@@ -26,7 +26,7 @@ class TestGetCashBalanceSnapshot(TestCase):
 
     def test_empty_portfolio(self):
         self.assertEqual(
-            self.service.get_portfolio_cash_balance(
+            get_portfolio_cash_balance_snapshot(
                 [self.PORTFOLIOS.main],
                 date(2021, 1, 1),
             ),
@@ -55,7 +55,7 @@ class TestGetCashBalanceSnapshot(TestCase):
             portfolio=self.PORTFOLIOS.main,
         )
 
-        result = self.service.get_portfolio_cash_balance(
+        result = get_portfolio_cash_balance_snapshot(
             [self.PORTFOLIOS.main], date(2021, 1, 1)
         )
 
@@ -83,7 +83,7 @@ class TestGetCashBalanceSnapshot(TestCase):
             portfolio=self.PORTFOLIOS.main,
         )
 
-        result = self.service.get_portfolio_cash_balance(
+        result = get_portfolio_cash_balance_snapshot(
             [self.PORTFOLIOS.main], date(2021, 1, 1)
         )
 
@@ -111,7 +111,7 @@ class TestGetCashBalanceSnapshot(TestCase):
             portfolio=self.PORTFOLIOS.main,
         )
 
-        result = self.service.get_portfolio_cash_balance(
+        result = get_portfolio_cash_balance_snapshot(
             [self.PORTFOLIOS.main], date(2021, 1, 1)
         )
 
@@ -142,7 +142,7 @@ class TestGetCashBalanceSnapshot(TestCase):
             portfolio=self.PORTFOLIOS.other,
         )
 
-        result = self.service.get_portfolio_cash_balance(
+        result = get_portfolio_cash_balance_snapshot(
             [self.PORTFOLIOS.main], date(2021, 1, 1)
         )
 
@@ -173,7 +173,7 @@ class TestGetCashBalanceSnapshot(TestCase):
             portfolio=self.PORTFOLIOS.other_users,
         )
 
-        result = self.service.get_portfolio_cash_balance(
+        result = get_portfolio_cash_balance_snapshot(
             [self.PORTFOLIOS.main], date(2021, 1, 1)
         )
 
@@ -211,7 +211,7 @@ class TestGetCashBalanceSnapshot(TestCase):
             portfolio=self.PORTFOLIOS.other_users,
         )
 
-        result = self.service.get_portfolio_cash_balance(
+        result = get_portfolio_cash_balance_snapshot(
             [self.PORTFOLIOS.main, self.PORTFOLIOS.other], date(2021, 1, 1)
         )
 
@@ -242,7 +242,7 @@ class TestGetCashBalanceSnapshot(TestCase):
             portfolio=self.PORTFOLIOS.main,
         )
 
-        result = self.service.get_portfolio_cash_balance(
+        result = get_portfolio_cash_balance_snapshot(
             [self.PORTFOLIOS.main, self.PORTFOLIOS.other], date(2021, 1, 1)
         )
 
@@ -287,7 +287,7 @@ class TestGetCashBalanceSnapshot(TestCase):
             portfolio=self.PORTFOLIOS.main,
         )
 
-        result = self.service.get_portfolio_cash_balance(
+        result = get_portfolio_cash_balance_snapshot(
             [self.PORTFOLIOS.main, self.PORTFOLIOS.other], date(2021, 1, 1)
         )
 
@@ -327,7 +327,7 @@ class TestGetCashBalanceSnapshot(TestCase):
             portfolio=self.PORTFOLIOS.main,
         )
 
-        result = self.service.get_portfolio_cash_balance(
+        result = get_portfolio_cash_balance_snapshot(
             [self.PORTFOLIOS.main, self.PORTFOLIOS.other], date(2021, 1, 1)
         )
 
@@ -357,7 +357,7 @@ class TestGetCashBalanceSnapshot(TestCase):
             portfolio=self.PORTFOLIOS.main,
         )
 
-        result = self.service.get_portfolio_cash_balance(
+        result = get_portfolio_cash_balance_snapshot(
             [self.PORTFOLIOS.main, self.PORTFOLIOS.other], date(2021, 1, 1)
         )
 
@@ -397,7 +397,7 @@ class TestGetCashBalanceSnapshot(TestCase):
             portfolio=self.PORTFOLIOS.main,
         )
 
-        result = self.service.get_portfolio_cash_balance(
+        result = get_portfolio_cash_balance_snapshot(
             [self.PORTFOLIOS.main, self.PORTFOLIOS.other], date(2021, 1, 1)
         )
 
@@ -406,9 +406,6 @@ class TestGetCashBalanceSnapshot(TestCase):
 
 class TestGetInvestedCapita(TestCase):
     """Returns the amount of invested capital into the portfolio at a given time."""
-
-    def setUp(self):
-        self.service = CashService()
 
     @classmethod
     def setUpTestData(cls):
@@ -419,7 +416,7 @@ class TestGetInvestedCapita(TestCase):
 
     def test_empty_portfolio(self):
         self.assertEqual(
-            self.service.get_invested_capital(
+            get_invested_capital_snapshot(
                 [self.PORTFOLIOS.main],
                 date(2021, 1, 1),
             ),
@@ -448,9 +445,7 @@ class TestGetInvestedCapita(TestCase):
             portfolio=self.PORTFOLIOS.main,
         )
 
-        result = self.service.get_invested_capital(
-            [self.PORTFOLIOS.main], date(2021, 1, 1)
-        )
+        result = get_invested_capital_snapshot([self.PORTFOLIOS.main], date(2021, 1, 1))
 
         self.assertEqual(result, CashBalanceSnapshot(HUF=3_000))
 
@@ -476,9 +471,7 @@ class TestGetInvestedCapita(TestCase):
             portfolio=self.PORTFOLIOS.main,
         )
 
-        result = self.service.get_invested_capital(
-            [self.PORTFOLIOS.main], date(2021, 1, 1)
-        )
+        result = get_invested_capital_snapshot([self.PORTFOLIOS.main], date(2021, 1, 1))
 
         self.assertEqual(result, CashBalanceSnapshot(HUF=2_000))
 
@@ -554,7 +547,7 @@ class TestGetInvestedCapita(TestCase):
             portfolio=self.PORTFOLIOS.main,
         )
 
-        result = self.service.get_invested_capital(
+        result = get_invested_capital_snapshot(
             [self.PORTFOLIOS.main, self.PORTFOLIOS.other], date(2021, 1, 2)
         )
 

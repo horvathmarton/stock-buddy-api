@@ -1,220 +1,220 @@
-"""
-A service to generate snapshots from a stock portfolio.
-"""
+"""Service function for stock portfolio related operations."""
 
 from copy import deepcopy
 from datetime import date
 from logging import getLogger
 
+from django.contrib.auth.models import User
+
 from ...raw_data.models import StockDividend, StockPrice, StockSplit
 from ...stocks.models import Stock, StockPortfolio
 from ...transactions.models import StockTransaction
 from ..dataclasses import StockPortfolioSnapshot, StockPositionSnapshot
+from .replay import generate_snapshot_series
 
 LOGGER = getLogger(__name__)
 
 
-class StocksService:
-    """Portfolio snapshot generator."""
+def get_portfolio(
+    actions: list[StockTransaction | StockSplit],
+    series: list[date],
+    owner: User,
+) -> dict[date, StockPortfolioSnapshot]:
+    """Creates a timeseries from the portfolio at each date in the series."""
 
-    @classmethod
-    def get_portfolio_snapshot(
-        cls, portfolios: list[StockPortfolio], snapshot_date: date = date.today()
-    ) -> StockPortfolioSnapshot:
-        """Summarizes the positions by ticker for the portfolio."""
-        return cls.get_portfolio_snapshot_series(portfolios, [snapshot_date])[
-            snapshot_date
-        ]
+    LOGGER.debug(
+        "Generate series for %s actions(s) at %s snapshot date(s) for a portfolio.",
+        len(actions),
+        len(series),
+    )
 
-    @classmethod
-    def get_portfolio_snapshot_series(
-        cls, portfolios: list[StockPortfolio], snapshot_dates: list[date]
-    ) -> dict[date, StockPortfolioSnapshot]:
-        """Summarizes the positions by ticker for each snapshot date."""
+    if not series:
+        return {}
 
-        LOGGER.debug(
-            "Generating snapshot for %s portfolio(s) at %s snapshot date(s).",
-            len(portfolios),
-            len(snapshot_dates),
-        )
+    last_snapshot_date = series[-1]
 
-        if not snapshot_dates:
-            return {}
-
-        snapshot_dates = sorted(snapshot_dates)
-        last_snapshot_date = snapshot_dates[-1]
-
-        transactions = StockTransaction.objects.filter(
-            portfolio__in=portfolios, date__lte=last_snapshot_date
-        )
-        splits = StockSplit.objects.filter(date__lte=last_snapshot_date)
-        actions = sorted([*transactions, *splits], key=lambda x: x.date)
-
-        positions: dict[str, StockPositionSnapshot] = {}
-        snapshots = {}
-        for action in actions:
-            # Take a snapshot if the next action would not affect the next snapshot date.
-            while action.date > snapshot_dates[0]:
-                snapshots[snapshot_dates[0]] = StockPortfolioSnapshot(
-                    positions=deepcopy(positions),
-                    owner=portfolios[0].owner,
-                    snapshot_date=snapshot_dates[0],
-                )
-                snapshot_dates = snapshot_dates[1:]
-
-            ticker = action.ticker.ticker
-
-            if isinstance(action, StockTransaction) and ticker not in positions:
-                latest_price = cls.__get_latest_stock_price(ticker, last_snapshot_date)
-                latest_dividend = cls.__get_latest_dividend(ticker, last_snapshot_date)
-
-                # In this situation we consider a negative or zero value a spinoff sellout.
-                if action.amount > 0:
-                    positions[ticker] = cls.__create_position(
-                        action, latest_price, latest_dividend
-                    )
-            elif isinstance(action, StockTransaction) and ticker in positions:
-                updated_position = cls.__update_position(positions[ticker], action)
-                positions[ticker] = updated_position
-
-                if updated_position.shares == 0:
-                    del positions[ticker]
-                elif updated_position.shares < 0:
-                    raise Exception("Negative position size is not allowed.")
-            elif isinstance(action, StockSplit) and ticker in positions:
-                split_position = cls.__split_position(positions[ticker], action)
-                positions[ticker] = split_position
-
-        # When we are done with the replay we take all the snapshots after the last action.
-        while snapshot_dates:
-            snapshots[snapshot_dates[0]] = StockPortfolioSnapshot(
-                positions=positions,
-                owner=portfolios[0].owner,
-                snapshot_date=snapshot_dates[0],
-            )
-            snapshot_dates = snapshot_dates[1:]
-
-        return snapshots
-
-    @classmethod
-    def get_all_stocks_since_inceptions(
-        cls, portfolios: list[StockPortfolio], snapshot_date: date = date.today()
+    def sum_portfolio(
+        snapshot: StockPortfolioSnapshot, action: StockTransaction | StockSplit
     ):
-        """
-        Returns a list of all stocks that has been transacted by the provided list of portfolios
-        up until the snapshot date.
-        """
+        ticker = action.ticker.ticker
+        positions = snapshot.positions
 
-        return (
-            StockTransaction.objects.filter(
-                portfolio__in=portfolios, date__lte=snapshot_date
-            )
-            .values("ticker")
-            .distinct()
+        if isinstance(action, StockTransaction) and ticker not in positions:
+            latest_price = __get_latest_stock_price(ticker, last_snapshot_date)
+            latest_dividend = __get_latest_dividend(ticker, last_snapshot_date)
+
+            # In this situation we consider a negative or zero value a spinoff sellout.
+            if action.amount > 0:
+                positions[ticker] = __create_position(
+                    action, latest_price, latest_dividend
+                )
+        elif isinstance(action, StockTransaction) and ticker in positions:
+            updated_position = __update_position(positions[ticker], action)
+            positions[ticker] = updated_position
+
+            if updated_position.shares == 0:
+                del positions[ticker]
+            elif updated_position.shares < 0:
+                raise Exception("Negative position size is not allowed.")
+        elif isinstance(action, StockSplit) and ticker in positions:
+            split_position = __split_position(positions[ticker], action)
+            positions[ticker] = split_position
+
+        return snapshot
+
+    def take_snapshot(
+        snapshot: StockPortfolioSnapshot, snapshot_date: date
+    ) -> StockPortfolioSnapshot:
+        return StockPortfolioSnapshot(
+            positions=deepcopy(snapshot.positions),
+            snapshot_date=snapshot_date,
+            owner=owner,
         )
 
-    @classmethod
-    def get_first_transaction(cls, portfolios: list[StockPortfolio]):
-        """Returns the first stock transaction of the list of portfolio if there is any, otherwise it returns None."""
+    return generate_snapshot_series(
+        initial=StockPortfolioSnapshot(
+            positions={}, snapshot_date=date.today(), owner=owner
+        ),
+        actions=actions,
+        series=series,
+        operation=sum_portfolio,
+        take_snapshot=take_snapshot,
+    )
 
-        return (
-            StockTransaction.objects.filter(portfolio__in=portfolios)
-            .order_by("date")
-            .first()
+
+def get_portfolio_snapshot(
+    portfolios: list[StockPortfolio], snapshot_date: date = date.today()
+) -> StockPortfolioSnapshot:
+    """Summarizes the positions by ticker for each snapshot date."""
+
+    LOGGER.debug(
+        "Calculate portfolio snapshot for %s portfolio at %s.",
+        len(portfolios),
+        snapshot_date,
+    )
+
+    transactions = StockTransaction.objects.filter(
+        portfolio__in=portfolios, date__lte=snapshot_date
+    )
+    splits = StockSplit.objects.filter(date__lte=snapshot_date)
+    actions = sorted([*transactions, *splits], key=lambda x: x.date)
+
+    return get_portfolio(actions, [snapshot_date], portfolios[0].owner)[snapshot_date]
+
+
+def get_all_stocks_since_inceptions(
+    portfolios: list[StockPortfolio], snapshot_date: date = date.today()
+):
+    """
+    Returns a list of all stocks that has been transacted by the provided list of portfolios
+    up until the snapshot date.
+    """
+
+    return (
+        StockTransaction.objects.filter(
+            portfolio__in=portfolios, date__lte=snapshot_date
         )
+        .values("ticker")
+        .distinct()
+    )
 
-    @staticmethod
-    def __get_latest_stock_price(ticker: Stock, snapshot_date: date) -> float:
-        """Queries the latest stock price info for the stock."""
 
-        latest_price_date = (
-            StockPrice.objects.filter(ticker=ticker, date__lte=snapshot_date)
+def get_first_transaction(portfolios: list[StockPortfolio]):
+    """Returns the first stock transaction of the list of portfolio if there is any, otherwise it returns None."""
+
+    return (
+        StockTransaction.objects.filter(portfolio__in=portfolios)
+        .order_by("date")
+        .first()
+    )
+
+
+def __get_latest_stock_price(ticker: Stock, snapshot_date: date) -> float:
+    """Queries the latest stock price info for the stock."""
+
+    latest_price_date = (
+        StockPrice.objects.filter(ticker=ticker, date__lte=snapshot_date)
+        .latest("date")
+        .date
+    )
+
+    return StockPrice.objects.filter(ticker=ticker, date=latest_price_date)[0].value
+
+
+def __get_latest_dividend(ticker: Stock, snapshot_date: date) -> float:
+    """Queries for the latest dividend info for the stock."""
+
+    try:
+        latest_dividend_date = (
+            StockDividend.objects.filter(ticker=ticker, date__lte=snapshot_date)
             .latest("date")
             .date
         )
 
-        return StockPrice.objects.filter(ticker=ticker, date=latest_price_date)[0].value
+        return StockDividend.objects.filter(ticker=ticker, date=latest_dividend_date)[
+            0
+        ].amount
 
-    @staticmethod
-    def __get_latest_dividend(ticker: Stock, snapshot_date: date) -> float:
-        """Queries for the latest dividend info for the stock."""
+    except StockDividend.DoesNotExist:
+        # It is possible that the stock doesn't pay dividend
+        # in that case we just return 0.
+        return 0.0
 
-        try:
-            latest_dividend_date = (
-                StockDividend.objects.filter(
-                    ticker=ticker, payout_date__lte=snapshot_date
-                )
-                .latest("payout_date")
-                .payout_date
-            )
 
-            return StockDividend.objects.filter(
-                ticker=ticker, payout_date=latest_dividend_date
-            )[0].amount
+def __create_position(
+    transaction: StockTransaction,
+    latest_price: float,
+    latest_dividend: float,
+) -> StockPositionSnapshot:
+    """Helper function to generate a new position entity."""
 
-        except StockDividend.DoesNotExist:
-            # It is possible that the stock doesn't pay dividend
-            # in that case we just return 0.
-            return 0.0
+    # The dividend info is multiplied by 4 to project the latest quarterly
+    # value to the next year.
+    return StockPositionSnapshot(
+        stock=transaction.ticker,
+        shares=transaction.amount,
+        price=latest_price,
+        dividend=latest_dividend * 4,
+        purchase_price=transaction.price,
+        first_purchase_date=transaction.date,
+        latest_purchase_date=transaction.date,
+    )
 
-    @staticmethod
-    def __create_position(
-        transaction: StockTransaction,
-        latest_price: float,
-        latest_dividend: float,
-    ) -> StockPositionSnapshot:
-        """Helper function to generate a new position entity."""
 
-        # The dividend info is multiplied by 4 to project the latest quarterly
-        # value to the next year.
-        return StockPositionSnapshot(
-            stock=transaction.ticker,
-            shares=transaction.amount,
-            price=latest_price,
-            dividend=latest_dividend * 4,
-            purchase_price=transaction.price,
-            first_purchase_date=transaction.date,
-            latest_purchase_date=transaction.date,
+def __update_position(
+    current_position: StockPositionSnapshot, transaction: StockTransaction
+) -> StockPositionSnapshot:
+    """Helper function to update a position entity."""
+
+    # We only change the average price if we buy more stock.
+    # We should keep the average untouched when selling.
+    if transaction.amount >= 0:
+        current_position.purchase_price = round(
+            (current_position.size_at_cost + (transaction.amount * transaction.price))
+            / (current_position.shares + transaction.amount),
+            2,
         )
 
-    @staticmethod
-    def __update_position(
-        current_position: StockPositionSnapshot, transaction: StockTransaction
-    ) -> StockPositionSnapshot:
-        """Helper function to update a position entity."""
+    current_position.first_purchase_date = min(
+        current_position.first_purchase_date, transaction.date
+    )
+    current_position.latest_purchase_date = max(
+        current_position.latest_purchase_date, transaction.date
+    )
+    current_position.shares += transaction.amount
 
-        # We only change the average price if we buy more stock.
-        # We should keep the average untouched when selling.
-        if transaction.amount >= 0:
-            current_position.purchase_price = round(
-                (
-                    current_position.size_at_cost
-                    + (transaction.amount * transaction.price)
-                )
-                / (current_position.shares + transaction.amount),
-                2,
-            )
+    return current_position
 
-        current_position.first_purchase_date = min(
-            current_position.first_purchase_date, transaction.date
-        )
-        current_position.latest_purchase_date = max(
-            current_position.latest_purchase_date, transaction.date
-        )
-        current_position.shares += transaction.amount
 
-        return current_position
+def __split_position(
+    current_position: StockPositionSnapshot, split: StockSplit
+) -> StockPositionSnapshot:
+    """Helper function to split a position entity."""
 
-    @staticmethod
-    def __split_position(
-        current_position: StockPositionSnapshot, split: StockSplit
-    ) -> StockPositionSnapshot:
-        """Helper function to split a position entity."""
+    ratio = split.ratio
 
-        ratio = split.ratio
+    current_position.shares = int(current_position.shares * ratio)
+    current_position.purchase_price /= ratio
+    current_position.dividend /= ratio
 
-        current_position.shares = int(current_position.shares * ratio)
-        current_position.purchase_price /= ratio
-        current_position.dividend /= ratio
-
-        return current_position
+    return current_position

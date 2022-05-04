@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 
 from ..lib.helpers import parse_date_query_param
 from ..lib.permissions import IsOwnerOrAdmin
-from ..lib.services.cash import CashService
+from ..lib.services.cash import get_portfolio_cash_balance_snapshot
 from ..stocks.models import StockPortfolio
 from .serializers import CashBalanceSerializer
 
@@ -22,10 +22,6 @@ class CashBalanceDetailsView(APIView):
     """Business logic for the cash details API."""
 
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
-
-    def __init__(self, *args, **kwargs):
-        self.cash_service = CashService()
-        super().__init__(*args, **kwargs)
 
     def get(self, request: Request, pk: int) -> Response:
         """
@@ -47,7 +43,7 @@ class CashBalanceDetailsView(APIView):
         LOGGER.debug("Looking for %s portfolio.", pk)
         portfolio = get_object_or_404(StockPortfolio, pk=pk, owner=request.user)
 
-        balance = self.cash_service.get_portfolio_cash_balance(
+        balance = get_portfolio_cash_balance_snapshot(
             [portfolio], snapshot_date=as_of or date.today()
         )
 
@@ -61,10 +57,6 @@ class CashBalanceSummaryView(APIView):
     """Business logic for the cash summary API."""
 
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
-
-    def __init__(self, *args, **kwargs):
-        self.cash_service = CashService()
-        super().__init__(*args, **kwargs)
 
     def get(self, request: Request) -> Response:
         """
@@ -82,7 +74,7 @@ class CashBalanceSummaryView(APIView):
 
         LOGGER.debug("Looking up portfolios belonging to %s.", request.user)
         portfolios = get_list_or_404(StockPortfolio, owner=request.user)
-        balance = self.cash_service.get_portfolio_cash_balance(
+        balance = get_portfolio_cash_balance_snapshot(
             portfolios, snapshot_date=as_of or date.today()
         )
 

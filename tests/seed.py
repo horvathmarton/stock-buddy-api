@@ -206,13 +206,13 @@ class _StockDividendsSeed:  # pylint: disable=too-few-public-methods
         StockDividend.objects.create(
             ticker=stocks.PM,
             amount=1.5,
-            payout_date=date(2021, 1, 1),
+            date=date(2021, 1, 1),
             sync=syncs.main,
         )
         StockDividend.objects.create(
             ticker=stocks.MSFT,
             amount=3,
-            payout_date=date(2021, 1, 1),
+            date=date(2021, 1, 1),
             sync=syncs.main,
         )
 

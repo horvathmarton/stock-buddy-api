@@ -1,5 +1,6 @@
 """Shared enums used in multiple modules."""
 
+from enum import Enum, auto
 from django.db import models
 
 
@@ -29,3 +30,11 @@ class AssetType(models.TextChoices):
     GOLD = "gold"
     COMMODITY = "commodity"
     CASH = "cash"
+
+
+class Resolution(Enum):
+    DAY = 1
+    WEEK = 7
+    MONTH = 30
+    QUARTER = 90
+    YEAR = 365

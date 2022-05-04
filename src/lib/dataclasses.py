@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 
 from ..stocks.models import Stock
 from ..transactions.enums import Currency
-from .services.finance import FinanceService
+from .services.finance import rri
 
 
 @dataclass
@@ -214,7 +214,7 @@ class StockPortfolioSnapshot:
             periods = round(
                 (self.snapshot_date - position.first_purchase_date).days / 365, 1
             )
-            mapping[position.stock.ticker] = FinanceService.rri(
+            mapping[position.stock.ticker] = rri(
                 periods, position.size_at_cost, position.size
             )
 
@@ -267,3 +267,9 @@ class CashBalanceSnapshot:
             self.USD = value
         else:
             raise Exception("Not a valid currency.")
+
+
+@dataclass(frozen=True)
+class Interval:
+    start_date: date
+    end_date: date

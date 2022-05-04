@@ -91,13 +91,13 @@ class StockDividend(Model):
     ticker: ForeignKey = ForeignKey(Stock, on_delete=RESTRICT)
     declaration_date: DateField = DateField(null=True)
     ex_dividend_date: DateField = DateField(null=True)
-    payout_date: DateField = DateField()
+    date: DateField = DateField()
     amount: FloatField = FloatField()
     sync: ForeignKey = ForeignKey(StockDividendSync, RESTRICT)
 
     class Meta:
         db_table = '"raw_data"."stock_dividend"'
-        ordering = ["payout_date"]
+        ordering = ["date"]
 
 
 class StockFiling(Model):

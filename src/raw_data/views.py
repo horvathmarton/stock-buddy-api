@@ -148,13 +148,13 @@ class StockDividendView(APIView):
             latest_saved = (
                 StockDividend.objects.all()
                 .filter(ticker=stock)
-                .aggregate(Max("payout_date"))["payout_date__max"]
+                .aggregate(Max("date"))["date__max"]
             )
             dividends = [
                 dividend
                 for dividend in dividends
                 if not latest_saved
-                or parser.parse(dividend["payout_date"]).date() > latest_saved
+                or parser.parse(dividend["date"]).date() > latest_saved
             ]
 
             LOGGER.debug("Validating dividend data parsed from the JSON.")

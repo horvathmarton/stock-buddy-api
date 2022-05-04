@@ -14,6 +14,6 @@ class Command(BaseCommand):
         self.stdout.write(ending="\n")
 
         self.stdout.write("-------- Running coverage report. --------", ending="\n\n")
-        system("coverage run manage.py test src")  # nosec
+        system("coverage run manage.py test tests")  # nosec
         system("coverage report")  # nosec
         self.stdout.write(ending="\n\n")
