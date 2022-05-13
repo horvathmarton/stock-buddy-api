@@ -6,17 +6,17 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('raw_data', '0002_auto_20220122_0800'),
+        ("raw_data", "0002_auto_20220122_0800"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='stockdividend',
-            options={'ordering': ['date']},
+            name="stockdividend",
+            options={"ordering": ["date"]},
         ),
         migrations.RenameField(
-            model_name='stockdividend',
-            old_name='payout_date',
-            new_name='date',
+            model_name="stockdividend",
+            old_name="payout_date",
+            new_name="date",
         ),
     ]

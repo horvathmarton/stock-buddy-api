@@ -1,5 +1,6 @@
 """Stubs for testing."""
 
+from datetime import date
 from django.contrib.auth.models import User
 
 
@@ -32,3 +33,38 @@ class UserStub:
         # pylint: disable=missing-function-docstring
 
         self.username = username
+
+
+class InitialStub:
+    """Stub class for an abstract initial value in the replay service testing."""
+
+    def __init__(self, value: int):
+        # pylint: disable=missing-function-docstring
+
+        self.value = value
+
+    def __eq__(self, __o: object) -> bool:
+        # pylint: disable=missing-function-docstring
+
+        if not isinstance(__o, InitialStub):
+            return NotImplemented
+
+        return self.value == __o.value
+
+    def __repr__(self) -> str:
+        # pylint: disable=missing-function-docstring
+
+        return f"""{self.value}"""
+
+
+class DateBoundStub:
+    """Stub class for an abstract action item value in the replay service testing."""
+
+    # The stub object is not required to be a valid class.
+    # pylint: disable=too-few-public-methods
+
+    def __init__(self, value: int, date: date):
+        # pylint: disable=missing-function-docstring, redefined-outer-name
+
+        self.value = value
+        self.date = date

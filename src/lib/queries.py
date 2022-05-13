@@ -13,9 +13,9 @@ def sum_cash_transactions(portfolios: list[StockPortfolio], snapshot_date: date)
     forex transactions as exchanges and stock transactions as outflows.
     """
     params = {
-        "portfolio_ids": tuple(
-            portfolio.id for portfolio in portfolios  # type: ignore
-        ),
+        "portfolio_ids": tuple(portfolio.id for portfolio in portfolios)  # type: ignore
+        if portfolios
+        else (None,),
         "as_of": snapshot_date,
     }
 

@@ -12,7 +12,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from src.lib.services.stocks import get_first_transaction, get_portfolio_snapshot
 
 from ..lib.enums import Visibility
 from ..lib.services.cash import (
@@ -20,6 +19,7 @@ from ..lib.services.cash import (
     get_invested_capital_snapshot,
     get_portfolio_cash_balance_snapshot,
 )
+from ..lib.services.stocks import get_first_transaction, get_portfolio_snapshot
 from ..stocks.models import StockPortfolio
 from .models import Strategy, StrategyItem, UserStrategy
 from .serializers import StrategySerializer

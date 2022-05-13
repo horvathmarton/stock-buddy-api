@@ -1,4 +1,4 @@
-"""Service function for stock portfolio related operations."""
+"""Service functions for stock portfolio related operations."""
 
 from copy import deepcopy
 from datetime import date
@@ -28,6 +28,7 @@ def get_portfolio(
         len(series),
     )
 
+    series = sorted(series)
     if not series:
         return {}
 
@@ -67,14 +68,12 @@ def get_portfolio(
     ) -> StockPortfolioSnapshot:
         return StockPortfolioSnapshot(
             positions=deepcopy(snapshot.positions),
-            snapshot_date=snapshot_date,
+            date=snapshot_date,
             owner=owner,
         )
 
     return generate_snapshot_series(
-        initial=StockPortfolioSnapshot(
-            positions={}, snapshot_date=date.today(), owner=owner
-        ),
+        initial=StockPortfolioSnapshot(positions={}, date=date.today(), owner=owner),
         actions=actions,
         series=series,
         operation=sum_portfolio,

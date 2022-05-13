@@ -10,7 +10,16 @@ from django.contrib.auth.models import User
 
 from ..stocks.models import Stock
 from ..transactions.enums import Currency
+from .protocols import DateBound
 from .services.finance import rri
+
+
+@dataclass(frozen=True)
+class Interval:
+    """Represents a time interval with a start and end date. Start is inclusive, end is exclusive."""
+
+    start_date: date
+    end_date: date
 
 
 @dataclass
@@ -99,7 +108,7 @@ class StockPositionSnapshot:
 
 
 @dataclass
-class StockPortfolioSnapshot:
+class StockPortfolioSnapshot(DateBound):
     """
     Represents a portfolio at a given time.
 
@@ -108,7 +117,7 @@ class StockPortfolioSnapshot:
 
     # List of the summarized position in the current portfolio.
     positions: Dict[str, StockPositionSnapshot]
-    snapshot_date: date
+    date: date
     owner: User
 
     def __eq__(self, other: object) -> bool:
@@ -120,7 +129,7 @@ class StockPortfolioSnapshot:
         return (
             self.positions == other.positions
             and self.owner == other.owner
-            and self.snapshot_date == other.snapshot_date
+            and self.date == other.date
         )
 
     @property
@@ -211,9 +220,7 @@ class StockPortfolioSnapshot:
 
         mapping = {}
         for position in self.positions.values():
-            periods = round(
-                (self.snapshot_date - position.first_purchase_date).days / 365, 1
-            )
+            periods = round((self.date - position.first_purchase_date).days / 365, 1)
             mapping[position.stock.ticker] = rri(
                 periods, position.size_at_cost, position.size
             )
@@ -269,7 +276,44 @@ class CashBalanceSnapshot:
             raise Exception("Not a valid currency.")
 
 
-@dataclass(frozen=True)
-class Interval:
-    start_date: date
-    end_date: date
+@dataclass
+class PerformanceSnapshot:
+    """Represents a performance snapshot of a security position or a portfolio."""
+
+    # Date when the snapshot was taken.
+    date: date
+    # Base size of the position.
+    base_size: float = 0
+    # Increment of the position size in dollar amount.
+    appreciation: float = 0
+    # Dividends paid by the position in dollar amount.
+    dividends: float = 0
+    # Capital size change in the given period. Positive means inflow.
+    cash_flow: float = 0
+
+    @property
+    def pnl(self) -> float:
+        """PnL of the position or portfolio."""
+
+        return self.appreciation + self.dividends
+
+    @property
+    def capital_size(self) -> float:
+        """Current size of the position or portfolio at the snapshot date."""
+
+        return self.base_size + self.appreciation
+
+    @property
+    def total(self) -> float:
+        """Total size of the position or portfolio (capital and dividends)."""
+
+        return self.base_size + self.pnl
+
+    @property
+    def performance(self) -> float:
+        """Capital weighted performance of the snapshot."""
+
+        if not self.base_size:
+            return 0
+
+        return (self.total / (self.base_size + self.cash_flow)) - 1

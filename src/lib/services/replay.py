@@ -1,6 +1,10 @@
+"""Base service for the replay action related operations."""
+
 from copy import deepcopy
 from datetime import date
-from typing import TypeVar, Callable
+from typing import Callable, TypeVar, cast
+
+from ..dataclasses import DateBound
 
 T = TypeVar("T")
 U = TypeVar("U")
@@ -13,6 +17,8 @@ def generate_snapshot_series(
     operation: Callable[[T, U], T],
     take_snapshot: Callable[[T, date], T],
 ) -> dict[date, T]:
+    """Base function that replays an event stream and takes snapshot at each date provided in the series parameter."""
+
     if not series:
         return {}
 
@@ -22,7 +28,7 @@ def generate_snapshot_series(
     snapshot_series = {}
     for action in actions:
         # Take a snapshot if the next action would not affect the next snapshot date.
-        while series and action.date > series[0]:
+        while series and cast(DateBound, action).date > series[0]:
             snapshot_date = series.pop()
             snapshot_series[snapshot_date] = take_snapshot(current_state, snapshot_date)
 

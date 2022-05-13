@@ -1,4 +1,4 @@
-"""A service to generate cash balance snapshots."""
+"""Service functions for cash and balance related operations."""
 
 
 from copy import deepcopy
@@ -7,18 +7,18 @@ from logging import getLogger
 from os import getenv
 from typing import cast
 
-from src.lib.services.replay import generate_snapshot_series
-from src.lib.services.stocks import (
+from ...raw_data.models import StockDividend, StockSplit
+from ...stocks.models import StockPortfolio
+from ...transactions.enums import Currency
+from ...transactions.models import CashTransaction, StockTransaction
+from ..dataclasses import CashBalanceSnapshot, StockPortfolioSnapshot
+from ..queries import sum_cash_transactions
+from .replay import generate_snapshot_series
+from .stocks import (
     get_all_stocks_since_inceptions,
     get_first_transaction,
     get_portfolio,
 )
-
-from ...raw_data.models import StockDividend, StockSplit
-from ...stocks.models import StockPortfolio
-from ...transactions.models import CashTransaction, StockTransaction
-from ..dataclasses import CashBalanceSnapshot, StockPortfolioSnapshot
-from ..queries import sum_cash_transactions
 
 LOGGER = getLogger(__name__)
 
@@ -51,6 +51,8 @@ def get_portfolio_cash_balance(
     def take_snapshot(
         snapshot: CashBalanceSnapshot, snapshot_date: date
     ) -> CashBalanceSnapshot:
+        # pylint: disable=unused-argument
+
         return deepcopy(snapshot)
 
     return generate_snapshot_series(
@@ -101,7 +103,8 @@ def get_portfolio_cash_balance_snapshot(
     splits = StockSplit.objects.filter(date__lte=snapshot_date)
     actions = sorted([*transactions, *splits], key=lambda x: x.date)
     snapshot_dates = list({dividend.date for dividend in dividend_payouts})
-    portfolio_snapshots = get_portfolio(actions, snapshot_dates, portfolios[0].owner)
+    owner = portfolios[0].owner if portfolios else None
+    portfolio_snapshots = get_portfolio(actions, snapshot_dates, owner)
 
     return get_portfolio_cash_balance(
         payouts=dividend_payouts,
@@ -123,15 +126,17 @@ def get_invested_capital(
     )
 
     def sum_cash_balance(
-        snapshot: CashBalanceSnapshot, tx: CashTransaction
+        snapshot: CashBalanceSnapshot, transaction: CashTransaction
     ) -> CashBalanceSnapshot:
-        snapshot[tx.currency] += tx.amount
+        snapshot[transaction.currency] += transaction.amount
 
         return snapshot
 
     def take_snapshot(
         snapshot: CashBalanceSnapshot, snapshot_date: date
     ) -> CashBalanceSnapshot:
+        # pylint: disable=unused-argument
+
         return deepcopy(snapshot)
 
     return generate_snapshot_series(
@@ -172,3 +177,38 @@ def balance_to_usd(balance: CashBalanceSnapshot) -> float:
     eur_usd_fx = float(cast(str, getenv("EUR_USD_FX_RATE")))
 
     return balance.USD + balance.EUR * eur_usd_fx + balance.HUF * huf_usd_fx
+
+
+def transaction_to_usd(transaction: CashTransaction) -> CashTransaction:
+    """Converts a general transaction to a USD based transaction."""
+
+    if transaction.currency == Currency.US_DOLLAR:
+        return transaction
+
+    if transaction.currency == Currency.EURO:
+        eur_usd_fx = float(cast(str, getenv("EUR_USD_FX_RATE")))
+
+        return CashTransaction(
+            date=transaction.date,
+            owner=transaction.owner,
+            portfolio=transaction.portfolio,
+            created_at=transaction.created_at,
+            updated_at=transaction.updated_at,
+            currency=Currency.US_DOLLAR,
+            amount=transaction.amount * eur_usd_fx,
+        )
+
+    if transaction.currency == Currency.HUNGARIAN_FORINT:
+        huf_usd_fx = 1 / float(cast(str, getenv("USD_HUF_FX_RATE")))
+
+        return CashTransaction(
+            date=transaction.date,
+            owner=transaction.owner,
+            portfolio=transaction.portfolio,
+            created_at=transaction.created_at,
+            updated_at=transaction.updated_at,
+            currency=Currency.US_DOLLAR,
+            amount=transaction.amount * huf_usd_fx,
+        )
+
+    raise Exception("Unknown currency.")
