@@ -1,6 +1,6 @@
 """Shared enums used in multiple modules."""
 
-from enum import Enum, auto
+from enum import Enum
 from django.db import models
 
 
@@ -33,6 +33,8 @@ class AssetType(models.TextChoices):
 
 
 class Resolution(Enum):
+    """Enum for time resolutions supported by the app."""
+
     DAY = 1
     WEEK = 7
     MONTH = 30

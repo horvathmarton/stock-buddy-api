@@ -1,3 +1,5 @@
+"""Service functions for date and time related operations."""
+
 from datetime import date, timedelta
 
 from ..dataclasses import Interval
@@ -5,22 +7,35 @@ from ..enums import Resolution
 
 
 def get_resolution(interval: Interval) -> Resolution:
+    """Suggest a sensible resolution to generate a timeseries for a given interval."""
+
+    if interval.start_date > interval.end_date:
+        raise Exception("Cannot process inverse interval.")
+
     elapsed_days = (interval.end_date - interval.start_date).days
 
     if elapsed_days < 7:
         return Resolution.DAY
-    elif elapsed_days < 30:
+    if elapsed_days < 30:
         return Resolution.WEEK
-    elif elapsed_days < 90:
+    if elapsed_days < 90:
         return Resolution.MONTH
-    elif elapsed_days < 365:
+    if elapsed_days < 365:
         return Resolution.QUARTER
-    else:
-        return Resolution.YEAR
+
+    return Resolution.YEAR
 
 
-def get_timeseries(interval: Interval) -> list[date]:
-    resolution = get_resolution(interval)
+def get_timeseries(interval: Interval, resolution: Resolution) -> list[date]:
+    """
+    Generate a timeseries within an interval with the provided resolution.
+
+    start_date <= timeseries < end_date
+    """
+
+    if interval.start_date > interval.end_date:
+        raise Exception("Cannot process inverse interval.")
+
     elapsed_days = (interval.end_date - interval.start_date).days
 
     return [

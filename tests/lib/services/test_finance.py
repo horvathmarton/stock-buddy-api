@@ -4,14 +4,6 @@ from django.test import SimpleTestCase
 from src.lib.services.finance import rri
 
 
-class TestPresentValue(SimpleTestCase):
-    pass
-
-
-class TestFutureValue(SimpleTestCase):
-    pass
-
-
 class TestRateOfInvestmentReturn(SimpleTestCase):
     """
     Different scenarios to check RRI calculation.
