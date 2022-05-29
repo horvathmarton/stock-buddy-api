@@ -1,1077 +1,1517 @@
 {
-  "info": {
-    "_postman_id": "6dc2b4a4-ff7d-4750-9003-e91007559ddb",
-    "name": "Stock Buddy",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "Auth",
-      "item": [
-        {
-          "name": "Sign in",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    const token = pm.response.json().access;",
-                  "    pm.collectionVariables.set('token', token);",
-                  "",
-                  "    const refresh_token = pm.response.json().refresh;",
-                  "    pm.collectionVariables.set('refresh_token', refresh_token);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "noauth"
-            },
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"{{password}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{url}}/auth/sign-in",
-              "host": ["{{url}}"],
-              "path": ["auth", "sign-in"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Refresh token",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    const token = pm.response.json().access;",
-                  "    pm.collectionVariables.set('token', token);",
-                  "",
-                  "    const refresh_token = pm.response.json().refresh;",
-                  "    pm.collectionVariables.set('refresh_token', refresh_token);",
-                  "}",
-                  ""
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"token\": \"{{refresh_token}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{url}}/auth/refresh-token",
-              "host": ["{{url}}"],
-              "path": ["auth", "refresh-token"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Change password",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 204) {",
-                  "    const password = JSON.parse(pm.request.body.raw).password;",
-                  "    pm.collectionVariables.set('password', password);",
-                  "}",
-                  ""
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"password\": \"password\"\n}\n",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{url}}/auth/change-password",
-              "host": ["{{url}}"],
-              "path": ["auth", "change-password"]
-            }
-          },
-          "response": []
-        }
-      ],
-      "event": [
-        {
-          "listen": "prerequest",
-          "script": {
-            "type": "text/javascript",
-            "exec": [""]
-          }
-        },
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [""]
-          }
-        }
-      ]
-    },
-    {
-      "name": "Cash",
-      "item": [
-        {
-          "name": "Fetch cash balance",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{url}}/cash/{{portfolio_id}}?as_of=2021-01-01",
-              "host": ["{{url}}"],
-              "path": ["cash", "{{portfolio_id}}"],
-              "query": [
-                {
-                  "key": "as_of",
-                  "value": "2021-01-01",
-                  "description": "Optional"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Fetch cash balance summary",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{url}}/cash/summary?as_of=2021-01-01",
-              "host": ["{{url}}"],
-              "path": ["cash", "summary"],
-              "query": [
-                {
-                  "key": "as_of",
-                  "value": "2021-01-01",
-                  "description": "Optional"
-                }
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Dashboard",
-      "item": [
-        {
-          "name": "Fetch portfolio indicators",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{url}}/dashboard/portfolio-indicators",
-              "host": ["{{url}}"],
-              "path": ["dashboard", "portfolio-indicators"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Fetch current strategy",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{url}}/dashboard/strategies/me",
-              "host": ["{{url}}"],
-              "path": ["dashboard", "strategies", "me"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "List strategies",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{url}}/dashboard/strategies",
-              "host": ["{{url}}"],
-              "path": ["dashboard", "strategies"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Create strategy",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"name\": \"My strategy\",\n    \"items\": [\n        {\n            \"name\": \"bond\",\n            \"size\": 0.6\n        },\n        {\n            \"name\": \"stock\",\n            \"size\": 0.4\n        }\n    ]\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{url}}/dashboard/strategies",
-              "host": ["{{url}}"],
-              "path": ["dashboard", "strategies"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update strategy name",
-          "request": {
-            "method": "PATCH",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"name\": \"My strategy\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{url}}/dashboard/strategies/{{strategy_id}}",
-              "host": ["{{url}}"],
-              "path": ["dashboard", "strategies", "{{strategy_id}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update strategy config",
-          "request": {
-            "method": "PUT",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"name\": \"My strategy\",\n    \"items\": [\n        {\n            \"name\": \"bond\",\n            \"size\": 0.6\n        },\n        {\n            \"name\": \"stock\",\n            \"size\": 0.4\n        }\n    ]\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{url}}/dashboard/strategies/{{strategy_id}}",
-              "host": ["{{url}}"],
-              "path": ["dashboard", "strategies", "{{strategy_id}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Select target strategy",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"strategy\": {{strategy_id}}\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{url}}/dashboard/strategies/select-strategy",
-              "host": ["{{url}}"],
-              "path": ["dashboard", "strategies", "select-strategy"]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Raw data",
-      "item": [
-        {
-          "name": "Fetch stock price statistics",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{url}}/raw-data/stocks/stock-prices",
-              "host": ["{{url}}"],
-              "path": ["raw-data", "stocks", "stock-prices"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Fetch stock dividend statistics",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{url}}/raw-data/stocks/stock-dividends",
-              "host": ["{{url}}"],
-              "path": ["raw-data", "stocks", "stock-dividends"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Fetch stock split statistics",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{url}}/raw-data/stocks/stock-splits",
-              "host": ["{{url}}"],
-              "path": ["raw-data", "stocks", "stock-splits"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Upload stock prices (bots only)",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"data\": [\n        {\n            \"date\": \"2022-01-01\",\n            \"value\": 100\n        },\n        {\n            \"date\": \"2022-01-02\",\n            \"value\": 101\n        }\n    ]\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{url}}/raw-data/stocks/{{stock_ticker}}/stock-prices",
-              "host": ["{{url}}"],
-              "path": ["raw-data", "stocks", "{{stock_ticker}}", "stock-prices"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Upload stock dividends (bots only)",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"data\": [\n        {\n            \"date\": \"2022-01-01\",\n            \"amount\": 5.5\n        },\n        {\n            \"date\": \"2022-03-01\",\n            \"amount\": 5.5\n        }\n    ]\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{url}}/raw-data/stocks/{{stock_ticker}}/stock-dividends",
-              "host": ["{{url}}"],
-              "path": [
-                "raw-data",
-                "stocks",
-                "{{stock_ticker}}",
-                "stock-dividends"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Upload stock splits (bots only)",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"data\": [\n        {\n            \"date\": \"2022-01-01\",\n            \"ratio\": \"1:2\"\n        },\n        {\n            \"date\": \"2022-03-01\",\n            \"ratio\": \"1:3\"\n        }\n    ]\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{url}}/raw-data/stocks/{{stock_ticker}}/stock-prices",
-              "host": ["{{url}}"],
-              "path": ["raw-data", "stocks", "{{stock_ticker}}", "stock-prices"]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Stocks",
-      "item": [
-        {
-          "name": "Stock",
-          "item": [
-            {
-              "name": "List stocks",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/stocks",
-                  "host": ["{{url}}"],
-                  "path": ["stocks"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Fetch stock details",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/stocks/{{stock_ticker}}",
-                  "host": ["{{url}}"],
-                  "path": ["stocks", "{{stock_ticker}}"]
-                }
-              },
-              "response": []
-            }
-          ]
-        },
-        {
-          "name": "Portfolio",
-          "item": [
-            {
-              "name": "List stock portfolios",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/stocks/portfolios",
-                  "host": ["{{url}}"],
-                  "path": ["stocks", "portfolios"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Fetch portfolio snapshot",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/stocks/portfolios/{{portfolio_id}}?as_of=2022-01-01",
-                  "host": ["{{url}}"],
-                  "path": ["stocks", "portfolios", "{{portfolio_id}}"],
-                  "query": [
-                    {
-                      "key": "as_of",
-                      "value": "2022-01-01",
-                      "description": "Optional"
-                    }
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Fetch summary of owned portfolios",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/stocks/portfolios/summary",
-                  "host": ["{{url}}"],
-                  "path": ["stocks", "portfolios", "summary"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Create stock portfolio",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"name\": \"My portfolio\",\n    \"description\": \"Description for my portfolio\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{url}}/stocks/portfolios",
-                  "host": ["{{url}}"],
-                  "path": ["stocks", "portfolios"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Update stock portfolio info",
-              "request": {
-                "method": "PUT",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"name\": \"My portfolio\",\n    \"description\": \"Description for my portfolio\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{url}}/stocks/portfolios/{{portfolio_id}}",
-                  "host": ["{{url}}"],
-                  "path": ["stocks", "portfolios", "{{portfolio_id}}"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Delete stock portfolio",
-              "request": {
-                "method": "DELETE",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/stocks/portfolios/{{portfolio_id}}",
-                  "host": ["{{url}}"],
-                  "path": ["stocks", "portfolios", "{{portfolio_id}}"]
-                }
-              },
-              "response": []
-            }
-          ]
-        },
-        {
-          "name": "Watchlist",
-          "item": [
-            {
-              "name": "List stock watchlists",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/stocks/watchlists",
-                  "host": ["{{url}}"],
-                  "path": ["stocks", "watchlists"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Fetch stock watchlist details",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/stocks/watchlists/{{watchlist_id}}",
-                  "host": ["{{url}}"],
-                  "path": ["stocks", "watchlists", "{{watchlist_id}}"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Create stock watchlist",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"name\": \"My watchlist\",\n    \"description\": \"Description for my watchlist.\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{url}}/stocks/watchlists",
-                  "host": ["{{url}}"],
-                  "path": ["stocks", "watchlists"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Update stock watchlist info",
-              "request": {
-                "method": "PUT",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"name\": \"My watchlist\",\n    \"description\": \"Description for my watchlist.\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{url}}/stocks/watchlists/{{watchlist_id}}",
-                  "host": ["{{url}}"],
-                  "path": ["stocks", "watchlists", "{{watchlist_id}}"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Delete stock watchlist",
-              "request": {
-                "method": "DELETE",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/stocks/watchlists/{{watchlist_id}}",
-                  "host": ["{{url}}"],
-                  "path": ["stocks", "watchlists", "{{watchlist_id}}"]
-                }
-              },
-              "response": []
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Transactions",
-      "item": [
-        {
-          "name": "Cash",
-          "item": [
-            {
-              "name": "List cash transactions",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/transactions/cash",
-                  "host": ["{{url}}"],
-                  "path": ["transactions", "cash"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Fetch cash transaction details",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/transactions/cash/{{cash_transactions_id}}",
-                  "host": ["{{url}}"],
-                  "path": ["transactions", "cash", "{{cash_transactions_id}}"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Create cash transaction",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"currency\": \"HUF\",\n    \"amount\": 1000,\n    \"date\": \"2022-01-01\",\n    \"portfolio\": {{portfolio_id}}\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{url}}/transactions/cash",
-                  "host": ["{{url}}"],
-                  "path": ["transactions", "cash"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Update cash transaction",
-              "request": {
-                "method": "PUT",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"currency\": \"HUF\",\n    \"amount\": 1000,\n    \"date\": \"2022-01-01\",\n    \"portfolio\": {{portfolio_id}}\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{url}}/transactions/cash/{{cash_transactions_id}}",
-                  "host": ["{{url}}"],
-                  "path": ["transactions", "cash", "{{cash_transactions_id}}"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Delete cash transaction",
-              "request": {
-                "method": "DELETE",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/transactions/cash/{{cash_transactions_id}}",
-                  "host": ["{{url}}"],
-                  "path": ["transactions", "cash", "{{cash_transactions_id}}"]
-                }
-              },
-              "response": []
-            }
-          ]
-        },
-        {
-          "name": "Forex",
-          "item": [
-            {
-              "name": "List forex transactions",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/transactions/forex",
-                  "host": ["{{url}}"],
-                  "path": ["transactions", "forex"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Fetch forex transaction details",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/transactions/forex/{{forex_transactions_id}}",
-                  "host": ["{{url}}"],
-                  "path": ["transactions", "forex", "{{forex_transactions_id}}"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Create forex transaction",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"ratio\": 300,\n    \"amount\": 10,\n    \"source_currency\": \"USD\",\n    \"target_currency\": \"HUF\",\n    \"date\": \"2022-01-01\",\n    \"portfolio\": {{portfolio_id}}\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{url}}/transactions/forex",
-                  "host": ["{{url}}"],
-                  "path": ["transactions", "forex"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Update forex transaction",
-              "request": {
-                "method": "PUT",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"ratio\": 300,\n    \"amount\": 10,\n    \"source_currency\": \"USD\",\n    \"target_currency\": \"HUF\",\n    \"date\": \"2022-01-01\",\n    \"portfolio\": {{portfolio_id}}\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{url}}/transactions/forex/{{forex_transactions_id}}",
-                  "host": ["{{url}}"],
-                  "path": ["transactions", "forex", "{{forex_transactions_id}}"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Delete forex transaction",
-              "request": {
-                "method": "DELETE",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/transactions/forex/{{forex_transactions_id}}",
-                  "host": ["{{url}}"],
-                  "path": ["transactions", "forex", "{{forex_transactions_id}}"]
-                }
-              },
-              "response": []
-            }
-          ]
-        },
-        {
-          "name": "Stock",
-          "item": [
-            {
-              "name": "List stock transactions",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/transactions/stocks",
-                  "host": ["{{url}}"],
-                  "path": ["transactions", "stocks"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Fetch stock transaction details",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/transactions/stocks/{{stock_transactions_id}}",
-                  "host": ["{{url}}"],
-                  "path": [
-                    "transactions",
-                    "stocks",
-                    "{{stock_transactions_id}}"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Create stock transaction",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"ticker\": \"{{stock_ticker}}\",\n    \"price\": 100,\n    \"amount\": 1,\n    \"date\": \"2022-01-01\",\n    \"portfolio\": {{portfolio_id}}\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{url}}/transactions/stocks",
-                  "host": ["{{url}}"],
-                  "path": ["transactions", "stocks"]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Update stock transaction",
-              "request": {
-                "method": "PUT",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"ticker\": \"{{stock_ticker}}\",\n    \"price\": 100,\n    \"amount\": 1,\n    \"date\": \"2022-01-01\",\n    \"portfolio\": {{portfolio_id}}\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{url}}/transactions/stocks/{{stock_transactions_id}}",
-                  "host": ["{{url}}"],
-                  "path": [
-                    "transactions",
-                    "stocks",
-                    "{{stock_transactions_id}}"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Delete stock transaction",
-              "request": {
-                "method": "DELETE",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/transactions/stocks/{{stock_transactions_id}}",
-                  "host": ["{{url}}"],
-                  "path": [
-                    "transactions",
-                    "stocks",
-                    "{{stock_transactions_id}}"
-                  ]
-                }
-              },
-              "response": []
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Core",
-      "item": [
-        {
-          "name": "Health check",
-          "request": {
-            "auth": {
-              "type": "noauth"
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{url}}",
-              "host": ["{{url}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Version info",
-          "request": {
-            "auth": {
-              "type": "noauth"
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{url}}/version",
-              "host": ["{{url}}"],
-              "path": ["version"]
-            }
-          },
-          "response": []
-        }
-      ]
-    }
-  ],
-  "auth": {
-    "type": "bearer",
-    "bearer": [
-      {
-        "key": "token",
-        "value": "{{token}}",
-        "type": "string"
-      }
-    ]
-  },
-  "event": [
-    {
-      "listen": "prerequest",
-      "script": {
-        "type": "text/javascript",
-        "exec": [""]
-      }
-    },
-    {
-      "listen": "test",
-      "script": {
-        "type": "text/javascript",
-        "exec": [""]
-      }
-    }
-  ],
-  "variable": [
-    {
-      "key": "url",
-      "value": "<replace me>",
-      "type": "string"
-    },
-    {
-      "key": "username",
-      "value": "<replace me>",
-      "type": "string"
-    },
-    {
-      "key": "password",
-      "value": "<replace me>",
-      "type": "string"
-    },
-    {
-      "key": "token",
-      "value": "<replace me>",
-      "type": "string"
-    },
-    {
-      "key": "stock_ticker",
-      "value": "GOOGL",
-      "type": "string"
-    },
-    {
-      "key": "portfolio_id",
-      "value": "1",
-      "type": "string"
-    },
-    {
-      "key": "strategy_id",
-      "value": "1",
-      "type": "string"
-    },
-    {
-      "key": "watchlist_id",
-      "value": "1",
-      "type": "string"
-    },
-    {
-      "key": "cash_transactions_id",
-      "value": "1",
-      "type": "string"
-    },
-    {
-      "key": "forex_transactions_id",
-      "value": "1",
-      "type": "string"
-    },
-    {
-      "key": "stock_transactions_id",
-      "value": "1",
-      "type": "string"
-    },
-    {
-      "key": "refresh_token",
-      "value": ""
-    }
-  ]
+	"info": {
+		"_postman_id": "6dc2b4a4-ff7d-4750-9003-e91007559ddb",
+		"name": "Stock Buddy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "4800221"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Sign in",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const token = pm.response.json().access;",
+									"    pm.collectionVariables.set('token', token);",
+									"",
+									"    const refresh_token = pm.response.json().refresh;",
+									"    pm.collectionVariables.set('refresh_token', refresh_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"{{password}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/auth/sign-in",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"auth",
+								"sign-in"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const token = pm.response.json().access;",
+									"    pm.collectionVariables.set('token', token);",
+									"",
+									"    const refresh_token = pm.response.json().refresh;",
+									"    pm.collectionVariables.set('refresh_token', refresh_token);",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"{{refresh_token}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/auth/refresh-token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"auth",
+								"refresh-token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 204) {",
+									"    const password = JSON.parse(pm.request.body.raw).password;",
+									"    pm.collectionVariables.set('password', password);",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"password\": \"password\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/auth/change-password",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"auth",
+								"change-password"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Cash",
+			"item": [
+				{
+					"name": "Fetch cash balance",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/cash/{{portfolio_id}}?as_of=2021-01-01",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"cash",
+								"{{portfolio_id}}"
+							],
+							"query": [
+								{
+									"key": "as_of",
+									"value": "2021-01-01",
+									"description": "Optional"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch cash balance summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/cash/summary?as_of=2021-01-01",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"cash",
+								"summary"
+							],
+							"query": [
+								{
+									"key": "as_of",
+									"value": "2021-01-01",
+									"description": "Optional"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Dashboard",
+			"item": [
+				{
+					"name": "Fetch portfolio indicators",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/dashboard/portfolio-indicators",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"dashboard",
+								"portfolio-indicators"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch current strategy",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/dashboard/strategies/me",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"dashboard",
+								"strategies",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List strategies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/dashboard/strategies",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"dashboard",
+								"strategies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create strategy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"My strategy\",\n    \"items\": [\n        {\n            \"name\": \"bond\",\n            \"size\": 0.6\n        },\n        {\n            \"name\": \"stock\",\n            \"size\": 0.4\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/dashboard/strategies",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"dashboard",
+								"strategies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update strategy name",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"My strategy\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/dashboard/strategies/{{strategy_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"dashboard",
+								"strategies",
+								"{{strategy_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update strategy config",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"My strategy\",\n    \"items\": [\n        {\n            \"name\": \"bond\",\n            \"size\": 0.6\n        },\n        {\n            \"name\": \"stock\",\n            \"size\": 0.4\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/dashboard/strategies/{{strategy_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"dashboard",
+								"strategies",
+								"{{strategy_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Select target strategy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"strategy\": {{strategy_id}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/dashboard/strategies/select-strategy",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"dashboard",
+								"strategies",
+								"select-strategy"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Raw data",
+			"item": [
+				{
+					"name": "Fetch stock price statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/raw-data/stocks/stock-prices",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"raw-data",
+								"stocks",
+								"stock-prices"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch stock dividend statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/raw-data/stocks/stock-dividends",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"raw-data",
+								"stocks",
+								"stock-dividends"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch stock split statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/raw-data/stocks/stock-splits",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"raw-data",
+								"stocks",
+								"stock-splits"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload stock prices (bots only)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": [\n        {\n            \"date\": \"2022-01-01\",\n            \"value\": 100\n        },\n        {\n            \"date\": \"2022-01-02\",\n            \"value\": 101\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/raw-data/stocks/{{stock_ticker}}/stock-prices",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"raw-data",
+								"stocks",
+								"{{stock_ticker}}",
+								"stock-prices"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload stock dividends (bots only)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": [\n        {\n            \"date\": \"2022-01-01\",\n            \"amount\": 5.5\n        },\n        {\n            \"date\": \"2022-03-01\",\n            \"amount\": 5.5\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/raw-data/stocks/{{stock_ticker}}/stock-dividends",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"raw-data",
+								"stocks",
+								"{{stock_ticker}}",
+								"stock-dividends"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload stock splits (bots only)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": [\n        {\n            \"date\": \"2022-01-01\",\n            \"ratio\": \"1:2\"\n        },\n        {\n            \"date\": \"2022-03-01\",\n            \"ratio\": \"1:3\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/raw-data/stocks/{{stock_ticker}}/stock-prices",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"raw-data",
+								"stocks",
+								"{{stock_ticker}}",
+								"stock-prices"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Stocks",
+			"item": [
+				{
+					"name": "Stock",
+					"item": [
+						{
+							"name": "List stocks",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/stocks",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"stocks"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch stock details",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/stocks/{{stock_ticker}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"stocks",
+										"{{stock_ticker}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Portfolio",
+					"item": [
+						{
+							"name": "List stock portfolios",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/stocks/portfolios",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"stocks",
+										"portfolios"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch portfolio snapshot",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/stocks/portfolios/{{portfolio_id}}?as_of=2022-01-01",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"stocks",
+										"portfolios",
+										"{{portfolio_id}}"
+									],
+									"query": [
+										{
+											"key": "as_of",
+											"value": "2022-01-01",
+											"description": "Optional"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch summary of owned portfolios",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/stocks/portfolios/summary",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"stocks",
+										"portfolios",
+										"summary"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create stock portfolio",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"My portfolio\",\n    \"description\": \"Description for my portfolio\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/stocks/portfolios",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"stocks",
+										"portfolios"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update stock portfolio info",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"My portfolio\",\n    \"description\": \"Description for my portfolio\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/stocks/portfolios/{{portfolio_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"stocks",
+										"portfolios",
+										"{{portfolio_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete stock portfolio",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/stocks/portfolios/{{portfolio_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"stocks",
+										"portfolios",
+										"{{portfolio_id}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Watchlist",
+					"item": [
+						{
+							"name": "Watchlist item",
+							"item": [
+								{
+									"name": "Add stock to the watchlist",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{url}}/stocks/watchlists/{{watchlist_id}}/stocks/{{stock_ticker}}",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"stocks",
+												"watchlists",
+												"{{watchlist_id}}",
+												"stocks",
+												"{{stock_ticker}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Remove stock from watchlist",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{url}}/stocks/watchlists/{{watchlist_id}}/stocks/{{stock_ticker}}",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"stocks",
+												"watchlists",
+												"{{watchlist_id}}",
+												"stocks",
+												"{{stock_ticker}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Position size",
+							"item": [
+								{
+									"name": "Add position size",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"size\": 1000,\n    \"at_cost\": false\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/stocks/watchlists/{{watchlist_id}}/stocks/{{stock_ticker}}/position-sizes",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"stocks",
+												"watchlists",
+												"{{watchlist_id}}",
+												"stocks",
+												"{{stock_ticker}}",
+												"position-sizes"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete position size",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{url}}/stocks/watchlists/{{watchlist_id}}/stocks/{{stock_ticker}}/position-sizes/{{position_size_id}}",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"stocks",
+												"watchlists",
+												"{{watchlist_id}}",
+												"stocks",
+												"{{stock_ticker}}",
+												"position-sizes",
+												"{{position_size_id}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Target price",
+							"item": [
+								{
+									"name": "Add target price",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"price\": 10\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/stocks/watchlists/{{watchlist_id}}/stocks/{{stock_ticker}}/target-prices",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"stocks",
+												"watchlists",
+												"{{watchlist_id}}",
+												"stocks",
+												"{{stock_ticker}}",
+												"target-prices"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete target price",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"price\": 10\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/stocks/watchlists/{{watchlist_id}}/stocks/{{stock_ticker}}/target-prices/{{target_price_id}}",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"stocks",
+												"watchlists",
+												"{{watchlist_id}}",
+												"stocks",
+												"{{stock_ticker}}",
+												"target-prices",
+												"{{target_price_id}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "List stock watchlists",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/stocks/watchlists",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"stocks",
+										"watchlists"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch stock watchlist details",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/stocks/watchlists/{{watchlist_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"stocks",
+										"watchlists",
+										"{{watchlist_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create stock watchlist",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"My watchlist\",\n    \"description\": \"Description for my watchlist.\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/stocks/watchlists",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"stocks",
+										"watchlists"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update stock watchlist info",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"My watchlist\",\n    \"description\": \"Description for my watchlist.\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/stocks/watchlists/{{watchlist_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"stocks",
+										"watchlists",
+										"{{watchlist_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete stock watchlist",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/stocks/watchlists/{{watchlist_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"stocks",
+										"watchlists",
+										"{{watchlist_id}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Transactions",
+			"item": [
+				{
+					"name": "Cash",
+					"item": [
+						{
+							"name": "List cash transactions",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/transactions/cash",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"transactions",
+										"cash"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch cash transaction details",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/transactions/cash/{{cash_transactions_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"transactions",
+										"cash",
+										"{{cash_transactions_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create cash transaction",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"currency\": \"HUF\",\n    \"amount\": 1000,\n    \"date\": \"2022-01-01\",\n    \"portfolio\": {{portfolio_id}}\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/transactions/cash",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"transactions",
+										"cash"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update cash transaction",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"currency\": \"HUF\",\n    \"amount\": 1000,\n    \"date\": \"2022-01-01\",\n    \"portfolio\": {{portfolio_id}}\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/transactions/cash/{{cash_transactions_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"transactions",
+										"cash",
+										"{{cash_transactions_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete cash transaction",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/transactions/cash/{{cash_transactions_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"transactions",
+										"cash",
+										"{{cash_transactions_id}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Forex",
+					"item": [
+						{
+							"name": "List forex transactions",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/transactions/forex",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"transactions",
+										"forex"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch forex transaction details",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/transactions/forex/{{forex_transactions_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"transactions",
+										"forex",
+										"{{forex_transactions_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create forex transaction",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"ratio\": 300,\n    \"amount\": 10,\n    \"source_currency\": \"USD\",\n    \"target_currency\": \"HUF\",\n    \"date\": \"2022-01-01\",\n    \"portfolio\": {{portfolio_id}}\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/transactions/forex",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"transactions",
+										"forex"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update forex transaction",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"ratio\": 300,\n    \"amount\": 10,\n    \"source_currency\": \"USD\",\n    \"target_currency\": \"HUF\",\n    \"date\": \"2022-01-01\",\n    \"portfolio\": {{portfolio_id}}\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/transactions/forex/{{forex_transactions_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"transactions",
+										"forex",
+										"{{forex_transactions_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete forex transaction",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/transactions/forex/{{forex_transactions_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"transactions",
+										"forex",
+										"{{forex_transactions_id}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Stock",
+					"item": [
+						{
+							"name": "List stock transactions",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/transactions/stocks",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"transactions",
+										"stocks"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch stock transaction details",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/transactions/stocks/{{stock_transactions_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"transactions",
+										"stocks",
+										"{{stock_transactions_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create stock transaction",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"ticker\": \"{{stock_ticker}}\",\n    \"price\": 100,\n    \"amount\": 1,\n    \"date\": \"2022-01-01\",\n    \"portfolio\": {{portfolio_id}}\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/transactions/stocks",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"transactions",
+										"stocks"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update stock transaction",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"ticker\": \"{{stock_ticker}}\",\n    \"price\": 100,\n    \"amount\": 1,\n    \"date\": \"2022-01-01\",\n    \"portfolio\": {{portfolio_id}}\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/transactions/stocks/{{stock_transactions_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"transactions",
+										"stocks",
+										"{{stock_transactions_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete stock transaction",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/transactions/stocks/{{stock_transactions_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"transactions",
+										"stocks",
+										"{{stock_transactions_id}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Core",
+			"item": [
+				{
+					"name": "Health check",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Version info",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/version",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"version"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "<replace me>",
+			"type": "string"
+		},
+		{
+			"key": "username",
+			"value": "<replace me>",
+			"type": "string"
+		},
+		{
+			"key": "password",
+			"value": "<replace me>",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "<replace me>",
+			"type": "string"
+		},
+		{
+			"key": "stock_ticker",
+			"value": "GOOGL",
+			"type": "string"
+		},
+		{
+			"key": "portfolio_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "strategy_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "watchlist_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "cash_transactions_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "forex_transactions_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "stock_transactions_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": ""
+		},
+		{
+			"key": "target_price_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "position_size_id",
+			"value": "1",
+			"type": "string"
+		}
+	]
 }
