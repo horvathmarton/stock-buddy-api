@@ -1,38 +1,37 @@
-"""Business logic for the stocks module."""
+"""Stocks related handlers in the stocks module."""
 
 from datetime import date
 from logging import getLogger
 
 from django.shortcuts import get_list_or_404, get_object_or_404
-from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from ..lib.helpers import parse_date_query_param
-from ..lib.permissions import IsOwnerOrAdmin
-from ..lib.services.stocks import get_portfolio_snapshot
-from .models import Stock, StockPortfolio, StockWatchlist
-from .serializers import (
+from ...lib.helpers import parse_date_query_param
+from ...lib.permissions import IsOwnerOrAdmin
+from ...lib.services.stocks import get_portfolio_snapshot
+from ..models import Stock, StockPortfolio
+from ..serializers import (
     StockPortfolioSerializer,
     StockPortfolioSnapshotSerializer,
     StockSerializer,
-    StockWatchlistSerializer,
 )
 
 LOGGER = getLogger(__name__)
 
 
-class StockViewSet(viewsets.ReadOnlyModelViewSet):
+class StockViewSet(ReadOnlyModelViewSet):
     """Business logic for the stock API."""
 
     queryset = Stock.objects.filter(active=True)
     serializer_class = StockSerializer
 
 
-class StockPortfolioViewSet(viewsets.ModelViewSet):
+class StockPortfolioViewSet(ModelViewSet):
     """Business logic for the stock portfolio API."""
 
     queryset = StockPortfolio.objects.all()
@@ -115,24 +114,6 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
         is_admin = self.request.user.groups.filter(name="Admins").exists()
 
         if is_admin:
-            return queryset
-
-        return queryset.filter(owner=self.request.user)
-
-
-class StockWatchlistViewSet(viewsets.ModelViewSet):
-    """Business logic for the stock watchlist API."""
-
-    queryset = StockWatchlist.objects.all()
-    serializer_class = StockWatchlistSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
-
-    def perform_create(self, serializer):
-        LOGGER.debug("Inserting a new stock portfolio for %s.", self.request.user)
-        serializer.save(owner=self.request.user)
-
-    def filter_queryset(self, queryset):
-        if self.request.user.groups.filter(name="Admins").exists():
             return queryset
 
         return queryset.filter(owner=self.request.user)
