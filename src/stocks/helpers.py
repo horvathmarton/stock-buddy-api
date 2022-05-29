@@ -1,6 +1,7 @@
 """General helper functions for the stocks module."""
 
 from itertools import groupby
+from typing import cast
 
 from .dataclasses import (
     PositionSize,
@@ -11,28 +12,12 @@ from .dataclasses import (
 )
 
 
-def parse_watchlist_rows(cursor):
+def parse_watchlist_rows(rows: list[WatchlistRow]) -> list[Watchlist]:
     """Parse the result of the watchlist details query to a tree structure."""
 
-    rows = [
-        WatchlistRow(
-            watchlist_id=i[0],
-            stock_id=i[1],
-            item_type=i[2],
-            watchlist_name=i[3],
-            watchlist_description=i[4],
-            target_id=i[5],
-            price=i[6],
-            size=i[7],
-            at_cost=i[8],
-            target_description=i[9],
-        )
-        for i in cursor
-    ]
-
     result = []
-    for watchlist_id, watchlist in groupby(rows, key=lambda x: x.watchlist_id):
-        items = list(watchlist)
+    for watchlist_id, group in groupby(rows, key=lambda x: x.watchlist_id):
+        items = list(group)
         watchlist = Watchlist(
             id=watchlist_id,
             name=items[0].watchlist_name,
@@ -40,17 +25,21 @@ def parse_watchlist_rows(cursor):
             items=[],
         )
 
-        for ticker, item in groupby(items, key=lambda x: x.stock_id):
-            targets = list(item)
+        for ticker, inner_group in groupby(items, key=lambda x: x.stock_id):
+            targets = list(inner_group)
             item = WatchlistItem(
                 ticker=ticker,
                 target_prices=[
-                    TargetPrice(target.price, target.target_description)
+                    TargetPrice(cast(float, target.price), target.target_description)
                     for target in targets
                     if target.item_type == "target_price"
                 ],
                 position_sizes=[
-                    PositionSize(target.size, target.at_cost, target.target_description)
+                    PositionSize(
+                        cast(float, target.size),
+                        cast(bool, target.at_cost),
+                        target.target_description,
+                    )
                     for target in targets
                     if target.item_type == "position_size"
                 ],
