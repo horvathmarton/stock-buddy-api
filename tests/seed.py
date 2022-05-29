@@ -14,7 +14,14 @@ from src.raw_data.models import (
     StockSplitSync,
 )
 from src.stocks.enums import Sector
-from src.stocks.models import Stock, StockPortfolio, StockWatchlist
+from src.stocks.models import (
+    PositionSize,
+    Stock,
+    StockPortfolio,
+    StockWatchlist,
+    StockWatchlistItem,
+    TargetPrice,
+)
 
 
 class _UsersSeed:  # pylint: disable=too-few-public-methods
@@ -93,6 +100,18 @@ class _StocksSeed:  # pylint: disable=too-few-public-methods
             ticker="EV",
             sector=Sector.FINANCIAL_SERVICES,
         )
+        self.GOOGL = Stock.objects.create(
+            active=False,
+            name="Alphabet",
+            ticker="GOOGL",
+            sector=Sector.SOFTWARE,
+        )
+        self.AAPL = Stock.objects.create(
+            active=False,
+            name="Apple",
+            ticker="AAPL",
+            sector=Sector.HARDWARE,
+        )
 
 
 class _PortfolioSeed:  # pylint: disable=too-few-public-methods
@@ -130,6 +149,69 @@ class _StockWatchlistSeed:  # pylint: disable=too-few-public-methods
         )
         self.other_users = StockWatchlist.objects.create(
             name="Other user's portfolio", owner=users.other
+        )
+
+
+class _StockWatchlistItemSeed:  # pylint: disable=too-few-public-methods
+    """
+    google - Google position on the main watchlist.
+    apple - Apple position on the main watchlist.
+    other_users_google - Google position on the other user's watchlist.
+    """
+
+    def __init__(self, watchlists, stocks):
+        # pylint: disable=missing-function-docstring
+
+        self.google = StockWatchlistItem.objects.create(
+            watchlist=watchlists.main, stock=stocks.GOOGL
+        )
+        self.apple = StockWatchlistItem.objects.create(
+            watchlist=watchlists.main, stock=stocks.AAPL
+        )
+        self.other_users_google = StockWatchlistItem.objects.create(
+            watchlist=watchlists.other_users, stock=stocks.GOOGL
+        )
+
+
+class _TargetPriceSeed:  # pylint: disable=too-few-public-methods
+    """
+    google_first - First target price for the google watchlist item.
+    google_second - Second target price for the google watchlist item.
+    apple_first - First target price for the apple watchlist item.
+    """
+
+    def __init__(self, items):
+        # pylint: disable=missing-function-docstring
+
+        self.google_first = TargetPrice.objects.create(
+            price=2_100.1, watchlist_item=items.google
+        )
+        self.google_second = TargetPrice.objects.create(
+            price=2_000.1, watchlist_item=items.google
+        )
+        self.apple_first = TargetPrice.objects.create(
+            price=130, watchlist_item=items.apple
+        )
+
+
+class _PositionSizeSeed:  # pylint: disable=too-few-public-methods
+    """
+    google_at_cost - At cost position size target for the google watchlist item.
+    google_at_price - At price position size target for the google watchlist item.
+    apple_at_cost - At cost position size target for the apple watchlist item.
+    """
+
+    def __init__(self, items):
+        # pylint: disable=missing-function-docstring
+
+        self.google_at_cost = PositionSize.objects.create(
+            size=10_000, at_cost=True, watchlist_item=items.google
+        )
+        self.google_at_price = PositionSize.objects.create(
+            size=30_000, at_cost=False, watchlist_item=items.google
+        )
+        self.apple_at_cost = PositionSize.objects.create(
+            size=5_000, at_cost=True, watchlist_item=items.apple
         )
 
 
@@ -296,7 +378,7 @@ class _Seed:  # pylint: disable=too-few-public-methods, disable=invalid-name, to
     object from this data.
     """
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(  # pylint: disable=too-many-arguments, too-many-locals
         self,
         USERS,
         GROUPS,
@@ -309,6 +391,9 @@ class _Seed:  # pylint: disable=too-few-public-methods, disable=invalid-name, to
         STOCK_SPLIT_SYNCS,
         STOCK_SPLITS,
         WATCHLISTS,
+        WATCHLIST_ITEMS,
+        TARGET_PRICES,
+        POSITION_SIZES,
         STRATEGIES,
     ):
         # pylint: disable=missing-function-docstring
@@ -324,6 +409,9 @@ class _Seed:  # pylint: disable=too-few-public-methods, disable=invalid-name, to
         self.STOCK_SPLIT_SYNCS = STOCK_SPLIT_SYNCS
         self.STOCK_SPLITS = STOCK_SPLITS
         self.WATCHLISTS = WATCHLISTS
+        self.WATCHLIST_ITEMS = WATCHLIST_ITEMS
+        self.TARGET_PRICES = TARGET_PRICES
+        self.POSITION_SIZES = POSITION_SIZES
         self.STRATEGIES = STRATEGIES
 
 
@@ -344,6 +432,9 @@ def generate_test_data():
 
     portfolios = _PortfolioSeed(users)
     watchlists = _StockWatchlistSeed(users)
+    watchlist_items = _StockWatchlistItemSeed(watchlists, stocks)
+    target_prices = _TargetPriceSeed(watchlist_items)
+    position_sizes = _PositionSizeSeed(watchlist_items)
 
     stock_price_syncs = _StockPriceSyncsSeed(users)
     stock_dividend_syncs = _StockDividendSyncsSeed(users)
@@ -369,5 +460,8 @@ def generate_test_data():
         STOCK_SPLIT_SYNCS=stock_split_syncs,
         STOCK_SPLITS=stock_splits,
         WATCHLISTS=watchlists,
+        WATCHLIST_ITEMS=watchlist_items,
+        TARGET_PRICES=target_prices,
+        POSITION_SIZES=position_sizes,
         STRATEGIES=strategies,
     )

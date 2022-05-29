@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from src.lib.protocols import Identifiable
+from src.stocks.dataclasses import WatchlistRow
 
 from ...lib.permissions import IsOwnerOrAdmin
 from ...lib.queries import fetch_watchlist_tree
@@ -47,7 +48,22 @@ class StockWatchlistViewSet(ModelViewSet):
     def retrieve(self, request: Request, *args, **kwargs) -> Response:
         watchlist = self.get_object()
         cursor = fetch_watchlist_tree(watchlist.id)
-        parsed = parse_watchlist_rows(cursor)[0]
+        rows = [
+            WatchlistRow(
+                watchlist_id=i[0],
+                stock_id=i[1],
+                item_type=i[2],
+                watchlist_name=i[3],
+                watchlist_description=i[4],
+                target_id=i[5],
+                price=i[6],
+                size=i[7],
+                at_cost=i[8],
+                target_description=i[9],
+            )
+            for i in cursor
+        ]
+        parsed = parse_watchlist_rows(rows)[0]
 
         return Response(StockWatchlistDetailsSerializer(parsed).data)
 
@@ -148,6 +164,9 @@ class TargetPriceView(APIView):
             StockWatchlistItem, watchlist=watchlist_id, stock=ticker
         )
 
+        if watchlist_item.watchlist.owner != request.user:
+            raise PermissionDenied("User is not the owner of the watchlist.")
+
         LOGGER.debug("Creating the target price entity.")
         target_price = TargetPrice()
 
@@ -215,6 +234,9 @@ class PositionSizeView(APIView):
         watchlist_item = get_object_or_404(
             StockWatchlistItem, watchlist=watchlist_id, stock=ticker
         )
+
+        if watchlist_item.watchlist.owner != request.user:
+            raise PermissionDenied("User is not the owner of the watchlist.")
 
         LOGGER.debug("Creating the position size entity.")
         position_size = PositionSize()

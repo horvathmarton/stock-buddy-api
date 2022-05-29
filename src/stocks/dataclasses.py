@@ -16,9 +16,9 @@ class WatchlistRow:
     watchlist_name: str
     watchlist_description: Optional[str]
     target_id: int
-    price: float
-    size: float
-    at_cost: bool
+    price: Optional[float]
+    size: Optional[float]
+    at_cost: Optional[bool]
     target_description: Optional[str]
 
 
