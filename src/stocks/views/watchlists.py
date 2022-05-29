@@ -66,7 +66,7 @@ class StockWatchlistManagementView(APIView):
     def post(self, request: Request, pk: int, ticker: str) -> Response:
         """Adds a new monitored stock to a watchlist if not already on the list."""
 
-        LOGGER.info(f"Adding {ticker} to watchlist {pk}.")
+        LOGGER.info("Adding %s to watchlist %s.", ticker, pk)
 
         LOGGER.debug("Looking up watchlist and stock.")
         watchlist = get_object_or_404(StockWatchlist, pk=pk)
@@ -95,7 +95,7 @@ class StockWatchlistManagementView(APIView):
     def delete(self, request: Request, pk: int, ticker: str) -> Response:
         """Removes a monitored stock from a watchlist."""
 
-        LOGGER.info(f"Removing {ticker} from watchlist {pk}.")
+        LOGGER.info("Removing %s from watchlist %s.", ticker, pk)
 
         LOGGER.debug("Looking up watchlist and stock.")
         watchlist = get_object_or_404(StockWatchlist, pk=pk)
@@ -136,7 +136,9 @@ class TargetPriceView(APIView):
     def post(self, request: Request, watchlist_id: int, ticker: str) -> Response:
         """Attach a new target price to a monitored stock."""
 
-        LOGGER.info(f"Adding a new target target price to {ticker} on {watchlist_id}.")
+        LOGGER.info(
+            "Adding a new target target price to %s on %s.", ticker, watchlist_id
+        )
 
         serializer = TargetPriceSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -169,7 +171,7 @@ class TargetPriceDetailsView(APIView):
     ) -> Response:
         """Removes a target price from a monitored stock."""
 
-        LOGGER.info(f"Removing target target price from {ticker} on {watchlist_id}.")
+        LOGGER.info("Removing target target price from %s on %s.", ticker, watchlist_id)
 
         LOGGER.debug("Looking up watchlist item.")
         target_price = get_object_or_404(TargetPrice, pk=pk)
@@ -200,7 +202,11 @@ class PositionSizeView(APIView):
     def post(self, request: Request, watchlist_id: int, ticker: str) -> Response:
         """Attaches a new position size target to a monitored stock."""
 
-        LOGGER.info(f"Adding a new target position size to {ticker} on {watchlist_id}.")
+        LOGGER.info(
+            "Adding a new target position size to %s on %s.",
+            ticker,
+            watchlist_id,
+        )
 
         serializer = PositionSizeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -234,7 +240,9 @@ class PositionSizeDetailsView(APIView):
     ) -> Response:
         """Removes a position size target from a monitored stock."""
 
-        LOGGER.info(f"Removing target position size from {ticker} on {watchlist_id}.")
+        LOGGER.info(
+            "Removing target position size from %s on %s.", ticker, watchlist_id
+        )
 
         LOGGER.debug("Looking up watchlist item.")
         position_size = get_object_or_404(PositionSize, pk=pk)
