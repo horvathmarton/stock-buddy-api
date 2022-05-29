@@ -10,3 +10,11 @@ class DateBound(Protocol):
     # pylint: disable=too-few-public-methods
 
     date: date
+
+
+class Identifiable(Protocol):
+    """Represents an entity that has an id field."""
+
+    # pylint: disable=too-few-public-methods
+
+    id: int

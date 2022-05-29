@@ -462,7 +462,6 @@ class TestStockWatchlistDetail(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data["owner"], self.USERS.owner.username)
         self.assertEqual(response.data["name"], "Example portfolio")
 
     def test_fetch_non_existent_portfolio(self):

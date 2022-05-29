@@ -61,3 +61,75 @@ def sum_cash_transactions(portfolios: list[StockPortfolio], snapshot_date: date)
     )
 
     return cursor.fetchone()
+
+
+def fetch_watchlist_tree(watchlist_id: int):
+    """
+    Calculate a full details tree for a watchlist containing each child.
+
+    Watchlist
+    -> Items
+        -> Target prices
+        -> Position sizes
+    """
+
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        SELECT
+            watchlist.id,
+            items.stock_id,
+            items.type,
+            watchlist.name,
+            watchlist.description,
+            items.target_id,
+            items.price,
+            items.size,
+            items.at_cost,
+            items.description
+        FROM
+            stocks.stock_watchlist AS watchlist
+            LEFT JOIN (
+                SELECT
+                    items.stock_id,
+                    items.watchlist_id,
+                    targets.id AS target_id,
+                    targets.price AS price,
+                    targets.size AS size,
+                    targets.at_cost AS at_cost,
+                    targets.description AS description,
+                    targets.type AS type
+                FROM
+                    stocks.stock_watchlist_item AS items
+                    LEFT JOIN (
+                        SELECT
+                            id,
+                            price,
+                            NULL AS size,
+                            NULL AS at_cost,
+                            description,
+                            watchlist_item_id,
+                            'target_price' AS type
+                        FROM
+                            stocks.target_price
+                    UNION
+                    SELECT
+                        id,
+                        NULL,
+                        size,
+                        at_cost,
+                        description,
+                        watchlist_item_id,
+                        'position_size' AS type
+                    FROM
+                        stocks.position_size) AS targets ON targets.watchlist_item_id = items.id) AS items
+                        ON items.watchlist_id = watchlist.id
+        WHERE
+            watchlist.id = %(watchlist_id)s
+        ORDER BY watchlist.id ASC, items.stock_id ASC, items.type ASC;
+    """,
+        params={"watchlist_id": watchlist_id},
+    )
+
+    return cursor

@@ -1,11 +1,21 @@
 """Serializers for the stocks payloads."""
 
-from rest_framework import serializers
+from rest_framework.serializers import (
+    BooleanField,
+    CharField,
+    DateField,
+    DictField,
+    FloatField,
+    IntegerField,
+    ModelSerializer,
+    ReadOnlyField,
+    Serializer,
+)
 
 from .models import Stock, StockPortfolio, StockWatchlist
 
 
-class StockSerializer(serializers.ModelSerializer):
+class StockSerializer(ModelSerializer):
     """Serializer of the stock model."""
 
     class Meta:
@@ -13,66 +23,110 @@ class StockSerializer(serializers.ModelSerializer):
         fields = ("ticker", "name", "description", "sector")
 
 
-class StockPortfolioSerializer(serializers.ModelSerializer):
+class StockPortfolioSerializer(ModelSerializer):
     """Serializer of the stock portfolio model."""
 
-    owner = serializers.ReadOnlyField(source="owner.username")
+    owner = ReadOnlyField(source="owner.username")
 
     class Meta:
         model = StockPortfolio
         fields = ("id", "name", "description", "owner")
 
 
-class StockWatchlistSerializer(serializers.ModelSerializer):
+class StockWatchlistSerializer(ModelSerializer):
     """Serializer of the stock watchlist model."""
 
-    owner = serializers.ReadOnlyField(source="owner.username")
+    owner = ReadOnlyField(source="owner.username")
 
     class Meta:
         model = StockWatchlist
         fields = ("id", "name", "description", "owner")
 
 
-class StockPositionSnapshotSerializer(serializers.Serializer):
+class StockPositionSnapshotSerializer(Serializer):
     """Serializer of the stock position snapshot payload."""
 
     # pylint: disable=abstract-method
 
-    ticker = serializers.ReadOnlyField(source="stock.ticker")
-    name = serializers.ReadOnlyField(source="stock.name")
-    sector = serializers.ReadOnlyField(source="stock.sector")
-    price = serializers.FloatField()
-    shares = serializers.IntegerField()
-    dividend = serializers.FloatField()
-    purchase_price = serializers.FloatField()
-    first_purchase_date = serializers.DateField()
-    latest_purchase_date = serializers.DateField()
+    ticker = ReadOnlyField(source="stock.ticker")
+    name = ReadOnlyField(source="stock.name")
+    sector = ReadOnlyField(source="stock.sector")
+    price = FloatField()
+    shares = IntegerField()
+    dividend = FloatField()
+    purchase_price = FloatField()
+    first_purchase_date = DateField()
+    latest_purchase_date = DateField()
 
-    size = serializers.FloatField()
-    size_at_cost = serializers.FloatField()
-    dividend_yield = serializers.FloatField()
-    dividend_yield_on_cost = serializers.FloatField()
-    dividend_income = serializers.FloatField()
-    pnl_percentage = serializers.FloatField()
-    pnl = serializers.FloatField()
+    size = FloatField()
+    size_at_cost = FloatField()
+    dividend_yield = FloatField()
+    dividend_yield_on_cost = FloatField()
+    dividend_income = FloatField()
+    pnl_percentage = FloatField()
+    pnl = FloatField()
 
 
-class StockPortfolioSnapshotSerializer(serializers.Serializer):
+class StockPortfolioSnapshotSerializer(Serializer):
     """Serializer of the stock portfolio snapshot payload."""
 
     # pylint: disable=abstract-method
 
-    positions = serializers.DictField(child=StockPositionSnapshotSerializer())
-    sector_distribution = serializers.DictField(child=serializers.FloatField())
-    size_distribution = serializers.DictField(child=serializers.FloatField())
-    size_at_cost_distribution = serializers.DictField(child=serializers.FloatField())
-    dividend_distribution = serializers.DictField(child=serializers.FloatField())
-    annualized_pnls = serializers.DictField(child=serializers.FloatField())
+    positions = DictField(child=StockPositionSnapshotSerializer())
+    sector_distribution = DictField(child=FloatField())
+    size_distribution = DictField(child=FloatField())
+    size_at_cost_distribution = DictField(child=FloatField())
+    dividend_distribution = DictField(child=FloatField())
+    annualized_pnls = DictField(child=FloatField())
 
-    assets_under_management = serializers.FloatField()
-    capital_invested = serializers.FloatField()
-    dividend = serializers.FloatField()
-    dividend_yield = serializers.FloatField()
-    number_of_positions = serializers.IntegerField()
+    assets_under_management = FloatField()
+    capital_invested = FloatField()
+    dividend = FloatField()
+    dividend_yield = FloatField()
+    number_of_positions = IntegerField()
 
-    owner = serializers.ReadOnlyField(source="owner.username")
+    owner = ReadOnlyField(source="owner.username")
+
+
+class TargetPriceSerializer(Serializer):
+    """Serializer of the target price payload."""
+
+    # pylint: disable=abstract-method
+
+    id = IntegerField(read_only=True)
+
+    price = FloatField()
+    description = CharField(required=False)
+
+
+class PositionSizeSerializer(Serializer):
+    """Serializer of the position size payload."""
+
+    # pylint: disable=abstract-method
+
+    id = IntegerField(read_only=True)
+
+    size = FloatField()
+    at_cost = BooleanField(required=False)
+    description = CharField(required=False)
+
+
+class StockWatchlistItemSerializer(Serializer):
+    """Serializer of the stock watchlist item payload."""
+
+    # pylint: disable=abstract-method
+
+    ticker = CharField()
+    target_prices = TargetPriceSerializer(many=True)
+    position_sizes = PositionSizeSerializer(many=True)
+
+
+class StockWatchlistDetailsSerializer(Serializer):
+    """Serializer of the watchlist details tree payload."""
+
+    # pylint: disable=abstract-method
+
+    id = IntegerField()
+    name = CharField()
+    description = CharField(required=False)
+    items = StockWatchlistItemSerializer(many=True)
