@@ -5,7 +5,7 @@ from typing import cast
 
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
+from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -114,9 +114,6 @@ class StockWatchlistManagementView(APIView):
 
         serializer = StockWatchlistItemSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        if ticker != serializer.validated_data.get("ticker"):
-            raise ValidationError("Ticker in the URL and payload doesn't match.")
 
         LOGGER.debug("Looking up watchlist and stock.")
         watchlist = get_object_or_404(StockWatchlist, pk=pk)

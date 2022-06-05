@@ -116,7 +116,8 @@ class StockWatchlistItemSerializer(Serializer):
 
     # pylint: disable=abstract-method
 
-    ticker = CharField()
+    ticker = CharField(read_only=True)
+
     target_prices = TargetPriceSerializer(many=True)
     position_sizes = PositionSizeSerializer(many=True)
 
