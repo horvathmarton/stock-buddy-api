@@ -20,7 +20,7 @@ class TestParseWatchlistRows(TestCase):
                 item_type="position_size",
                 price=None,
                 watchlist_description=None,
-                target_description=None,
+                target_name="first target",
             ),
             WatchlistRow(
                 watchlist_id=1,
@@ -32,7 +32,7 @@ class TestParseWatchlistRows(TestCase):
                 item_type="position_size",
                 price=None,
                 watchlist_description=None,
-                target_description=None,
+                target_name="second target",
             ),
             WatchlistRow(
                 watchlist_id=1,
@@ -44,7 +44,7 @@ class TestParseWatchlistRows(TestCase):
                 item_type="target_price",
                 price=42.1,
                 watchlist_description=None,
-                target_description=None,
+                target_name="third target",
             ),
             WatchlistRow(
                 watchlist_id=1,
@@ -56,7 +56,7 @@ class TestParseWatchlistRows(TestCase):
                 item_type="target_price",
                 price=1200.1,
                 watchlist_description=None,
-                target_description=None,
+                target_name="fourth target",
             ),
         ]
 

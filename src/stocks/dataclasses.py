@@ -16,27 +16,27 @@ class WatchlistRow:
     watchlist_name: str
     watchlist_description: Optional[str]
     target_id: int
+    target_name: str
     price: Optional[float]
     size: Optional[float]
     at_cost: Optional[bool]
-    target_description: Optional[str]
 
 
 @dataclass
 class TargetPrice:
     """Represents a target price item in the app."""
 
+    name: str
     price: float
-    description: Optional[str]
 
 
 @dataclass
 class PositionSize:
     """Represents a position size item in the app."""
 
+    name: str
     size: float
     at_cost: bool
-    description: Optional[str]
 
 
 @dataclass

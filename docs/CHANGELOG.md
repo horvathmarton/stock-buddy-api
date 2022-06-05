@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Password change endpoint.
 - Version information endpoint.
+- Add performance and snapshot services.
+- Stocks can be added and removed to/from watchlists.
+- Watchlist item target API.
 - Add cash percentage calculation to current strategy endpoint.
 
 ### Changed
