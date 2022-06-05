@@ -345,6 +345,96 @@ class TestStockWatchlistManagementCreate(TestCase):
         self.assertEqual(response.status_code, 403)
 
 
+class TestStockWatchlistManagementUpdate(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+    @classmethod
+    def setUpTestData(cls):
+        data = generate_test_data()
+        cls.USERS = data.USERS
+        cls.WATCHLISTS = data.WATCHLISTS
+        cls.STOCKS = data.STOCKS
+
+        cls.url = f"/stocks/watchlists/{cls.WATCHLISTS.main.id}/stocks/{cls.STOCKS.GOOGL.ticker}"
+        cls.token = generate_token(data.USERS.owner)
+        cls.payload = {
+            "target_prices": [
+                {"name": "first target", "price": 100},
+                {"name": "second target", "price": 200},
+            ],
+            "position_sizes": [
+                {"name": "first target", "size": 1_000},
+                {"name": "second target", "size": 2_000},
+                {"name": "third target", "size": 3_000},
+            ],
+        }
+
+    def test_cannot_access_unauthenticated(self):
+        response = self.client.post(self.url, self.payload, format="json")
+
+        self.assertEqual(response.status_code, 401)
+
+    def test_update_targets(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
+
+        response = self.client.put(self.url, self.payload, format="json")
+
+        self.assertEqual(response.status_code, 200)
+
+        watchlist = self.client.get(
+            f"/stocks/watchlists/{self.WATCHLISTS.main.id}"
+        ).data
+        google = next(
+            (
+                item
+                for item in watchlist["items"]
+                if item["ticker"] == self.STOCKS.GOOGL.ticker
+            )
+        )
+
+        self.assertEqual(len(google["target_prices"]), 2)
+        self.assertEqual(len(google["position_sizes"]), 3)
+
+    def test_target_update_overwrites_previous_targets(self):
+        """A target update should overwrite the existing list and not added to it."""
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
+
+        response = self.client.put(self.url, self.payload, format="json")
+
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.put(self.url, self.payload, format="json")
+
+        self.assertEqual(response.status_code, 200)
+
+        watchlist = self.client.get(
+            f"/stocks/watchlists/{self.WATCHLISTS.main.id}"
+        ).data
+        google = next(
+            (
+                item
+                for item in watchlist["items"]
+                if item["ticker"] == self.STOCKS.GOOGL.ticker
+            )
+        )
+
+        self.assertEqual(len(google["target_prices"]), 2)
+        self.assertEqual(len(google["position_sizes"]), 3)
+
+    def test_cannot_update_another_users_watchlist(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
+
+        response = self.client.put(
+            f"/stocks/watchlists/{self.WATCHLISTS.other_users.id}/stocks/{self.STOCKS.GOOGL.ticker}",
+            data=self.payload,
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+
 class TestStockWatchlistManagementDelete(TestCase):
     def setUp(self):
         self.client = APIClient()
