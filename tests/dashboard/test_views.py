@@ -103,6 +103,9 @@ class TestCurrentStrategy(TestCase):
         cls.url = "/dashboard/strategies/me"
         cls.token = generate_token(data.USERS.owner)
 
+        environ["USD_HUF_FX_RATE"] = "300.00"
+        environ["EUR_USD_FX_RATE"] = "1.1"
+
     def test_cannot_access_unauthenticated(self):
         response = self.client.get(self.url)
 
@@ -560,7 +563,6 @@ class TestPortfolioIndicators(TestCase):
         self.assertAlmostEqual(response.data["total_invested_capital"], 250)
         self.assertAlmostEqual(response.data["total_aum"], 370)
         self.assertAlmostEqual(response.data["total_floating_pnl"], 120)
-        self.assertEqual(round(response.data["gross_capital_deployed"], 4), 0.3640)
         self.assertEqual(round(response.data["roic_since_inception"], 4), 0.48)
         self.assertEqual(round(response.data["annualized_roic"], 4), 0.2166)
 
