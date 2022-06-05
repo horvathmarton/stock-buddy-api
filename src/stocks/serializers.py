@@ -95,8 +95,8 @@ class TargetPriceSerializer(Serializer):
 
     id = IntegerField(read_only=True)
 
+    name = CharField()
     price = FloatField()
-    description = CharField(required=False)
 
 
 class PositionSizeSerializer(Serializer):
@@ -106,9 +106,9 @@ class PositionSizeSerializer(Serializer):
 
     id = IntegerField(read_only=True)
 
+    name = CharField()
     size = FloatField()
     at_cost = BooleanField(required=False)
-    description = CharField(required=False)
 
 
 class StockWatchlistItemSerializer(Serializer):

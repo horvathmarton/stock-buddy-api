@@ -84,10 +84,10 @@ def fetch_watchlist_tree(watchlist_id: int):
             watchlist.name,
             watchlist.description,
             items.target_id,
+            items.name,
             items.price,
             items.size,
-            items.at_cost,
-            items.description
+            items.at_cost
         FROM
             stocks.stock_watchlist AS watchlist
             LEFT JOIN (
@@ -95,10 +95,10 @@ def fetch_watchlist_tree(watchlist_id: int):
                     items.stock_id,
                     items.watchlist_id,
                     targets.id AS target_id,
+                    targets.name AS name,
                     targets.price AS price,
                     targets.size AS size,
                     targets.at_cost AS at_cost,
-                    targets.description AS description,
                     targets.type AS type
                 FROM
                     stocks.stock_watchlist_item AS items
@@ -108,7 +108,7 @@ def fetch_watchlist_tree(watchlist_id: int):
                             price,
                             NULL AS size,
                             NULL AS at_cost,
-                            description,
+                            name,
                             watchlist_item_id,
                             'target_price' AS type
                         FROM
@@ -119,7 +119,7 @@ def fetch_watchlist_tree(watchlist_id: int):
                         NULL,
                         size,
                         at_cost,
-                        description,
+                        name,
                         watchlist_item_id,
                         'position_size' AS type
                     FROM

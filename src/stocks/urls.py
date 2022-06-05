@@ -3,13 +3,6 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from src.stocks.views.watchlists import (
-    PositionSizeDetailsView,
-    PositionSizeView,
-    TargetPriceDetailsView,
-    TargetPriceView,
-)
-
 from .views import (
     StockPortfolioViewSet,
     StockViewSet,
@@ -27,21 +20,5 @@ urlpatterns = [
     path(
         "watchlists/<int:pk>/stocks/<slug:ticker>",
         StockWatchlistManagementView.as_view(),
-    ),
-    path(
-        "watchlists/<int:watchlist_id>/stocks/<slug:ticker>/target-prices",
-        TargetPriceView.as_view(),
-    ),
-    path(
-        "watchlists/<int:watchlist_id>/stocks/<slug:ticker>/target-prices/<int:pk>",
-        TargetPriceDetailsView.as_view(),
-    ),
-    path(
-        "watchlists/<int:watchlist_id>/stocks/<slug:ticker>/position-sizes",
-        PositionSizeView.as_view(),
-    ),
-    path(
-        "watchlists/<int:watchlist_id>/stocks/<slug:ticker>/position-sizes/<int:pk>",
-        PositionSizeDetailsView.as_view(),
     ),
 ]

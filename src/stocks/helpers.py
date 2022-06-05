@@ -30,15 +30,15 @@ def parse_watchlist_rows(rows: list[WatchlistRow]) -> list[Watchlist]:
             item = WatchlistItem(
                 ticker=ticker,
                 target_prices=[
-                    TargetPrice(cast(float, target.price), target.target_description)
+                    TargetPrice(target.target_name, cast(float, target.price))
                     for target in targets
                     if target.item_type == "target_price"
                 ],
                 position_sizes=[
                     PositionSize(
+                        target.target_name,
                         cast(float, target.size),
                         cast(bool, target.at_cost),
-                        target.target_description,
                     )
                     for target in targets
                     if target.item_type == "position_size"

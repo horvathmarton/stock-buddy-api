@@ -96,8 +96,8 @@ class StockWatchlistItem(Model):
 class TargetPrice(Model):
     """Represents a set target price for a watchlist item."""
 
+    name: TextField = TextField()
     price: FloatField = FloatField()
-    description: TextField = TextField(null=True)
     watchlist_item: ForeignKey = ForeignKey(StockWatchlistItem, CASCADE)
 
     created_at: DateTimeField = DateTimeField(auto_now_add=True)
@@ -113,8 +113,8 @@ class TargetPrice(Model):
 class PositionSize(Model):
     """Represents a set position size limit for a watchlist item."""
 
+    name: TextField = TextField()
     size: FloatField = FloatField()
-    description: TextField = TextField(null=True)
     at_cost: BooleanField = BooleanField(default=True)
     watchlist_item: ForeignKey = ForeignKey(StockWatchlistItem, CASCADE)
 
