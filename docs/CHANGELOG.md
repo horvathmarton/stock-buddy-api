@@ -11,10 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Password change endpoint.
 - Version information endpoint.
+- Add cash percentage calculation to current strategy endpoint.
 
 ### Changed
 
 - Change authentication method from token auth to JWT auth.
+
+### Removed
+
+- Remove `gross_capital_deployed` from portfolio indicators.
 
 ## [1.1.0] - 2022-04-19
 

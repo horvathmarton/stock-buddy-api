@@ -59,9 +59,27 @@ class StrategyView(
         strategy = Strategy.objects.get(pk=strategies[0].strategy_id)
         serializer = self.get_serializer(strategy)
 
+        LOGGER.debug("Lookup stock portfolios for %s.", self.request.user)
+        user_portfolios = list(StockPortfolio.objects.filter(owner=self.request.user))
+        if not user_portfolios:
+            raise NotFound("The user has no stock portfolios.")
+
+        summary = get_portfolio_snapshot(user_portfolios, date.today())
+        balance = get_portfolio_cash_balance_snapshot(portfolios=user_portfolios)
+        balance_in_usd = balance_to_usd(balance)
+
+        aum = summary.assets_under_management
+        cash_percentage = balance_in_usd / aum if aum else 0
+        stocks_percentage = 1 - cash_percentage
+
         return Response(
             {
-                "current": {"items": [{"name": "stocks", "size": 1}]},
+                "current": {
+                    "items": [
+                        {"name": "stock", "size": stocks_percentage},
+                        {"name": "cash", "size": cash_percentage},
+                    ]
+                },
                 "target": serializer.data,
             }
         )
@@ -189,8 +207,6 @@ class PortfolioIndicatorView(APIView):
             self.request.user,
         )
         summary = get_portfolio_snapshot(user_portfolios, date.today())
-        balance = get_portfolio_cash_balance_snapshot(portfolios=user_portfolios)
-        balance_in_usd = balance_to_usd(balance)
         invested_capital = get_invested_capital_snapshot(portfolios=user_portfolios)
         capital = balance_to_usd(invested_capital)
 
@@ -221,9 +237,6 @@ class PortfolioIndicatorView(APIView):
                     sector for sector in summary.sector_distribution.values()
                 ),
                 "total_aum": aum,
-                "gross_capital_deployed": 1 - (balance_in_usd / capital)
-                if capital
-                else 0,
                 "total_invested_capital": capital,
                 "total_floating_pnl": pnl,
                 "roic_since_inception": roic,
