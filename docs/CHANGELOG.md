@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Remove `gross_capital_deployed` from portfolio indicators.
 
+### Fixed
+
+- Can fetch portfolio with a stock that has no price info.
+
 ## [1.1.0] - 2022-04-19
 
 ### Added

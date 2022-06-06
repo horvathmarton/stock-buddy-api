@@ -3,6 +3,7 @@
 from copy import deepcopy
 from datetime import date
 from logging import getLogger
+from typing import Optional
 
 from django.contrib.auth.models import User
 
@@ -128,16 +129,17 @@ def get_first_transaction(portfolios: list[StockPortfolio]):
     )
 
 
-def __get_latest_stock_price(ticker: Stock, snapshot_date: date) -> float:
+def __get_latest_stock_price(ticker: Stock, snapshot_date: date) -> Optional[float]:
     """Queries the latest stock price info for the stock."""
 
-    latest_price_date = (
-        StockPrice.objects.filter(ticker=ticker, date__lte=snapshot_date)
-        .latest("date")
-        .date
-    )
-
-    return StockPrice.objects.filter(ticker=ticker, date=latest_price_date)[0].value
+    try:
+        return (
+            StockPrice.objects.filter(ticker=ticker, date__lte=snapshot_date)
+            .latest("date")
+            .value
+        )
+    except StockPrice.DoesNotExist:
+        return None
 
 
 def __get_latest_dividend(ticker: Stock, snapshot_date: date) -> float:
@@ -162,7 +164,7 @@ def __get_latest_dividend(ticker: Stock, snapshot_date: date) -> float:
 
 def __create_position(
     transaction: StockTransaction,
-    latest_price: float,
+    latest_price: Optional[float],
     latest_dividend: float,
 ) -> StockPositionSnapshot:
     """Helper function to generate a new position entity."""
@@ -172,7 +174,7 @@ def __create_position(
     return StockPositionSnapshot(
         stock=transaction.ticker,
         shares=transaction.amount,
-        price=latest_price,
+        price=latest_price or transaction.price,
         dividend=latest_dividend * 4,
         purchase_price=transaction.price,
         first_purchase_date=transaction.date,
