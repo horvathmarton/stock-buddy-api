@@ -12,12 +12,13 @@ from src.lib.services.stocks import (
     get_portfolio_snapshot,
 )
 from src.raw_data.models import StockPrice, StockSplit
+from src.stocks.models import Stock
 from src.transactions.models import StockTransaction
 
 from ...seed import generate_test_data
 
 
-class TestGetPortfolioSnapshot(TestCase):
+class TestGetPortfolio(TestCase):
     """Returns the snapshot of the portfolio at a given time."""
 
     @classmethod
@@ -400,8 +401,33 @@ class TestGetPortfolioSnapshot(TestCase):
 
         self.assertEqual(snapshot_date, result.date)
 
+    def test_stock_with_no_price_data(self):
+        new_stock = Stock.objects.create(
+            ticker="NEW", name="new stock", sector="Consumer goods", active=True
+        )
 
-class TestGetPortfolioSnapshotSeries(TestCase):
+        transactions = [
+            StockTransaction(
+                ticker=new_stock,
+                amount=3,
+                price=10,
+                date=date(2021, 1, 1),
+                owner=self.USERS.owner,
+                portfolio=self.PORTFOLIOS.main,
+            )
+        ]
+
+        result = get_portfolio(
+            cast(list[StockTransaction | StockSplit], transactions),
+            [self.snapshot_date],
+            self.USERS.owner,
+        )
+
+        self.assertEqual(result[self.snapshot_date].number_of_positions, 1)
+        self.assertEqual(result[self.snapshot_date].positions["NEW"].price, 10)
+
+
+class TestGetPortfolioSnapshot(TestCase):
     """Returns a series of snapshots of the portfolio."""
 
     @classmethod
