@@ -3,6 +3,7 @@
 from datetime import date
 from logging import getLogger
 
+from django.db import transaction
 from django.shortcuts import get_list_or_404, get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
@@ -14,6 +15,7 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from ...lib.helpers import parse_date_query_param
 from ...lib.permissions import IsOwnerOrAdmin
 from ...lib.services.stocks import get_portfolio_snapshot
+from ...transactions.models import StockTransaction
 from ..models import Stock, StockPortfolio
 from ..serializers import (
     StockPortfolioSerializer,
@@ -109,6 +111,12 @@ class StockPortfolioViewSet(ModelViewSet):
 
         LOGGER.debug("Inserting a new stock portfolio for %s.", self.request.user)
         serializer.save(owner=self.request.user)
+
+    def perform_destroy(self, instance: StockPortfolio) -> None:
+        with transaction.atomic():
+            StockTransaction.objects.filter(portfolio=instance).delete()
+
+            instance.delete()
 
     def filter_queryset(self, queryset):
         is_admin = self.request.user.groups.filter(name="Admins").exists()

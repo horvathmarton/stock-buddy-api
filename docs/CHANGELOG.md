@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stocks can be added and removed to/from watchlists.
 - Watchlist item target API.
 - Add cash percentage calculation to current strategy endpoint.
+- Add pagination to listing endpoints.
 
 ### Changed
 
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Can fetch portfolio with a stock that has no price info.
+- Can delete stock portfolio with attached transactions.
 
 ## [1.1.0] - 2022-04-19
 

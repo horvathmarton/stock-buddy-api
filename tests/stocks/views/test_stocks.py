@@ -402,3 +402,19 @@ class TestStockPortfolioDelete(TestCase):
         response = self.client.delete(self.url)
 
         self.assertEqual(response.status_code, 204)
+
+    def test_delete_stock_portfolio_with_positions(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
+
+        StockTransaction.objects.create(
+            ticker=self.STOCKS.AAPL,
+            amount=10,
+            price=50,
+            date=date(2022, 1, 1),
+            owner=self.USERS.owner,
+            portfolio=self.PORTFOLIOS.main,
+        )
+
+        response = self.client.delete(self.url)
+
+        self.assertEqual(response.status_code, 204)
