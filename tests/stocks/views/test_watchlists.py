@@ -39,9 +39,10 @@ class TestStockWatchlistList(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), owned_watchlists_count)
+        self.assertEqual(len(response.data["results"]), owned_watchlists_count)
         self.assertNotIn(
-            other_users_watchlist.id, [watchlist["id"] for watchlist in response.data]
+            other_users_watchlist.id,
+            [watchlist["id"] for watchlist in response.data["results"]],
         )
 
 

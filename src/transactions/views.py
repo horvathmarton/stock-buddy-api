@@ -28,11 +28,6 @@ class CashTransactionViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
     def filter_queryset(self, queryset):
-        is_admin = self.request.user.groups.filter(name="Admins").exists()
-
-        if is_admin:
-            return queryset
-
         return queryset.filter(owner=self.request.user)
 
 
@@ -48,9 +43,6 @@ class ForexTransactionViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
     def filter_queryset(self, queryset):
-        if self.request.user.groups.filter(name="Admins").exists():
-            return queryset
-
         return queryset.filter(owner=self.request.user)
 
 
@@ -66,9 +58,4 @@ class StockTransactionViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
     def filter_queryset(self, queryset):
-        is_admin = self.request.user.groups.filter(name="Admins").exists()
-
-        if is_admin:
-            return queryset
-
         return queryset.filter(owner=self.request.user)
