@@ -36,7 +36,7 @@ class TestStockList(TestCase):
         stocks_count = len(Stock.objects.filter(active=True))
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), stocks_count)
+        self.assertEqual(len(response.data["results"]), stocks_count)
 
 
 class TestStockDetail(TestCase):
@@ -105,10 +105,11 @@ class TestStockPortfolioList(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), owned_portfolio_count)
+        self.assertEqual(len(response.data["results"]), owned_portfolio_count)
         # We can't see other user's portfolio when listing.
         self.assertNotIn(
-            other_users_portfolio.id, [portfolio["id"] for portfolio in response.data]
+            other_users_portfolio.id,
+            [portfolio["id"] for portfolio in response.data["results"]],
         )
 
 
@@ -368,6 +369,8 @@ class TestStockPortfolioDelete(TestCase):
     def setUpTestData(cls):
         data = generate_test_data()
         cls.PORTFOLIOS = data.PORTFOLIOS
+        cls.STOCKS = data.STOCKS
+        cls.USERS = data.USERS
 
         cls.url = f"/stocks/portfolios/{cls.PORTFOLIOS.main.id}"
         cls.token = generate_token(data.USERS.owner)
@@ -393,7 +396,7 @@ class TestStockPortfolioDelete(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
-    def test_update_stock_portfolio_name(self):
+    def test_delete_stock_portfolio(self):
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
 
         response = self.client.delete(self.url)

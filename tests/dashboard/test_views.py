@@ -44,7 +44,7 @@ class TestStrategyList(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), strategies_count)
+        self.assertEqual(len(response.data["results"]), strategies_count)
 
 
 class TestStrategyDetail(TestCase):

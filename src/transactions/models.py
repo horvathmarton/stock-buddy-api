@@ -30,7 +30,7 @@ class CashTransaction(Model):
 
     class Meta:
         db_table = '"transactions"."cash_transaction"'
-        ordering = ["date"]
+        ordering = ["-date"]
 
 
 class ForexTransaction(Model):
@@ -49,7 +49,7 @@ class ForexTransaction(Model):
 
     class Meta:
         db_table = '"transactions"."forex_transaction"'
-        ordering = ["date"]
+        ordering = ["-date"]
 
 
 class StockTransaction(Model):
@@ -68,4 +68,4 @@ class StockTransaction(Model):
 
     class Meta:
         db_table = '"transactions"."stock_transaction"'
-        ordering = ["date"]
+        ordering = ["-date"]
