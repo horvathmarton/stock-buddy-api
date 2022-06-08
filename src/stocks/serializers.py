@@ -1,5 +1,6 @@
 """Serializers for the stocks payloads."""
 
+from django.forms import DateTimeField
 from rest_framework.serializers import (
     BooleanField,
     CharField,
@@ -21,6 +22,19 @@ class StockSerializer(ModelSerializer):
     class Meta:
         model = Stock
         fields = ("ticker", "name", "description", "sector")
+
+
+class StockListItemSerializer(Serializer):
+    """Serializer of a list item in stock listing."""
+
+    # pylint: disable=abstract-method
+
+    ticker = CharField()
+    name = CharField()
+    sector = CharField()
+    price = FloatField()
+    date = DateField()
+    last_updated = DateTimeField()
 
 
 class StockPortfolioSerializer(ModelSerializer):

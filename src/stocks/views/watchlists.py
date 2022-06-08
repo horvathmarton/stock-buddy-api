@@ -11,11 +11,11 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from src.lib.protocols import Identifiable
-from src.stocks.dataclasses import WatchlistRow
 
 from ...lib.permissions import IsOwnerOrAdmin
+from ...lib.protocols import Identifiable
 from ...lib.queries import fetch_watchlist_tree
+from ..dataclasses import WatchlistRow
 from ..helpers import parse_watchlist_rows
 from ..models import (
     PositionSize,
@@ -67,9 +67,6 @@ class StockWatchlistViewSet(ModelViewSet):
         return Response(StockWatchlistDetailsSerializer(parsed).data)
 
     def filter_queryset(self, queryset):
-        if self.request.user.groups.filter(name="Admins").exists():
-            return queryset
-
         return queryset.filter(owner=self.request.user)
 
 

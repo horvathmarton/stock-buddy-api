@@ -172,11 +172,6 @@ class StrategyView(
         return Response(serializer.data)
 
     def filter_queryset(self, queryset):
-        is_admin = self.request.user.groups.filter(name="Admins").exists()
-
-        if is_admin:
-            return queryset
-
         return queryset.filter(
             Q(owner=self.request.user) | Q(visibility=Visibility.PUBLIC)
         )

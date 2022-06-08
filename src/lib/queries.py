@@ -133,3 +133,48 @@ def fetch_watchlist_tree(watchlist_id: int):
     )
 
     return cursor
+
+
+def list_latest_stock_prices():
+    """List all the active stocks with core information and the latest price info and date attached."""
+
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        SELECT
+            stock.ticker,
+            stock.name,
+            stock.sector,
+            price.date,
+            price.price,
+            price.created_at
+        FROM
+            stocks.stock AS stock
+            LEFT JOIN (
+                SELECT
+                    ticker_id,
+                    date,
+                    price,
+                    created_at
+                FROM (
+                    SELECT
+                        ticker_id,
+                        date,
+                        value AS price,
+                        sync.created_at AS created_at,
+                        rank() OVER (PARTITION BY ticker_id ORDER BY date DESC, sync_id DESC) rank
+                    FROM raw_data.stock_price AS price
+                    INNER JOIN (
+                        SELECT
+                            *
+                        FROM
+                            raw_data.stock_price_sync) AS sync ON sync.id = price.sync_id) AS price
+                WHERE
+                    price.rank = 1) AS price ON price.ticker_id = stock.ticker
+        WHERE
+            active = TRUE;
+    """
+    )
+
+    return cursor
