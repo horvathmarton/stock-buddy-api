@@ -1,7 +1,20 @@
 """Dataclasses related to the stocks module."""
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Optional
+
+
+@dataclass
+class StockListItemRow:
+    """Represents a row from the latest stock prices query result."""
+
+    ticker: str
+    name: str
+    sector: str
+    date: str
+    price: float
+    last_updated: datetime
 
 
 @dataclass

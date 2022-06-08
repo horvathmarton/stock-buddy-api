@@ -14,10 +14,13 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from ...lib.helpers import parse_date_query_param
 from ...lib.permissions import IsOwnerOrAdmin
+from ...lib.queries import list_latest_stock_prices
 from ...lib.services.stocks import get_portfolio_snapshot
 from ...transactions.models import StockTransaction
+from ..dataclasses import StockListItemRow
 from ..models import Stock, StockPortfolio
 from ..serializers import (
+    StockListItemSerializer,
     StockPortfolioSerializer,
     StockPortfolioSnapshotSerializer,
     StockSerializer,
@@ -31,6 +34,23 @@ class StockViewSet(ReadOnlyModelViewSet):
 
     queryset = Stock.objects.filter(active=True)
     serializer_class = StockSerializer
+
+    def list(self, request: Request, *args, **kwargs) -> Response:
+        prices = [
+            StockListItemRow(
+                ticker=row[0],
+                name=row[1],
+                sector=row[2],
+                date=row[3],
+                price=row[4],
+                last_updated=row[5],
+            )
+            for row in list_latest_stock_prices()
+        ]
+
+        serializer = StockListItemSerializer(prices, many=True)
+
+        return Response({"results": serializer.data})
 
 
 class StockPortfolioViewSet(ModelViewSet):
@@ -119,9 +139,4 @@ class StockPortfolioViewSet(ModelViewSet):
             instance.delete()
 
     def filter_queryset(self, queryset):
-        is_admin = self.request.user.groups.filter(name="Admins").exists()
-
-        if is_admin:
-            return queryset
-
         return queryset.filter(owner=self.request.user)

@@ -6,7 +6,7 @@ from typing import Optional
 from rest_framework.exceptions import ParseError
 from rest_framework.request import Request
 
-from src.lib.dataclasses import StockPortfolioSnapshot
+from .dataclasses import StockPortfolioSnapshot
 
 
 def parse_date_query_param(
