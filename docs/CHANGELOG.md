@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Change authentication method from token auth to JWT auth.
+- Send latest price information instead of description in stock listing endpoint.
 
 ### Removed
 
