@@ -1,7 +1,7 @@
 """Unit tests for the stocks module related helper functions."""
 
 from django.test import TestCase
-from src.stocks.dataclasses import WatchlistRow
+from src.stocks.dataclasses import Watchlist, WatchlistRow
 
 from src.stocks.helpers import parse_watchlist_rows
 
@@ -77,3 +77,24 @@ class TestParseWatchlistRows(TestCase):
 
         self.assertEqual(len(googl.position_sizes), 2)
         self.assertEqual(len(googl.target_prices), 1)
+
+    def test_empty_watchlist(self):
+        empty = [
+            WatchlistRow(
+                watchlist_id=1,
+                watchlist_name="Watchlist name",
+                stock_id=None,
+                target_id=None,
+                size=None,
+                at_cost=None,
+                item_type=None,
+                price=None,
+                watchlist_description=None,
+                target_name=None,
+            )
+        ]
+
+        self.assertEqual(
+            parse_watchlist_rows(empty)[0],
+            Watchlist(id=1, name="Watchlist name", description=None, items=[]),
+        )
