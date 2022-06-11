@@ -24,12 +24,12 @@ class WatchlistRow:
     # pylint: disable=too-many-instance-attributes
 
     watchlist_id: int
-    stock_id: str
-    item_type: str
     watchlist_name: str
+    stock_id: Optional[str]
+    item_type: Optional[str]
     watchlist_description: Optional[str]
-    target_id: int
-    target_name: str
+    target_id: Optional[int]
+    target_name: Optional[str]
     price: Optional[float]
     size: Optional[float]
     at_cost: Optional[bool]
