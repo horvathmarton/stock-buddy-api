@@ -29,7 +29,7 @@ class StrategySerializer(ModelSerializer):
         """Custom check to make sure that the items contained by the strategy adds up to 100%."""
 
         LOGGER.debug("Validate strategy items if they add up to 100%.")
-        items_sum = sum([item["size"] for item in attrs["strategyitem_set"]])
+        items_sum = sum((item["size"] for item in attrs["strategyitem_set"]))
         if items_sum != 1:
             raise ValidationError("The sum of item sizes must be exactly 100%.")
 
