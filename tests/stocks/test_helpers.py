@@ -2,7 +2,6 @@
 
 from django.test import TestCase
 from src.stocks.dataclasses import Watchlist, WatchlistRow
-
 from src.stocks.helpers import parse_watchlist_rows
 
 

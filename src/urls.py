@@ -30,6 +30,7 @@ urlpatterns = [
     path("transactions/", include("src.transactions.urls")),
     path("dashboard/", include("src.dashboard.urls")),
     path("cash/", include("src.cash.urls")),
+    path("performance/", include("src.performance.urls")),
 ]
 
 if os.getenv("DEBUG_MODE") == "true":

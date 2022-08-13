@@ -1,12 +1,13 @@
 """General helper functions for the app."""
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Optional
 
+from dateutil import parser
 from rest_framework.exceptions import ParseError
 from rest_framework.request import Request
 
-from .dataclasses import StockPortfolioSnapshot
+from .dataclasses import Interval, StockPortfolioSnapshot
 
 
 def parse_date_query_param(
@@ -47,3 +48,22 @@ def get_latest_snapshot(
     )
 
     return sorted_snapshots[0][1] if sorted_snapshots else None
+
+
+def get_range(request: Request) -> Interval:
+    """Parses the range query params or add fallback to an interval."""
+
+    from_param = request.query_params.get("from")
+    to_param = request.query_params.get("to")
+
+    start_date = (
+        parser.parse(from_param).date()
+        if from_param
+        else datetime.today().date() - timedelta(days=365)
+    )
+    end_date = parser.parse(to_param).date() if to_param else datetime.today().date()
+
+    return Interval(
+        start_date=start_date,
+        end_date=end_date,
+    )

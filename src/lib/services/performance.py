@@ -1,13 +1,17 @@
 """Service functions for performance related operations"""
 
-from datetime import date
+from datetime import date, datetime
 from logging import getLogger
 from math import prod
 from typing import cast
 
 from ...raw_data.models import StockDividend, StockPrice
 from ...transactions.models import CashTransaction, StockTransaction
-from ..dataclasses import PerformanceSnapshot, StockPortfolioSnapshot
+from ..dataclasses import (
+    PerformanceSnapshot,
+    StockPortfolioSnapshot,
+    StockPositionSnapshot,
+)
 from ..helpers import get_latest_snapshot
 from .cash import transaction_to_usd
 from .replay import generate_snapshot_series
@@ -39,7 +43,17 @@ def get_position_performance(
     )
     first_snapshot_date = series[0]
     first_snapshot = portfolio_snapshots[first_snapshot_date]
-    initial_position = first_snapshot.positions[actions[0].ticker.ticker]
+    initial_position = first_snapshot.positions.get(
+        actions[0].ticker.ticker
+    ) or StockPositionSnapshot(
+        stock=actions[0].ticker,
+        shares=0,
+        price=0,
+        dividend=0,
+        purchase_price=0,
+        first_purchase_date=datetime.now().date(),
+        latest_purchase_date=datetime.now().date(),
+    )
 
     def accumulate(
         snapshot: PerformanceSnapshot,
@@ -50,7 +64,7 @@ def get_position_performance(
         if not portfolio:
             return snapshot
 
-        position = portfolio.positions[action.ticker.ticker]
+        position = portfolio.positions.get(action.ticker.ticker)
 
         if not position:
             return snapshot
@@ -135,31 +149,6 @@ def get_portfolio_performance(
         snapshot: PerformanceSnapshot,
         action: StockPortfolioSnapshot | StockDividend | CashTransaction,
     ) -> PerformanceSnapshot:
-        portfolio = get_latest_snapshot(cast(date, action.date), portfolio_snapshots)
-
-        if not portfolio:
-            return snapshot
-
-        if isinstance(action, StockPortfolioSnapshot):
-            return PerformanceSnapshot(
-                date=snapshot.date,
-                base_size=snapshot.base_size,
-                appreciation=portfolio.assets_under_management - snapshot.base_size,
-                dividends=snapshot.dividends,
-                cash_flow=snapshot.cash_flow,
-            )
-
-        if isinstance(action, StockDividend):
-            position = portfolio.positions[action.ticker.ticker]
-
-            return PerformanceSnapshot(
-                date=snapshot.date,
-                base_size=snapshot.base_size,
-                appreciation=snapshot.appreciation,
-                dividends=snapshot.dividends + action.amount * position.shares,
-                cash_flow=snapshot.cash_flow,
-            )
-
         if isinstance(action, CashTransaction):
             currency_adjusted_action = transaction_to_usd(action)
 
@@ -169,6 +158,36 @@ def get_portfolio_performance(
                 appreciation=snapshot.appreciation,
                 dividends=snapshot.dividends,
                 cash_flow=snapshot.cash_flow + currency_adjusted_action.amount,
+            )
+
+        if isinstance(action, StockPortfolioSnapshot):
+            return PerformanceSnapshot(
+                date=snapshot.date,
+                base_size=snapshot.base_size,
+                appreciation=action.assets_under_management - snapshot.base_size,
+                dividends=snapshot.dividends,
+                cash_flow=snapshot.cash_flow,
+            )
+
+        if isinstance(action, StockDividend):
+            portfolio = get_latest_snapshot(
+                cast(date, action.date), portfolio_snapshots
+            )
+
+            if not portfolio:
+                return snapshot
+
+            position = portfolio.positions.get(action.ticker.ticker)
+
+            if not position:
+                return snapshot
+
+            return PerformanceSnapshot(
+                date=snapshot.date,
+                base_size=snapshot.base_size,
+                appreciation=snapshot.appreciation,
+                dividends=snapshot.dividends + action.amount * position.shares,
+                cash_flow=snapshot.cash_flow,
             )
 
         raise Exception("Unknown action type.")

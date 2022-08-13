@@ -29,7 +29,8 @@ def generate_snapshot_series(
     for action in actions:
         # Take a snapshot if the next action would not affect the next snapshot date.
         while series and cast(DateBound, action).date > series[0]:
-            snapshot_date = series.pop()
+            snapshot_date = series[0]
+            series = series[1:]
             snapshot_series[snapshot_date] = take_snapshot(current_state, snapshot_date)
 
         current_state = operation(current_state, action)
