@@ -17,7 +17,7 @@ class TestGetResolution(TestCase):
     def test_interval_generation(self):
         interval = Interval(start_date=date(2022, 1, 1), end_date=date(2022, 2, 5))
 
-        self.assertEqual(get_resolution(interval), Resolution.MONTH)
+        self.assertEqual(get_resolution(interval), Resolution.WEEK)
 
     def test_inverse_interval(self):
         interval = Interval(start_date=date(2022, 2, 1), end_date=date(2022, 1, 1))

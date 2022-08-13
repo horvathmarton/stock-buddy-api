@@ -14,13 +14,13 @@ def get_resolution(interval: Interval) -> Resolution:
 
     elapsed_days = (interval.end_date - interval.start_date).days
 
-    if elapsed_days < 7:
-        return Resolution.DAY
     if elapsed_days < 30:
-        return Resolution.WEEK
+        return Resolution.DAY
     if elapsed_days < 90:
-        return Resolution.MONTH
+        return Resolution.WEEK
     if elapsed_days < 365:
+        return Resolution.MONTH
+    if elapsed_days < 365 * 3:
         return Resolution.QUARTER
 
     return Resolution.YEAR

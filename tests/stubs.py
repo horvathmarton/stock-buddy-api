@@ -1,6 +1,8 @@
 """Stubs for testing."""
 
 from datetime import date
+from typing import Any
+
 from django.contrib.auth.models import User
 
 
@@ -15,12 +17,14 @@ class RequestStub:
         user: User = None,
         content_type: str = "application/json",
         authorization: str = "",
+        query_params: dict[str, Any] = None,
     ):
         # pylint: disable=missing-function-docstring, invalid-name
 
         self.user = user
         self.content_type = content_type
         self.META = {"HTTP_AUTHORIZATION": authorization}
+        self.query_params = query_params or {}
 
 
 class UserStub:

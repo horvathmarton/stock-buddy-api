@@ -301,7 +301,7 @@ class PerformanceSnapshot:
     def capital_size(self) -> float:
         """Current size of the position or portfolio at the snapshot date."""
 
-        return self.base_size + self.appreciation
+        return self.base_size + self.appreciation + self.cash_flow
 
     @property
     def total(self) -> float:

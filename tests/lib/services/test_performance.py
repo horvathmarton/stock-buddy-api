@@ -192,7 +192,9 @@ class TestGetPortfolioPerformance(TestCase):
 
         self.assertEqual(
             result[self.snapshot_date],
-            PerformanceSnapshot(date=self.snapshot_date, base_size=200),
+            PerformanceSnapshot(
+                date=self.snapshot_date, base_size=200, cash_flow=6.666666666666666
+            ),
         )
 
     def test_no_transactions(self):
@@ -220,7 +222,12 @@ class TestGetPortfolioPerformance(TestCase):
 
         self.assertEqual(
             result[self.snapshot_date],
-            PerformanceSnapshot(date=self.snapshot_date, base_size=200, dividends=20),
+            PerformanceSnapshot(
+                date=self.snapshot_date,
+                base_size=200,
+                dividends=20,
+                cash_flow=6.666666666666666,
+            ),
         )
 
 
