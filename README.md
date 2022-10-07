@@ -12,3 +12,4 @@ getting started:
 - start it with: python manage.py runserver 
 
 or by starting `docker-compose build && docker-compose up`
+
